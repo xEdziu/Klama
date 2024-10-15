@@ -36,3 +36,6 @@ build/
 mvnw
 mvnw.cmd
 maven-wrapper.properties
+
+### Application properties ###
+*.properties
