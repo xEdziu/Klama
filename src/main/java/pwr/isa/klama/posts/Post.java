@@ -1,8 +1,22 @@
 package pwr.isa.klama.posts;
 
+import jakarta.persistence.*;
+
 import java.sql.Timestamp;
 
+@Entity
+@Table
 public class Post {
+    @Id
+    @SequenceGenerator(
+            name = "post_sequence",
+            sequenceName = "post_sequence",
+            allocationSize = 1
+    )
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "post_sequence"
+    )
     private Long id;
     private String title;
     private String content;

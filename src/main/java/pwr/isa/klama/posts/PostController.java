@@ -20,6 +20,6 @@ public class PostController {
 
         @GetMapping
         public List<Post> getPosts() {
-            return postService.getPosts();
+            return postService.getAllPosts();
         }
 }
