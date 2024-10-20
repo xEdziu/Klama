@@ -1,7 +1,8 @@
-package pwr.isa.klama.register;
+package pwr.isa.klama.auth.registration;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import pwr.isa.klama.auth.EmailValidator;
 import pwr.isa.klama.user.User;
 import pwr.isa.klama.user.UserRole;
 import pwr.isa.klama.user.UserService;

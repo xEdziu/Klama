@@ -1,4 +1,4 @@
-package pwr.isa.klama.register;
+package pwr.isa.klama.auth.registration;
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;

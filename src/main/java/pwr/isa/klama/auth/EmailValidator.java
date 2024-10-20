@@ -1,4 +1,4 @@
-package pwr.isa.klama.register;
+package pwr.isa.klama.auth;
 
 import org.springframework.stereotype.Service;
 
