@@ -32,35 +32,32 @@ public class User implements UserDetails {
     )
     private Long id;
     private String username;
-    private String name;
+    @Getter
+    private String firstName;
     private String surname;
     private String email;
     private String password;
     @Enumerated(EnumType.STRING)
     private UserRole role;
-    private Boolean locked;
-    private Boolean enabled;
+    private Boolean locked = false;
+    private Boolean enabled = false;
     private Timestamp createdAt;
     private Timestamp lastLogin;
 
     public User(String username,
-                String name,
+                String firstName,
                 String surname,
                 String email,
                 String password,
                 UserRole role,
-                Boolean locked,
-                Boolean enabled,
                 Timestamp createdAt,
                 Timestamp lastLogin) {
         this.username = username;
-        this.name = name;
+        this.firstName = firstName;
         this.surname = surname;
         this.email = email;
         this.password = password;
         this.role = role;
-        this.locked = locked;
-        this.enabled = enabled;
         this.createdAt = createdAt;
         this.lastLogin = lastLogin;
     }
@@ -115,5 +112,21 @@ public class User implements UserDetails {
     @Override
     public final int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
+
+    @Override
+    public final String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", surname='" + surname + '\'' +
+                ", email='" + email + '\'' +
+                ", role=" + role +
+                ", locked=" + locked +
+                ", enabled=" + enabled +
+                ", createdAt=" + createdAt +
+                ", lastLogin=" + lastLogin +
+                '}';
     }
 }
