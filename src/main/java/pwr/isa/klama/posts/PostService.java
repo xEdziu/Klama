@@ -24,6 +24,14 @@ public class PostService {
         return postRepository.findAll();
     }
 
+    public Optional<Post> getPostById(Long postId)
+    {
+        if (!postRepository.existsById(postId)) {
+            throw new IllegalStateException("Post with id " + postId + " does not exist");
+        }
+        return postRepository.findById(postId);
+    }
+
     public void addPost(Post post) {
         post.setCreatedAt(new Timestamp(new Date().getTime()));
         post.setUpdatedAt(new Timestamp(new Date().getTime()));
