@@ -13,7 +13,7 @@ public class RegisterController {
 
     private RegisterService registerService;
 
-    @PostMapping
+    @PostMapping(path="/signup")
     public String register(@RequestBody RegisterRequest request){
         return registerService.register(request);
     }

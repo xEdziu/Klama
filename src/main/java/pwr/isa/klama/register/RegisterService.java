@@ -29,7 +29,7 @@ public class RegisterService {
                         request.getPassword(),
                         UserRole.USER,
                         new Timestamp(new Date().getTime()),
-                        new Timestamp(new Date().getTime())
+                        null
                 )
         );
     }

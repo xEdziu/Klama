@@ -32,7 +32,6 @@ public class User implements UserDetails {
     )
     private Long id;
     private String username;
-    @Getter
     private String firstName;
     private String surname;
     private String email;
