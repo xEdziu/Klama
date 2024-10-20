@@ -12,8 +12,8 @@ import java.util.List;
 public class CustomExceptionHandler {
 
     @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<Object> handleIllegalStateException(IllegalStateException ex, WebRequest request) {
-        List<String> errors = List.of(ex.getMessage(), HttpStatus.BAD_REQUEST.toString());
+    public ResponseEntity<List<String>> handleIllegalStateException(IllegalStateException ex, WebRequest request) {
+        List<String> errors = List.of(ex.getMessage(), String.valueOf(HttpStatus.BAD_REQUEST.value()));
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
     // Add other exception handlers as needed
