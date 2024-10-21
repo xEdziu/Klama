@@ -28,6 +28,7 @@ public class WebSecurityConfig {
                         customizer
                                 .requestMatchers(HttpMethod.POST, "/api/v*/register/**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/v*/register/confirm**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/v*/rentalItem/**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/v*/post/**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/**").permitAll()
                                 .anyRequest()
