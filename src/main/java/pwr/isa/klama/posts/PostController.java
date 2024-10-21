@@ -2,8 +2,11 @@ package pwr.isa.klama.posts;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import pwr.isa.klama.exceptions.ResourceNotFoundException;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(path = "/api/v1/post")
@@ -17,27 +20,31 @@ public class PostController {
         }
 
         @GetMapping
-        public List<Post> getPosts() {
+        public List<PostDTO> getPosts() {
             return postService.getAllPosts();
         }
 
         @GetMapping(path = "/{postId}")
-        public Post getPost(@PathVariable("postId") Long postId) {
-            return postService.getPostById(postId).orElse(null);
+        public PostDTO getPost(@PathVariable("postId") Long postId) {
+            Optional<PostDTO> post = postService.getPostById(postId);
+            if (post.isEmpty()) {
+                throw new ResourceNotFoundException("Post o id " + postId + " nie istnieje");
+            }
+            return post.get();
         }
 
         @PostMapping(path = "/add")
-        public void addPost(@RequestBody Post post) {
-            postService.addPost(post);
+        public Map<String, Object> addPost(@RequestBody Post post) {
+            return postService.addPost(post);
         }
 
         @DeleteMapping(path = "/delete/{postId}")
-        public void deletePost(@PathVariable("postId") Long postId) {
-            postService.deletePost(postId);
+        public Map<String, Object> deletePost(@PathVariable("postId") Long postId) {
+            return postService.deletePost(postId);
         }
 
         @PutMapping(path = "/update/{postId}")
-        public void updatePost(@PathVariable("postId") Long postId, @RequestBody Post post) {
-            postService.updatePost(postId, post);
+        public Map<String, Object> updatePost(@PathVariable("postId") Long postId, @RequestBody Post post) {
+            return postService.updatePost(postId, post);
         }
 }

@@ -70,4 +70,8 @@ public class Post {
                 ", updatedAt=" + updatedAt +
                 '}';
     }
+
+    public String getAuthor() {
+        return authorId.getUsername();
+    }
 }

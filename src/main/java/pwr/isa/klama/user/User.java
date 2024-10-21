@@ -43,6 +43,10 @@ public class User implements UserDetails {
     private Timestamp createdAt;
     private Timestamp lastLogin;
 
+    public User(Long id) {
+        this.id = id;
+    }
+
     public User(String username,
                 String firstName,
                 String surname,

@@ -30,7 +30,12 @@ public class WebSecurityConfig {
                                 .requestMatchers(HttpMethod.GET, "/api/v*/register/confirm**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/v*/rentalItem/**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/v*/post/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/**").permitAll()
+                                //temporary for testing
+                                .requestMatchers(HttpMethod.POST, "/api/v*/post/**").permitAll()
+                                .requestMatchers(HttpMethod.PUT, "/api/v*/post/**").permitAll()
+                                .requestMatchers(HttpMethod.DELETE, "/api/v*/post/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/v*/user/**").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/v*/user/**").permitAll()
                                 .anyRequest()
                                 .authenticated()
                 )
