@@ -24,6 +24,10 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final ConfirmationTokenService confirmationTokenService;
 
+    public int enableUser(String email) {
+        return userRepository.enableUser(email);
+    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByUsername(username)
