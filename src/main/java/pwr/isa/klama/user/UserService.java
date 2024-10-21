@@ -11,21 +11,22 @@ import pwr.isa.klama.auth.registration.token.ConfirmationTokenService;
 
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @AllArgsConstructor
 public class UserService implements UserDetailsService {
 
-    private final static String USER_NOT_FOUND_MSG_USERNAME = "User with username %s not found";
-    private final static String USER_NOT_FOUND_MSG_EMAIL = "User with email %s not found";
-    private final static String USER_NOT_FOUND_MSG_USERNAME_OR_EMAIL = "User with username %s or email %s not found";
+    private final static String USER_NOT_FOUND_MSG_USERNAME = "Nie znaleziono użytkownika o nicku %s";
+    private final static String USER_NOT_FOUND_MSG_EMAIL = "Nie znaleziono użytkownika o emailu %s";
+    private final static String USER_NOT_FOUND_MSG_USERNAME_OR_EMAIL = "Nie znaleziono użytkownika o nicku %s lub emailu %s";
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final UserRepository userRepository;
     private final ConfirmationTokenService confirmationTokenService;
 
-    public int enableUser(String email) {
-        return userRepository.enableUser(email);
+    public void enableUser(String email) {
+        userRepository.enableUser(email);
     }
 
     @Override
@@ -48,15 +49,35 @@ public class UserService implements UserDetailsService {
     }
 
     public String signUpUser(User user) {
-        boolean userExists = userRepository.findByUsernameOrEmail(user.getUsername(), user.getEmail()).isPresent();
-        if (userExists) {
-            throw new IllegalStateException("Username or email already taken");
+        Optional<User> existingUserOpt = userRepository.findByUsernameOrEmail(user.getUsername(), user.getEmail());
+
+        String token = UUID.randomUUID().toString();
+
+        if (existingUserOpt.isPresent()) {
+            User existingUser = existingUserOpt.get();
+
+            if (!existingUser.getEnabled()) {
+                if (!existingUser.getEmail().equals(user.getEmail())) {
+                    throw new IllegalStateException("Nazwa użytkownika jest już zajęta");
+                } else {
+                    ConfirmationToken confirmationToken = new ConfirmationToken(
+                            token,
+                            new Timestamp(new Date().getTime()),
+                            // 15 minutes
+                            new Timestamp(new Date().getTime() + 1000 * 60 * 15),
+                            existingUser
+                    );
+                    confirmationTokenService.saveConfirmationToken(confirmationToken);
+                    return token;
+                }
+            } else {
+                throw new IllegalStateException("Nazwa użytkownika lub email są już zajęte");
+            }
         }
+
         String encodedPassword = bCryptPasswordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
         userRepository.save(user);
-
-        String token = UUID.randomUUID().toString();
 
         ConfirmationToken confirmationToken = new ConfirmationToken(
                 token,
@@ -67,7 +88,6 @@ public class UserService implements UserDetailsService {
         );
         confirmationTokenService.saveConfirmationToken(confirmationToken);
 
-        //TODO: Send email
         return token;
     }
 }

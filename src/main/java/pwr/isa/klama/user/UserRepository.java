@@ -14,10 +14,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
     Optional<User> findByEmail(String email);
     Optional<User> findByUsernameOrEmail(String username, String email);
+    void deleteByUsernameOrEmail(String username, String email);
+    void deleteByUsername(String username);
+    void deleteByEmail(String email);
 
     @Transactional
     @Modifying
     @Query("UPDATE User u " +
             "SET u.enabled = TRUE WHERE u.email = ?1")
-    int enableUser(String email);
+    void enableUser(String email);
 }

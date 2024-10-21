@@ -29,17 +29,16 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(customizer ->
                         customizer
                                 .requestMatchers(HttpMethod.POST, "/api/v*/register/**").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/v*/login/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/v*/register/confirm**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/v*/post/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/login").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/register").permitAll()
                                 .anyRequest()
                                 .authenticated()
                 )
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(Customizer.withDefaults())
-                .exceptionHandling(exceptionHandling ->
-                        exceptionHandling
-                                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
-                )
                 .authenticationProvider(daoAuthenticationProvider());
 
         return http.build();

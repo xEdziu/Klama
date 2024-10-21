@@ -27,7 +27,7 @@ public class PostService {
     public Optional<Post> getPostById(Long postId)
     {
         if (!postRepository.existsById(postId)) {
-            throw new IllegalStateException("Post with id " + postId + " does not exist");
+            throw new IllegalStateException("Post o id " + postId + " nie istnieje");
         }
         return postRepository.findById(postId);
     }
@@ -37,7 +37,7 @@ public class PostService {
         post.setUpdatedAt(new Timestamp(new Date().getTime()));
         Optional<Post> postOptional = postRepository.findPostByTitle(post.getTitle());
         if (postOptional.isPresent()) {
-            throw new IllegalStateException("Post with given title already exists");
+            throw new IllegalStateException("Post o podanym tytule już istnieje");
         }
         System.out.println(post);
         postRepository.save(post);
@@ -46,7 +46,7 @@ public class PostService {
     public void deletePost(Long postId) {
         boolean exists = postRepository.existsById(postId);
         if (!exists) {
-            throw new IllegalStateException("Post with id " + postId + " does not exist");
+            throw new IllegalStateException("Post o id " + postId + " nie istnieje");
         }
         postRepository.deleteById(postId);
     }
@@ -54,25 +54,25 @@ public class PostService {
     @Transactional
     public void updatePost(Long postId, Post post) {
         if (post.getTitle() == null && post.getContent() == null) {
-            throw new IllegalStateException("Title or content must be provided to update post");
+            throw new IllegalStateException("Tytuł i treść nie mogą być puste");
         }
         if (!postRepository.existsById(postId)) {
-            throw new IllegalStateException("Post with id " + postId + " does not exist");
+            throw new IllegalStateException("Post o id \" + postId + \" nie istnieje");
         }
 
         Post postToUpdate = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalStateException("Post with id " + postId + " does not exist"));
+                .orElseThrow(() -> new IllegalStateException("PPost o id \" + postId + \" nie istnieje"));
 
         if (post.getTitle() != null) {
-            if (post.getTitle().isEmpty() || Objects.equals(post.getTitle(), postToUpdate.getTitle())) {
-                throw new IllegalStateException("Title must not be empty or the same as the current one");
+            if (post.getTitle().isEmpty()) {
+                throw new IllegalStateException("Tytuł nie może być pusty");
             }
             postToUpdate.setTitle(post.getTitle());
         }
 
         if (post.getContent() != null) {
-            if (post.getContent().isEmpty() || Objects.equals(post.getContent(), postToUpdate.getContent())) {
-                throw new IllegalStateException("Content must not be empty or the same as the current one");
+            if (post.getContent().isEmpty()) {
+                throw new IllegalStateException("Zawartość nie może być pusta");
             }
             postToUpdate.setContent(post.getContent());
         }
