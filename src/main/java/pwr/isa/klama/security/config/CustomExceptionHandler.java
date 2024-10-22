@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
+import pwr.isa.klama.exceptions.AccountNotActivatedException;
 import pwr.isa.klama.exceptions.ResourceNotFoundException;
 
 import java.sql.Timestamp;
@@ -35,6 +36,17 @@ public class CustomExceptionHandler {
         response.put("status", HttpStatus.NOT_FOUND.value());
         response.put("uri", request.getDescription(false).substring(4));
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(AccountNotActivatedException.class)
+    public ResponseEntity<Map<String, Object>> handleAccountNotActivatedException(AccountNotActivatedException ex, WebRequest request) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", new Timestamp(new Date().getTime()));
+        response.put("message", ex.getMessage());
+        response.put("error", HttpStatus.FORBIDDEN.getReasonPhrase());
+        response.put("status", HttpStatus.FORBIDDEN.value());
+        response.put("uri", request.getDescription(false).substring(4));
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
 
     // Add other exception handlers as needed
