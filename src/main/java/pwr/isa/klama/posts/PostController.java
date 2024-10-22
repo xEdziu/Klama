@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping(path = "/api/v1/post")
+@RequestMapping(path = "/api/v1/")
 public class PostController {
 
         private final PostService postService;
@@ -19,12 +19,12 @@ public class PostController {
                 this.postService = postService;
         }
 
-        @GetMapping
+        @GetMapping("/posts")
         public List<PostDTO> getPosts() {
             return postService.getAllPosts();
         }
 
-        @GetMapping(path = "/{postId}")
+        @GetMapping(path = "/posts/{postId}")
         public PostDTO getPost(@PathVariable("postId") Long postId) {
             Optional<PostDTO> post = postService.getPostById(postId);
             if (post.isEmpty()) {
@@ -33,17 +33,17 @@ public class PostController {
             return post.get();
         }
 
-        @PostMapping(path = "/add")
+        @PostMapping(path = "/authorized/admin/posts/add")
         public Map<String, Object> addPost(@RequestBody Post post) {
             return postService.addPost(post);
         }
 
-        @DeleteMapping(path = "/delete/{postId}")
+        @DeleteMapping(path = "/authorized/admin/posts/delete/{postId}")
         public Map<String, Object> deletePost(@PathVariable("postId") Long postId) {
             return postService.deletePost(postId);
         }
 
-        @PutMapping(path = "/update/{postId}")
+        @PutMapping(path = "/authorized/admin/posts/update/{postId}")
         public Map<String, Object> updatePost(@PathVariable("postId") Long postId, @RequestBody Post post) {
             return postService.updatePost(postId, post);
         }

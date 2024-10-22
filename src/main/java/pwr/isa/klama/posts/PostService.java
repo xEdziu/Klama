@@ -83,7 +83,7 @@ public class PostService {
         }
 
         Post postToUpdate = postRepository.findById(postId)
-                .orElseThrow(() -> new ResourceNotFoundException("Post o id " + postId + "nie istnieje"));
+                .orElseThrow(() -> new ResourceNotFoundException("Post o id " + postId + " nie istnieje"));
 
         if (post.getTitle() != null) {
             if (post.getTitle().isEmpty()) {
