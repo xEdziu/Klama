@@ -24,6 +24,6 @@ public class ConfirmationTokenService {
     public ConfirmationToken getToken(String token) {
         return confirmationTokenRepository.findByToken(token)
                 .orElseThrow(() ->
-                        new IllegalStateException("token not found"));
+                        new IllegalStateException("Token jest niepoprawny"));
     }
 }

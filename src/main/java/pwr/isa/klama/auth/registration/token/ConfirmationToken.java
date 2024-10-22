@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import pwr.isa.klama.user.User;
 
 import java.sql.Timestamp;
@@ -37,6 +39,7 @@ public class ConfirmationToken {
             nullable = false,
             name = "user_id"
     )
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
     public ConfirmationToken(String token,
