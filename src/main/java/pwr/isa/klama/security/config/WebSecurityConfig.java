@@ -26,22 +26,23 @@ public class WebSecurityConfig {
         http
                 .authorizeHttpRequests(customizer ->
                         customizer
-                                .requestMatchers(HttpMethod.POST, "/api/v*/register/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/v*/register/confirm**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/v*/rentalItem/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/v*/post/**").permitAll()
-                                .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
+//                                .requestMatchers(HttpMethod.POST, "/api/v*/register/**").permitAll()
+//                                .requestMatchers(HttpMethod.GET, "/api/v*/register/confirm**").permitAll()
+//                                .requestMatchers(HttpMethod.GET, "/api/v*/rentalItem/**").permitAll()
+//                                .requestMatchers(HttpMethod.GET, "/api/v*/post/**").permitAll()
+//                                .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                                 //temporary for testing
-                                .requestMatchers(HttpMethod.POST, "/api/v*/post/**").permitAll()
-                                .requestMatchers(HttpMethod.PUT, "/api/v*/post/**").permitAll()
-                                .requestMatchers(HttpMethod.DELETE, "/api/v*/post/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/v*/user/**").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/v*/user/**").permitAll()
+                                .requestMatchers("/**").permitAll()
                                 .anyRequest()
                                 .authenticated()
                 )
                 .csrf(AbstractHttpConfigurer::disable)
-                .formLogin(Customizer.withDefaults())
+                .formLogin( httpConfig -> httpConfig
+                        .loginPage("/login")
+                        .permitAll()
+                        .defaultSuccessUrl("/home", true)
+                        .failureUrl("/login?error=true")
+                )
                 .authenticationProvider(daoAuthenticationProvider());
 
         return http.build();
