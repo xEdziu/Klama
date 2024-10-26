@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping(path = "api/v1/rentalItem")
@@ -26,23 +28,20 @@ public class RentalItemController {
         return rentalItemService.getRentalItemById(rentalItemId);
     }
 
-    @PostMapping
+    @PostMapping(path = "/add")
     public void addNewRentalItem(@RequestBody RentalItem rentalItem) {
         rentalItemService.addNewRentalItem(rentalItem);
     }
 
-    @DeleteMapping(path = "{rentalItemId}")
+    @DeleteMapping(path = "/delete/{rentalItemId}")
     public void deleteRentalItem(@PathVariable("rentalItemId") Long rentalItemID) {
         rentalItemService.deleteRentalItem(rentalItemID);
     }
 
-    @PutMapping(path = "{rentalItemId}")
-    public void updateRentalItem(
+    @PutMapping(path = "/update/{rentalItemId}")
+    public Map<String, Object> updateRentalItem(
             @PathVariable("rentalItemId") Long rentalItemId,
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) String description,
-            @RequestParam(required = false) Float price,
-            @RequestParam(required = false) Integer quantity) {
-         rentalItemService.updateRentalItem(rentalItemId, name, description, price, quantity);
+            @RequestBody RentalItem rentalItem) {
+         return rentalItemService.updateRentalItem(rentalItemId, rentalItem);
     }
 }
