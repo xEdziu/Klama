@@ -38,7 +38,7 @@ public class UserController {
         return userService.getAllUsers();
     }
 
-    @GetMapping(path = "/admin/user/{userId}l")
+    @GetMapping(path = "/admin/user/{userId}")
     public UserDetails getUserByIdAdmin(@PathVariable("userId") Long userId) {
         return userService.loadUserById(userId);
     }
