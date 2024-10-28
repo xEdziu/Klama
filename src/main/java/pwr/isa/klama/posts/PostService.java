@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import pwr.isa.klama.exceptions.ResourceNotFoundException;
+import pwr.isa.klama.user.User;
+import pwr.isa.klama.user.UserRepository;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -14,10 +16,12 @@ import java.util.stream.Collectors;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public PostService(PostRepository postRepository) {
+    public PostService(PostRepository postRepository, UserRepository userRepository) {
         this.postRepository = postRepository;
+        this.userRepository = userRepository;
     }
 
     public List<PostDTO> getAllPosts() {
@@ -44,21 +48,25 @@ public class PostService {
         ));
     }
 
-    public Map<String, Object> addPost(Post post) {
-        post.setCreatedAt(new Timestamp(new Date().getTime()));
-        post.setUpdatedAt(new Timestamp(new Date().getTime()));
-        Optional<Post> postOptional = postRepository.findPostByTitle(post.getTitle());
-        if (postOptional.isPresent()) {
-            throw new IllegalStateException("Post o podanym tytule już istnieje");
-        }
-        System.out.println(post);
-        postRepository.save(post);
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", "Post został dodany");
-        response.put("error", HttpStatus.OK.value());
-        response.put("timestamp", new Timestamp(new Date().getTime()));
-        return response;
+public Map<String, Object> addPost(Post post) {
+    // Check if the author exists
+    Optional<User> authorOptional = userRepository.findById(post.getAuthorId().getId());
+    if (authorOptional.isEmpty()) {
+        throw new IllegalStateException("Author z " + post.getAuthorId().getId() + " nie istnieje");
     }
+    post.setCreatedAt(new Timestamp(new Date().getTime()));
+    post.setUpdatedAt(new Timestamp(new Date().getTime()));
+    Optional<Post> postOptional = postRepository.findPostByTitle(post.getTitle());
+    if (postOptional.isPresent()) {
+        throw new IllegalStateException("Post z tytułem " + post.getTitle() + " już istnieje");
+    }
+    postRepository.save(post);
+    Map<String, Object> response = new HashMap<>();
+    response.put("message", "Post has been added");
+    response.put("error", HttpStatus.OK.value());
+    response.put("timestamp", new Timestamp(new Date().getTime()));
+    return response;
+}
 
     public Map<String, Object> deletePost(Long postId) {
         boolean exists = postRepository.existsById(postId);
@@ -105,5 +113,11 @@ public class PostService {
         response.put("error", HttpStatus.OK.value());
         response.put("timestamp", new Timestamp(new Date().getTime()));
         return response;
+    }
+
+    public List<Post> getAllPostsByUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Użytkownik o id " + userId + " nie istnieje"));
+        return postRepository.findAllByAuthorId(user);
     }
 }

@@ -3,6 +3,7 @@ package pwr.isa.klama.user;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import pwr.isa.klama.exceptions.ForbiddenActionException;
 
 import java.util.List;
 import java.util.Map;
@@ -50,6 +51,9 @@ public class UserController {
 
     @DeleteMapping(path = "/admin/user/delete/{userId}")
     public Map<String, Object> deleteUserAdmin(@PathVariable("userId") Long userId) {
+        if (userId == 1) {
+            throw new ForbiddenActionException("Cannot delete default admin account");
+        }
         return userService.deleteUserAdmin(userId);
     }
 }

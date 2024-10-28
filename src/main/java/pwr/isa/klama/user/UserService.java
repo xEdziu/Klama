@@ -12,7 +12,10 @@ import pwr.isa.klama.auth.registration.token.ConfirmationToken;
 import pwr.isa.klama.auth.registration.token.ConfirmationTokenService;
 import pwr.isa.klama.email.EmailSender;
 import pwr.isa.klama.exceptions.AccountNotActivatedException;
+import pwr.isa.klama.exceptions.ForbiddenActionException;
 import pwr.isa.klama.exceptions.ResourceNotFoundException;
+import pwr.isa.klama.posts.Post;
+import pwr.isa.klama.posts.PostService;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -28,6 +31,7 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final ConfirmationTokenService confirmationTokenService;
     private final EmailSender emailSender;
+    private final PostService postService;
 
     public void enableUser(String email) {
         userRepository.enableUser(email);
@@ -201,10 +205,22 @@ public class UserService implements UserDetailsService {
         return response;
     }
 
+    @Transactional
     public Map<String, Object> deleteUserAdmin(Long userId) {
         boolean exists = userRepository.existsById(userId);
         if (!exists) {
             throw new IllegalStateException("Użytkownik o id " + userId + " nie istnieje, nie można go usunąć");
+        }
+        if (userId==1L) {
+            throw new ForbiddenActionException("Nie można usunąć domyślnego administratora");
+        }
+
+        User defaultAdmin = userRepository.findById(1L)
+                .orElseThrow(() -> new ResourceNotFoundException("Nie znaleziono domyślnego administratora"));
+
+        List<Post> posts = postService.getAllPostsByUser(userId);
+        for (Post post : posts) {
+            post.setAuthorId(defaultAdmin);
         }
 
         userRepository.deleteById(userId);

@@ -8,6 +8,7 @@ import pwr.isa.klama.security.PasswordEncoder;
 
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.UUID;
 
 @Configuration
 public class UserConfig {
@@ -16,20 +17,31 @@ public class UserConfig {
     CommandLineRunner commandLineRunner(UserRepository userRepository) {
         PasswordEncoder passwordEncoder = new PasswordEncoder();
         BCryptPasswordEncoder bCryptPasswordEncoder = passwordEncoder.bCryptPasswordEncoder();
-        String password = bCryptPasswordEncoder.encode("Adrian-Admin-2025");
         return args -> {
             User admin = new User(
-                    "eddy06",
-                    "Adrian",
-                    "Goral",
-                    "adrian.goral@gmail.com",
-                    password,
+                    "Admin",
+                    "Default",
+                    "Admin",
+                    "default.admin@gmail.com",
+                    bCryptPasswordEncoder.encode(String.valueOf(UUID.randomUUID())),
                     UserRole.ADMIN,
                     new Timestamp(new Date().getTime()),
                     null
             );
             userRepository.save(admin);
             userRepository.enableUser(admin.getEmail());
+            User sampleAdmin = new User(
+                    "Sample",
+                    "Sample",
+                    "Admin",
+                    "sampleAdmin@mail.com",
+                    bCryptPasswordEncoder.encode(String.valueOf(UUID.randomUUID())),
+                    UserRole.ADMIN,
+                    new Timestamp(new Date().getTime()),
+                    null
+            );
+            userRepository.save(sampleAdmin);
+            userRepository.enableUser(sampleAdmin.getEmail());
         };
     }
 }
