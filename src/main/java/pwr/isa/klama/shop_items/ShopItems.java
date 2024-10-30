@@ -1,8 +1,20 @@
 package pwr.isa.klama.shop_items;
 
-import java.text.DecimalFormat;
+import jakarta.persistence.*;
 
+@Entity
+@Table
 public class ShopItems {
+    @Id
+    @SequenceGenerator(
+            name = "shopItems_sequence",
+            sequenceName = "shopItems_sequence",
+            allocationSize = 1
+    )
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "shopItems_sequence"
+    )
     private Integer id;
     private String name;
     private String description;

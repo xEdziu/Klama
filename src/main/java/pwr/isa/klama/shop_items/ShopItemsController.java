@@ -5,20 +5,22 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(path = "/api/v1")
 public class ShopItemsController {
-    private final ShopItemsService shopItemsService;
+    private final ShopItemsService ShopItemsService;
     @Autowired
-    public ShopItemsController(ShopItemsService shopItemsService) {
-        this.shopItemsService = shopItemsService;
+    public ShopItemsController(ShopItemsService ShopItemsService) {
+        this.ShopItemsService = ShopItemsService;
     }
 
     @GetMapping(path = "/shopItems")
-//    public List<ShopItems> getShopItems() {
-//        return shopItemsService.getShopItems();
-//    }
-    public String getShopItems() {
-        return "hello";
+    public List<ShopItems> getShopItems() {
+        return ShopItemsService.getShopItems();
     }
+//    public String getShopItems() {
+//        return "hello";
+//    }
 }
