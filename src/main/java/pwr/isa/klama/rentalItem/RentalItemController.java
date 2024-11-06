@@ -19,7 +19,7 @@ public class RentalItemController {
     }
 
     @GetMapping
-    public List<RentalItem> getRentalItems() {
+    public List<RentalItemDTO> getRentalItems() {
         return rentalItemService.getRentalItem();
     }
 
@@ -29,13 +29,13 @@ public class RentalItemController {
     }
 
     @PostMapping(path = "/add")
-    public void addNewRentalItem(@RequestBody RentalItem rentalItem) {
-        rentalItemService.addNewRentalItem(rentalItem);
+    public Map<String, Object> addNewRentalItem(@RequestBody RentalItem rentalItem) {
+        return rentalItemService.addNewRentalItem(rentalItem);
     }
 
     @DeleteMapping(path = "/delete/{rentalItemId}")
-    public void deleteRentalItem(@PathVariable("rentalItemId") Long rentalItemID) {
-        rentalItemService.deleteRentalItem(rentalItemID);
+    public Map<String, Object> deleteRentalItem(@PathVariable("rentalItemId") Long rentalItemID) {
+        return rentalItemService.deleteRentalItem(rentalItemID);
     }
 
     @PutMapping(path = "/update/{rentalItemId}")

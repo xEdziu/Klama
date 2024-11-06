@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class RentalItemService {
@@ -19,8 +20,17 @@ public class RentalItemService {
         this.rentalItemRepository = rentalItemRepository;
     }
 
-    public List<RentalItem> getRentalItem() {
-        return rentalItemRepository.findAll();
+    public List<RentalItemDTO> getRentalItem() {
+
+        return rentalItemRepository.findAll().stream()
+                .map(rentalItem -> new RentalItemDTO(
+                        rentalItem.getId(),
+                        rentalItem.getName(),
+                        rentalItem.getDescription(),
+                        rentalItem.getPrice(),
+                        rentalItem.getQuantity()
+                ))
+                .collect(Collectors.toList());
     }
 
     public RentalItem getRentalItemById(Long rentalItemId) {
@@ -31,17 +41,29 @@ public class RentalItemService {
         return rentalItemRepository.findById(rentalItemId).orElse(null);
     }
 
-    public void addNewRentalItem(RentalItem rentalItem) {
+    public Map<String, Object> addNewRentalItem(RentalItem rentalItem) {
         rentalItemRepository.save(rentalItem);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Przedmiot został dodany");
+        response.put("error", HttpStatus.OK.value());
+        response.put("timestamp", new Timestamp(new Date().getTime()));
+        return response;
 
     }
 
-    public void deleteRentalItem(Long rentalItemId) {
+    public Map<String, Object> deleteRentalItem(Long rentalItemId) {
         boolean exists = rentalItemRepository.existsById(rentalItemId);
         if( !exists ) {
             throw new IllegalArgumentException("Przedmiot o id " + rentalItemId + " nie istnieje");
         }
         rentalItemRepository.deleteById(rentalItemId);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Przedmiot o id " + rentalItemId + " został usunięty");
+        response.put("error", HttpStatus.OK.value());
+        response.put("timestamp", new Timestamp(new Date().getTime()));
+        return response;
     }
 
     @Transactional
