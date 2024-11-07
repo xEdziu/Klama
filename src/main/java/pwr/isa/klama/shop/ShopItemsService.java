@@ -26,12 +26,16 @@ public class ShopItemsService {
     }
 
     public List<ShopItems> getShopItems() {
-        return shopItemsRepository.findAll();
+        return shopItemsRepository.findByActive(true);
     }
 
     public ShopItems getShopItemById(Long id) {
         return shopItemsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Przedmiot o  " + id + " nie istnieje w sklepie"));
+    }
+
+    public List<ShopItems> getShopItemsAll() {
+        return shopItemsRepository.findAll();
     }
 
     @Transactional
@@ -76,5 +80,160 @@ public class ShopItemsService {
         response.put("error", HttpStatus.OK.value());
         response.put("timestamp", new Timestamp(new Date().getTime()));
         return response;
+    }
+
+    public Map<String, Object> addShopItem(ShopItems shopItems) {
+
+        // Check if the item already exists
+        if (shopItemsRepository.existsById(shopItems.getId())) {
+            throw new IllegalStateException("Przedmiot o id " + shopItems.getId() + " już istnieje w sklepie");
+        }
+
+        if (shopItemsRepository.findByName(shopItems.getName()).isPresent()) {
+            throw new IllegalStateException("Przedmiot o nazwie " + shopItems.getName() + " już istnieje w sklepie");
+        }
+
+        if (shopItemsRepository.findByDescription(shopItems.getDescription()).isPresent()) {
+            throw new IllegalStateException("Przedmiot o opisie " + shopItems.getDescription() + " już istnieje w sklepie");
+        }
+
+        // Check if the quantity is valid
+        if (shopItems.getQuantity() <= 0) {
+            throw new IllegalStateException("Niepoprawna ilość przedmiotów");
+        }
+
+        // Check if the price is valid
+        if (shopItems.getPrice() <= 0) {
+            throw new IllegalStateException("Niepoprawna cena przedmiotu");
+        }
+
+        // Check if the name is valid
+        if (shopItems.getName().isEmpty()) {
+            throw new IllegalStateException("Niepoprawna nazwa przedmiotu");
+        }
+
+        // Check if the description is valid
+        if (shopItems.getDescription().isEmpty()) {
+            throw new IllegalStateException("Niepoprawny opis przedmiotu");
+        }
+
+
+        Map<String, Object> response = new HashMap<>();
+        shopItemsRepository.save(shopItems);
+        response.put("message", "Przedmiot dodany do sklepu");
+        response.put("error", HttpStatus.OK.value());
+        response.put("timestamp", new Timestamp(new Date().getTime()));
+        return response;
+    }
+
+    public Map<String, Object> updateShopItem(Long id, ShopItems shopItems) {
+        ShopItems shopItem = shopItemsRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Przedmiot o id " + id + " nie istnieje w sklepie"));
+
+        // check if name or description is valid and present
+        if (shopItems.getName().isEmpty() || shopItems.getDescription().isEmpty()) {
+            throw new IllegalStateException("Niepoprawna nazwa lub opis przedmiotu");
+        }
+
+        // check if price is valid
+        if (shopItems.getPrice() <= 0) {
+            throw new IllegalStateException("Niepoprawna cena przedmiotu");
+        }
+
+        // check if quantity is valid
+        if (shopItems.getQuantity() <= 0) {
+            throw new IllegalStateException("Niepoprawna ilość przedmiotów");
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        shopItem.setName(shopItems.getName());
+        shopItem.setDescription(shopItems.getDescription());
+        shopItem.setPrice(shopItems.getPrice());
+        shopItem.setQuantity(shopItems.getQuantity());
+        shopItemsRepository.save(shopItem);
+
+        response.put("message", "Przedmiot zaktualizowany");
+        response.put("error", HttpStatus.OK.value());
+        response.put("timestamp", new Timestamp(new Date().getTime()));
+        return response;
+    }
+
+    public Map<String, Object> deleteShopItem(Long id) {
+        ShopItems shopItem = shopItemsRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Przedmiot o id " + id + " nie istnieje w sklepie"));
+
+        String message;
+        // Sprawdź, czy przedmiot jest powiązany z jakimkolwiek zakupem
+        if (purchaseRepository.existsByShopItemId(id)) {
+            message = "Przedmiot jest powiązany z zakupem, deaktywacja przedmiotu";
+            shopItem.setActive(false);
+            shopItemsRepository.save(shopItem);
+        } else {
+            message = "Przedmiot usunięty";
+            shopItemsRepository.delete(shopItem);
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        shopItemsRepository.delete(shopItem);
+        response.put("message", message);
+        response.put("error", HttpStatus.OK.value());
+        response.put("timestamp", new Timestamp(new Date().getTime()));
+        return response;
+    }
+
+    public List<PurchaseRecordDTO> getPurchaseHistory() {
+        Long userId = getCurrentUserId();
+        List<Purchase> purchases = purchaseRepository.findByUserId(userId);
+        Map<Long, List<PurchaseDTO>> purchaseMap = new HashMap<>();
+
+        for (Purchase purchase : purchases) {
+            PurchaseDTO dto = new PurchaseDTO(
+                    purchase.getShopItem().getName(),
+                    purchase.getQuantity(),
+                    purchase.getTotalPrice(),
+                    purchase.getShopItem().getPrice()
+            );
+
+            purchaseMap.computeIfAbsent(purchase.getId(), k -> new ArrayList<>()).add(dto);
+        }
+
+        List<PurchaseRecordDTO> purchaseRecords = new ArrayList<>();
+        for (Map.Entry<Long, List<PurchaseDTO>> entry : purchaseMap.entrySet()) {
+            double totalAmount = entry.getValue().stream().mapToDouble(PurchaseDTO::getTotalPrice).sum();
+            purchaseRecords.add(new PurchaseRecordDTO(entry.getKey(), entry.getValue(), (float) totalAmount));
+        }
+
+        return purchaseRecords;
+    }
+
+    private Long getCurrentUserId() {
+        // Implementacja pobierania ID aktualnie zalogowanego użytkownika
+        // Może to być np. z kontekstu bezpieczeństwa Spring Security
+        // return SecurityContextHolder.getContext().getAuthentication().getPrincipal().getId();
+        return 1L; // Tymczasowe rozwiązanie
+    }
+
+    public List<PurchaseRecordDTO> getPurchaseHistoryAll() {
+        List<Purchase> purchases = purchaseRepository.findAll();
+        Map<Long, List<PurchaseDTO>> purchaseMap = new HashMap<>();
+
+        for (Purchase purchase : purchases) {
+            PurchaseDTO dto = new PurchaseDTO(
+                    purchase.getShopItem().getName(),
+                    purchase.getQuantity(),
+                    purchase.getTotalPrice(),
+                    purchase.getShopItem().getPrice()
+            );
+
+            purchaseMap.computeIfAbsent(purchase.getId(), k -> new ArrayList<>()).add(dto);
+        }
+
+        List<PurchaseRecordDTO> purchaseRecords = new ArrayList<>();
+        for (Map.Entry<Long, List<PurchaseDTO>> entry : purchaseMap.entrySet()) {
+            double totalAmount = entry.getValue().stream().mapToDouble(PurchaseDTO::getTotalPrice).sum();
+            purchaseRecords.add(new PurchaseRecordDTO(entry.getKey(), entry.getValue(), (float) totalAmount));
+        }
+
+        return purchaseRecords;
     }
 }

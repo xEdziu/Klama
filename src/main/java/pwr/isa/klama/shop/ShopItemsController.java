@@ -30,6 +30,11 @@ public class ShopItemsController {
 
     // ============ User methods ============
 
+    @GetMapping(path = "/authorized/shopItems/history")
+    public List<PurchaseRecordDTO> getPurchaseHistory() {
+        return ShopItemsService.getPurchaseHistory();
+    }
+
     @PostMapping(path = "/authorized/shopItems/buy")
     public Map<String, Object> buyShopItems(@RequestBody List<PurchaseRequest> purchaseRequests) {
         return ShopItemsService.buyShopItems(purchaseRequests);
@@ -37,4 +42,29 @@ public class ShopItemsController {
 
     // ============ Admin methods ============
 
+    @GetMapping(path = "/authorized/admin/shopItems/history")
+    public List<PurchaseRecordDTO> getPurchaseHistoryAll() {
+        return ShopItemsService.getPurchaseHistoryAll();
+    }
+
+    @GetMapping(path = "/authorized/admin/shopItems")
+    public List<ShopItems> getShopItemsAll() {
+        return ShopItemsService.getShopItemsAll();
+    }
+
+    @PostMapping(path = "/authorized/admin/shopItems/add")
+    public Map<String, Object> addShopItem(@RequestBody ShopItems shopItems) {
+        return ShopItemsService.addShopItem(shopItems);
+    }
+
+    @PutMapping(path = "/authorized/admin/shopItems/update/{id}")
+    public Map<String, Object> updateShopItem(@PathVariable("id") Long id,
+                                              @RequestBody ShopItems shopItems) {
+        return ShopItemsService.updateShopItem(id, shopItems);
+    }
+
+    @DeleteMapping(path = "/authorized/admin/shopItems/delete/{id}")
+    public Map<String, Object> deleteShopItem(@PathVariable("id") Long id) {
+        return ShopItemsService.deleteShopItem(id);
+    }
 }

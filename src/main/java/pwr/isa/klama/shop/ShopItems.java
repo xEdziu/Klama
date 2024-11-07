@@ -28,7 +28,7 @@ public class ShopItems {
     private String description;
     private float price;
     private Integer quantity;
-
+    private Boolean active = true;
     public ShopItems(String name, String description, float price, Integer quantity) {
         this.name = name;
         this.description = description;
