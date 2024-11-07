@@ -30,7 +30,7 @@ public class ShopItemsController {
 
     // ============ User methods ============
 
-    @GetMapping(path = "/authorized/shopItems/history")
+    @GetMapping(path = "/authorized/user/purchaseHistory")
     public List<PurchaseRecordDTO> getPurchaseHistory() {
         return ShopItemsService.getPurchaseHistory();
     }
