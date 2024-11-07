@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @RestController
-@RequestMapping(path = "api/v1/rentalItem")
+@RequestMapping(path = "api/v1")
 public class RentalItemController {
 
     private final RentalItemService rentalItemService;
@@ -18,27 +18,34 @@ public class RentalItemController {
         this.rentalItemService = rentalItemService;
     }
 
-    @GetMapping
+    // ============ Freely available methods ============
+    @GetMapping(path = "/rentalItem/all")
     public List<RentalItemDTO> getRentalItems() {
         return rentalItemService.getRentalItem();
     }
 
-    @GetMapping(path = "{rentalItemId}")
+    @GetMapping(path = "/rentalItem/{rentalItemId}")
     public RentalItem getRentalItem(@PathVariable("rentalItemId") Long rentalItemId) {
         return rentalItemService.getRentalItemById(rentalItemId);
     }
+    // ============ User methods ============
+    @PostMapping(path = "/authorized/rentalItem/rent")
+    public Map<String, Object> rentRentalItem(@RequestBody List<RentRequest> rentRequests) {
+        return rentalItemService.rentRentalItems(rentRequests);
+    }
 
-    @PostMapping(path = "/add")
+    // ============ Admin methods ============
+    @PostMapping(path = "/authorized/admin/rentalItem/add")
     public Map<String, Object> addNewRentalItem(@RequestBody RentalItem rentalItem) {
         return rentalItemService.addNewRentalItem(rentalItem);
     }
 
-    @DeleteMapping(path = "/delete/{rentalItemId}")
+    @DeleteMapping(path = "/authorized/admin/rentalItem/delete/{rentalItemId}")
     public Map<String, Object> deleteRentalItem(@PathVariable("rentalItemId") Long rentalItemID) {
         return rentalItemService.deleteRentalItem(rentalItemID);
     }
 
-    @PutMapping(path = "/update/{rentalItemId}")
+    @PutMapping(path = "/authorized/admin/rentalItem/update/{rentalItemId}")
     public Map<String, Object> updateRentalItem(
             @PathVariable("rentalItemId") Long rentalItemId,
             @RequestBody RentalItem rentalItem) {

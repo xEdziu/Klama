@@ -2,9 +2,11 @@ package pwr.isa.klama.rentalItem;
 
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import pwr.isa.klama.exceptions.ResourceNotFoundException;
+import pwr.isa.klama.user.User;
+import pwr.isa.klama.user.UserRepository;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -14,10 +16,14 @@ import java.util.stream.Collectors;
 public class RentalItemService {
 
     private final RentalItemRepository rentalItemRepository;
+    private final UserRepository userRepository;
+    private final RentRepository rentRepository;
 
     @Autowired
-    public RentalItemService(RentalItemRepository rentalItemRepository) {
+    public RentalItemService(RentalItemRepository rentalItemRepository, UserRepository userRepository, RentRepository rentRepository) {
         this.rentalItemRepository = rentalItemRepository;
+        this.userRepository = userRepository;
+        this.rentRepository = rentRepository;
     }
 
     public List<RentalItemDTO> getRentalItem() {
@@ -42,6 +48,10 @@ public class RentalItemService {
     }
 
     public Map<String, Object> addNewRentalItem(RentalItem rentalItem) {
+        Optional<RentalItem> rentalItemOptional = rentalItemRepository.findRentalItemByName(rentalItem.getName());
+        if (rentalItemOptional.isPresent()) {
+            throw new IllegalArgumentException("Przedmiot o nazwie: " + rentalItem.getName() + " już istnieje");
+        }
         rentalItemRepository.save(rentalItem);
 
         Map<String, Object> response = new HashMap<>();
@@ -49,7 +59,6 @@ public class RentalItemService {
         response.put("error", HttpStatus.OK.value());
         response.put("timestamp", new Timestamp(new Date().getTime()));
         return response;
-
     }
 
     public Map<String, Object> deleteRentalItem(Long rentalItemId) {
@@ -114,6 +123,52 @@ public class RentalItemService {
 
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Przedmiot został zaktualizowany");
+        response.put("error", HttpStatus.OK.value());
+        response.put("timestamp", new Timestamp(new Date().getTime()));
+        return response;
+    }
+
+    @Transactional
+    public Map<String, Object> rentRentalItems(List<RentRequest> rentRequests) {
+        Map<String, Object> response = new HashMap<>();
+        for (RentRequest request : rentRequests) {
+            System.out.println(request);
+            RentalItem rentalItem = rentalItemRepository.findById(request.getItemId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Przedmiot o id " + request.getItemId() + " nie istnieje w wypożyczlni"));
+
+            // Check if the quantity is valid
+            if (request.getQuantity() <= 0) {
+                throw new IllegalStateException("Niepoprawna ilość przedmiotów");
+            }
+
+            //TODO: temporary solution before implementing Logging in
+            Optional<User> tmpAdmin = userRepository.findById(1L);
+
+            if (tmpAdmin.isEmpty())
+                throw new ResourceNotFoundException("Nie znaleziono użytkownika o Id 1");
+
+            // Check if the quantity is available
+            if (rentalItem.getQuantity() < request.getQuantity()) {
+                throw new IllegalStateException("Brak wystarczającej ilości przedmiotów");
+            }
+
+            // Update the quantity
+            rentalItem.setQuantity(rentalItem.getQuantity() - request.getQuantity());
+            rentalItemRepository.save(rentalItem);
+
+            // Create a new rent
+            Rent rent = new Rent();
+            rent.setUser(tmpAdmin.get()); // Assuming user is retrieved from the security context
+            rent.setRentalItem(rentalItem);
+            rent.setQuantity(request.getQuantity());
+            //TODO: Dostosować date wyporzyczania i zwrotu
+            rent.setRentDate(new Timestamp(new Date().getTime()));
+            rent.setReturnDate(new Timestamp(new Date().getTime()));
+            rent.setTotalPrice(rentalItem.getPrice() * request.getQuantity());
+            rentRepository.save(rent);
+        }
+
+        response.put("message", "Wypożycznie zakończone sukcesem");
         response.put("error", HttpStatus.OK.value());
         response.put("timestamp", new Timestamp(new Date().getTime()));
         return response;

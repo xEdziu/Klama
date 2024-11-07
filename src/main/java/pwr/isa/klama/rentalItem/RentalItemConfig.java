@@ -10,7 +10,7 @@ import java.util.List;
 public class RentalItemConfig {
 
     @Bean
-    CommandLineRunner commandLineRunner( RentalItemRepository repository) {
+    CommandLineRunner commandLineRunnerForRentalItems( RentalItemRepository repository) {
         return args -> {
             RentalItem magnezja = new RentalItem(
                     "magnezja",
