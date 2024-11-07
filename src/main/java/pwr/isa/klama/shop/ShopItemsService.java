@@ -185,6 +185,7 @@ public class ShopItemsService {
         Long userId = getCurrentUserId();
         List<Purchase> purchases = purchaseRepository.findByUserId(userId);
         Map<Long, List<PurchaseDTO>> purchaseMap = new HashMap<>();
+        Map<Long, Date> purchaseDateMap = new HashMap<>();
 
         for (Purchase purchase : purchases) {
             PurchaseDTO dto = new PurchaseDTO(
@@ -195,12 +196,14 @@ public class ShopItemsService {
             );
 
             purchaseMap.computeIfAbsent(purchase.getId(), k -> new ArrayList<>()).add(dto);
+            purchaseDateMap.put(purchase.getId(), purchase.getPurchaseDate());
         }
 
         List<PurchaseRecordDTO> purchaseRecords = new ArrayList<>();
         for (Map.Entry<Long, List<PurchaseDTO>> entry : purchaseMap.entrySet()) {
             double totalAmount = entry.getValue().stream().mapToDouble(PurchaseDTO::getTotalPrice).sum();
-            purchaseRecords.add(new PurchaseRecordDTO(entry.getKey(), entry.getValue(), (float) totalAmount));
+            Date purchaseDate = purchaseDateMap.get(entry.getKey());
+            purchaseRecords.add(new PurchaseRecordDTO(entry.getKey(), userId, purchaseDate, entry.getValue(), (float) totalAmount));
         }
 
         return purchaseRecords;
@@ -216,6 +219,8 @@ public class ShopItemsService {
     public List<PurchaseRecordDTO> getPurchaseHistoryAll() {
         List<Purchase> purchases = purchaseRepository.findAll();
         Map<Long, List<PurchaseDTO>> purchaseMap = new HashMap<>();
+        Map<Long, Long> purchaseUserMap = new HashMap<>();
+        Map<Long, Date> purchaseDateMap = new HashMap<>();
 
         for (Purchase purchase : purchases) {
             PurchaseDTO dto = new PurchaseDTO(
@@ -226,12 +231,16 @@ public class ShopItemsService {
             );
 
             purchaseMap.computeIfAbsent(purchase.getId(), k -> new ArrayList<>()).add(dto);
+            purchaseUserMap.put(purchase.getId(), purchase.getUser().getId());
+            purchaseDateMap.put(purchase.getId(), purchase.getPurchaseDate());
         }
 
         List<PurchaseRecordDTO> purchaseRecords = new ArrayList<>();
         for (Map.Entry<Long, List<PurchaseDTO>> entry : purchaseMap.entrySet()) {
             double totalAmount = entry.getValue().stream().mapToDouble(PurchaseDTO::getTotalPrice).sum();
-            purchaseRecords.add(new PurchaseRecordDTO(entry.getKey(), entry.getValue(), (float) totalAmount));
+            Long userId = purchaseUserMap.get(entry.getKey());
+            Date purchaseDate = purchaseDateMap.get(entry.getKey());
+            purchaseRecords.add(new PurchaseRecordDTO(entry.getKey(), userId, purchaseDate, entry.getValue(), (float) totalAmount));
         }
 
         return purchaseRecords;
