@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import pwr.isa.klama.exceptions.ResourceNotFoundException;
+import pwr.isa.klama.rentalItem.rent.*;
 import pwr.isa.klama.user.User;
 import pwr.isa.klama.user.UserRepository;
 
@@ -26,18 +27,7 @@ public class RentalItemService {
         this.rentRepository = rentRepository;
     }
 
-    public List<RentalItemDTO> getRentalItem() {
-
-        return rentalItemRepository.findAll().stream()
-                .map(rentalItem -> new RentalItemDTO(
-                        rentalItem.getId(),
-                        rentalItem.getName(),
-                        rentalItem.getDescription(),
-                        rentalItem.getPrice(),
-                        rentalItem.getQuantity()
-                ))
-                .collect(Collectors.toList());
-    }
+    public List<RentalItem> getRentalItem() {return rentalItemRepository.findAll(); }
 
     public RentalItem getRentalItemById(Long rentalItemId) {
         boolean exists = rentalItemRepository.existsById(rentalItemId);
@@ -131,8 +121,10 @@ public class RentalItemService {
     @Transactional
     public Map<String, Object> rentRentalItems(List<RentRequest> rentRequests) {
         Map<String, Object> response = new HashMap<>();
+        float totalRentPrice = 0;
+        List<RentItem> rentItems = new ArrayList<>();
+        
         for (RentRequest request : rentRequests) {
-            System.out.println(request);
             RentalItem rentalItem = rentalItemRepository.findById(request.getItemId())
                     .orElseThrow(() -> new ResourceNotFoundException("Przedmiot o id " + request.getItemId() + " nie istnieje w wypożyczlni"));
 
@@ -140,12 +132,6 @@ public class RentalItemService {
             if (request.getQuantity() <= 0) {
                 throw new IllegalStateException("Niepoprawna ilość przedmiotów");
             }
-
-            //TODO: temporary solution before implementing Logging in
-            Optional<User> tmpAdmin = userRepository.findById(1L);
-
-            if (tmpAdmin.isEmpty())
-                throw new ResourceNotFoundException("Nie znaleziono użytkownika o Id 1");
 
             // Check if the quantity is available
             if (rentalItem.getQuantity() < request.getQuantity()) {
@@ -155,23 +141,109 @@ public class RentalItemService {
             // Update the quantity
             rentalItem.setQuantity(rentalItem.getQuantity() - request.getQuantity());
             rentalItemRepository.save(rentalItem);
+            
+            float itemTotalPrice = rentalItem.getPrice() * request.getQuantity();
+            totalRentPrice += itemTotalPrice;
 
-            // Create a new rent
-            Rent rent = new Rent();
-            rent.setUser(tmpAdmin.get()); // Assuming user is retrieved from the security context
-            rent.setRentalItem(rentalItem);
-            rent.setQuantity(request.getQuantity());
-            //TODO: Dostosować date wyporzyczania i zwrotu
-            rent.setRentDate(new Timestamp(new Date().getTime()));
-            rent.setReturnDate(new Timestamp(new Date().getTime()));
-            rent.setTotalPrice(rentalItem.getPrice() * request.getQuantity());
-            rentRepository.save(rent);
+            RentItem rentItem = new RentItem();
+            rentItem.setRentalItem(rentalItem);
+            rentItem.setQuantity(request.getQuantity());
+            rentItem.setPrice(rentalItem.getPrice());
+            rentItem.setTotalPrice(itemTotalPrice);
+            rentItems.add(rentItem);
+
         }
 
+        // Two decimal places for total purchase price
+        totalRentPrice = (float) (Math.round(totalRentPrice * 100.0) / 100.0);
+
+        // Create a new rent
+        Rent rent = new Rent();
+        rent.setUser(getCurrentUser()); // Assuming user is retrieved from the security context
+        //TODO: Dostosować date wyporzyczania i zwrotu
+        rent.setRentDate(new Timestamp(new Date().getTime()));
+        rent.setReturnDate(new Timestamp(new Date().getTime()));
+        rent.setTotalPrice(totalRentPrice);
+        rent.setItems(rentItems);
+
+        for (RentItem item : rentItems) {
+            item.setRent(rent);
+        }
+
+        rentRepository.save(rent);
+
         response.put("message", "Wypożycznie zakończone sukcesem");
+        response.put("totalPrice", totalRentPrice);
         response.put("error", HttpStatus.OK.value());
         response.put("timestamp", new Timestamp(new Date().getTime()));
         return response;
     }
+
+    private User getCurrentUser() {
+        //TODO: temporary solution before implementing Logging in
+        // Implementacja pobierania ID aktualnie zalogowanego użytkownika
+        // Może to być np. z kontekstu bezpieczeństwa Spring Security
+        // return SecurityContextHolder.getContext().getAuthentication().getPrincipal().getId();
+        return userRepository.findById(1L).orElseThrow(() -> new ResourceNotFoundException("Nie znaleziono użytkownika o Id 1")); // Tymczasowe rozwiązanie
+    }
+
+    public List<RentRecordDTO> getRentHistory() {
+        Long userId = getCurrentUser().getId();
+        List<Rent> rents = rentRepository.findByUserId(userId);
+        List<RentRecordDTO> rentRecords = new ArrayList<>();
+
+        for (Rent rent : rents) {
+            List<RentDTO> items = new ArrayList<>();
+            for (RentItem item : rent.getItems()) {
+                RentDTO dto = new RentDTO(
+                        item.getRentalItem().getName(),
+                        item.getQuantity(),
+                        item.getPrice(),
+                        item.getTotalPrice()
+                );
+                items.add(dto);
+            }
+            rentRecords.add(new RentRecordDTO(
+                    rent.getId(),
+                    userId,
+                    rent.getRentDate(),
+                    rent.getReturnDate(),
+                    items,
+                    rent.getTotalPrice()
+            ));
+        }
+
+        return rentRecords;
+    }
+
+    public List<RentRecordDTO> getRentHistoryAll() {
+        List<Rent> rents = rentRepository.findAll();
+        List<RentRecordDTO> rentRecords = new ArrayList<>();
+
+        for (Rent rent : rents) {
+            List<RentDTO> items = new ArrayList<>();
+            for (RentItem item : rent.getItems()) {
+                RentDTO dto = new RentDTO(
+                        item.getRentalItem().getName(),
+                        item.getQuantity(),
+                        item.getPrice(),
+                        item.getTotalPrice()
+                );
+                items.add(dto);
+            }
+            rentRecords.add(new RentRecordDTO(
+                    rent.getId(),
+                    rent.getUser().getId(),
+                    rent.getRentDate(),
+                    rent.getReturnDate(),
+                    items,
+                    rent.getTotalPrice()
+            ));
+        }
+
+        return rentRecords;
+    }
+
+
 }
 

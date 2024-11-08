@@ -1,4 +1,4 @@
-package pwr.isa.klama.rentalItem;
+package pwr.isa.klama.rentalItem.rent;
 
 import lombok.Getter;
 import lombok.Setter;

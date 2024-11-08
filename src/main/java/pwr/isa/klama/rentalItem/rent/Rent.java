@@ -1,17 +1,22 @@
-package pwr.isa.klama.rentalItem;
+package pwr.isa.klama.rentalItem.rent;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import pwr.isa.klama.rentalItem.RentalItem;
 import pwr.isa.klama.user.User;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Rent {
     @Id
     @SequenceGenerator(
@@ -29,11 +34,11 @@ public class Rent {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "rental_item_id", nullable = false)
-    private RentalItem rentalItem;
-    private int quantity;
     private Timestamp rentDate;
     private Timestamp returnDate;
     private float totalPrice;
+
+    @OneToMany(mappedBy = "rent", cascade = CascadeType.ALL)
+    private List<RentItem> items;
+
 }
