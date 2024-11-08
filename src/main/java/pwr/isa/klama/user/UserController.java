@@ -19,9 +19,9 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping(path = "/user/{userId}")
-    public UserDTO getUserById(@PathVariable("userId") Long userId) {
-        return userService.getUserById(userId);
+    @GetMapping(path = "/user")
+    public UserDTO getUserInfo() {
+        return userService.getUserInfo();
     }
 
     @PutMapping(path = "/user/update/{userId}")

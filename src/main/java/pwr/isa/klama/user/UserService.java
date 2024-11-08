@@ -3,6 +3,8 @@ package pwr.isa.klama.user;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -127,15 +129,23 @@ public class UserService implements UserDetailsService {
         return new UserDTO(user.get().getId(), user.get().getFirstName(), user.get().getSurname(), user.get().getUsername(), user.get().getEmail());
     }
 
-    public UserDTO getUserById(Long userId) {
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isEmpty()) {
-            throw new IllegalStateException("Użytkownik o id " + userId + " nie istnieje");
+    public UserDTO getUserInfo() {
+        Authentication authentication = getAuthentication();
+        User user = (User) loadUserByUsername(authentication.getName());
+
+        if (!user.getEnabled()) {
+            throw new AccountNotActivatedException("Konto nie zostało jeszcze aktywowane, sprawdź email w celu aktywacji");
         }
-        if (user.get().getRole() == UserRole.ADMIN) {
-            throw new IllegalStateException("Nie można wyświetlić danych - ADM_ERR");
-        }
-        return new UserDTO(user.get().getId(), user.get().getFirstName(), user.get().getSurname(), user.get().getUsername(), user.get().getEmail());
+
+        return new UserDTO(user.getId(), user.getFirstName(), user.getSurname(), user.getUsername(), user.getEmail());
+//        Optional<User> user = userRepository.findById(userId);
+//        if (user.isEmpty()) {
+//            throw new IllegalStateException("Użytkownik o id " + userId + " nie istnieje");
+//        }
+//        if (user.get().getRole() == UserRole.ROLE_ADMIN) {
+//            throw new IllegalStateException("Nie można wyświetlić danych - ADM_ERR");
+//        }
+//        return new UserDTO(user.get().getId(), user.get().getFirstName(), user.get().getSurname(), user.get().getUsername(), user.get().getEmail());
     }
 
     @Transactional
@@ -145,7 +155,7 @@ public class UserService implements UserDetailsService {
             throw new IllegalStateException("Użytkownik o id " + userId + " nie istnieje");
         }
 
-        if (userOpt.get().getRole() == UserRole.ADMIN) {
+        if (userOpt.get().getRole() == UserRole.ROLE_ADMIN) {
             throw new IllegalStateException("Nie można edytować danych - ADM_ERR");
         }
 
@@ -169,7 +179,7 @@ public class UserService implements UserDetailsService {
             throw new IllegalStateException("Użytkownik o id " + userId + " nie istnieje, nie można go usunąć");
         }
 
-        if (userRepository.findById(userId).isPresent() && userRepository.findById(userId).get().getRole() == UserRole.ADMIN) {
+        if (userRepository.findById(userId).isPresent() && userRepository.findById(userId).get().getRole() == UserRole.ROLE_ADMIN) {
             throw new IllegalStateException("Nie można usunąć użytkownika - ADM_ERR");
         }
 
@@ -229,5 +239,9 @@ public class UserService implements UserDetailsService {
         response.put("error", HttpStatus.OK.value());
         response.put("timestamp", new Timestamp(new Date().getTime()));
         return response;
+    }
+
+    private Authentication getAuthentication() {
+        return SecurityContextHolder.getContext().getAuthentication();
     }
 }
