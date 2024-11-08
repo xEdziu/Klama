@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import pwr.isa.klama.exceptions.ResourceNotFoundException;
+import pwr.isa.klama.shop.purchase.*;
 import pwr.isa.klama.user.User;
 import pwr.isa.klama.user.UserRepository;
 
@@ -41,53 +42,66 @@ public class ShopItemsService {
     @Transactional
     public Map<String, Object> buyShopItems(List<PurchaseRequest> purchaseRequests) {
         Map<String, Object> response = new HashMap<>();
+        float totalPurchasePrice = 0;
+        List<PurchaseItem> purchaseItems = new ArrayList<>();
+
         for (PurchaseRequest request : purchaseRequests) {
-            System.out.println(request);
             ShopItems shopItem = shopItemsRepository.findById(request.getItemId())
                     .orElseThrow(() -> new ResourceNotFoundException("Przedmiot o id " + request.getItemId() + " nie istnieje w sklepie"));
 
-            // Check if the quantity is valid
             if (request.getQuantity() <= 0) {
                 throw new IllegalStateException("Niepoprawna ilość przedmiotów");
             }
 
-            //TODO: temporary solution before implementing Logging in
-            Optional<User> tmpAdmin = userRepository.findById(1L);
-
-            if (tmpAdmin.isEmpty())
-                throw new ResourceNotFoundException("Nie znaleziono użytkownika o Id 1");
-
-            // Check if the quantity is available
             if (shopItem.getQuantity() < request.getQuantity()) {
                 throw new IllegalStateException("Brak wystarczającej ilości przedmiotów");
             }
 
-            // Update the quantity
             shopItem.setQuantity(shopItem.getQuantity() - request.getQuantity());
             shopItemsRepository.save(shopItem);
 
-            // Create a new purchase
-            Purchase purchase = new Purchase();
-            purchase.setUser(tmpAdmin.get()); // Assuming user is retrieved from the security context
-            purchase.setShopItem(shopItem);
-            purchase.setQuantity(request.getQuantity());
-            purchase.setPurchaseDate(new Timestamp(new Date().getTime()));
-            purchase.setTotalPrice(shopItem.getPrice() * request.getQuantity());
-            purchaseRepository.save(purchase);
+            float itemTotalPrice = shopItem.getPrice() * request.getQuantity();
+            totalPurchasePrice += itemTotalPrice;
+
+            PurchaseItem purchaseItem = new PurchaseItem();
+            purchaseItem.setShopItem(shopItem);
+            purchaseItem.setQuantity(request.getQuantity());
+            purchaseItem.setPrice(shopItem.getPrice());
+            purchaseItem.setTotalPrice(itemTotalPrice);
+            purchaseItems.add(purchaseItem);
         }
 
+        //two decimal places for total purchase price
+        totalPurchasePrice = (float) (Math.round(totalPurchasePrice * 100.0) / 100.0);
+
+        Purchase purchase = new Purchase();
+        purchase.setUser(getCurrentUser());
+        purchase.setPurchaseDate(new Timestamp(new Date().getTime()));
+        purchase.setTotalPrice(totalPurchasePrice);
+        purchase.setItems(purchaseItems);
+
+        for (PurchaseItem item : purchaseItems) {
+            item.setPurchase(purchase);
+        }
+
+        purchaseRepository.save(purchase);
+
         response.put("message", "Zakup zakończony sukcesem");
+        response.put("totalPrice", totalPurchasePrice);
         response.put("error", HttpStatus.OK.value());
         response.put("timestamp", new Timestamp(new Date().getTime()));
         return response;
     }
 
-    public Map<String, Object> addShopItem(ShopItems shopItems) {
+    private User getCurrentUser() {
+        //TODO: temporary solution before implementing Logging in
+        // Implementacja pobierania ID aktualnie zalogowanego użytkownika
+        // Może to być np. z kontekstu bezpieczeństwa Spring Security
+        // return SecurityContextHolder.getContext().getAuthentication().getPrincipal().getId();
+        return userRepository.findById(1L).orElseThrow(() -> new ResourceNotFoundException("Nie znaleziono użytkownika o Id 1")); // Tymczasowe rozwiązanie
+    }
 
-        // Check if the item already exists
-        if (shopItemsRepository.existsById(shopItems.getId())) {
-            throw new IllegalStateException("Przedmiot o id " + shopItems.getId() + " już istnieje w sklepie");
-        }
+    public Map<String, Object> addShopItem(ShopItems shopItems) {
 
         if (shopItemsRepository.findByName(shopItems.getName()).isPresent()) {
             throw new IllegalStateException("Przedmiot o nazwie " + shopItems.getName() + " już istnieje w sklepie");
@@ -116,7 +130,6 @@ public class ShopItemsService {
         if (shopItems.getDescription().isEmpty()) {
             throw new IllegalStateException("Niepoprawny opis przedmiotu");
         }
-
 
         Map<String, Object> response = new HashMap<>();
         shopItemsRepository.save(shopItems);
@@ -163,8 +176,8 @@ public class ShopItemsService {
                 .orElseThrow(() -> new ResourceNotFoundException("Przedmiot o id " + id + " nie istnieje w sklepie"));
 
         String message;
-        // Sprawdź, czy przedmiot jest powiązany z jakimkolwiek zakupem
-        if (purchaseRepository.existsByShopItemId(id)) {
+        // Check if the item is associated with any purchase
+        if (purchaseRepository.existsByItems_ShopItem_Id(id)) {
             message = "Przedmiot jest powiązany z zakupem, deaktywacja przedmiotu";
             shopItem.setActive(false);
             shopItemsRepository.save(shopItem);
@@ -174,7 +187,6 @@ public class ShopItemsService {
         }
 
         Map<String, Object> response = new HashMap<>();
-        shopItemsRepository.delete(shopItem);
         response.put("message", message);
         response.put("error", HttpStatus.OK.value());
         response.put("timestamp", new Timestamp(new Date().getTime()));
@@ -182,65 +194,55 @@ public class ShopItemsService {
     }
 
     public List<PurchaseRecordDTO> getPurchaseHistory() {
-        Long userId = getCurrentUserId();
+        Long userId = getCurrentUser().getId();
         List<Purchase> purchases = purchaseRepository.findByUserId(userId);
-        Map<Long, List<PurchaseDTO>> purchaseMap = new HashMap<>();
-        Map<Long, Date> purchaseDateMap = new HashMap<>();
+        List<PurchaseRecordDTO> purchaseRecords = new ArrayList<>();
 
         for (Purchase purchase : purchases) {
-            PurchaseDTO dto = new PurchaseDTO(
-                    purchase.getShopItem().getName(),
-                    purchase.getQuantity(),
-                    purchase.getTotalPrice(),
-                    purchase.getShopItem().getPrice()
-            );
-
-            purchaseMap.computeIfAbsent(purchase.getId(), k -> new ArrayList<>()).add(dto);
-            purchaseDateMap.put(purchase.getId(), purchase.getPurchaseDate());
-        }
-
-        List<PurchaseRecordDTO> purchaseRecords = new ArrayList<>();
-        for (Map.Entry<Long, List<PurchaseDTO>> entry : purchaseMap.entrySet()) {
-            double totalAmount = entry.getValue().stream().mapToDouble(PurchaseDTO::getTotalPrice).sum();
-            Date purchaseDate = purchaseDateMap.get(entry.getKey());
-            purchaseRecords.add(new PurchaseRecordDTO(entry.getKey(), userId, purchaseDate, entry.getValue(), (float) totalAmount));
+            List<PurchaseDTO> items = new ArrayList<>();
+            for (PurchaseItem item : purchase.getItems()) {
+                PurchaseDTO dto = new PurchaseDTO(
+                        item.getShopItem().getName(),
+                        item.getQuantity(),
+                        item.getPrice(),
+                        item.getTotalPrice()
+                );
+                items.add(dto);
+            }
+            purchaseRecords.add(new PurchaseRecordDTO(
+                    purchase.getId(),
+                    userId,
+                    purchase.getPurchaseDate(),
+                    items,
+                    purchase.getTotalPrice()
+            ));
         }
 
         return purchaseRecords;
     }
 
-    private Long getCurrentUserId() {
-        // Implementacja pobierania ID aktualnie zalogowanego użytkownika
-        // Może to być np. z kontekstu bezpieczeństwa Spring Security
-        // return SecurityContextHolder.getContext().getAuthentication().getPrincipal().getId();
-        return 1L; // Tymczasowe rozwiązanie
-    }
-
     public List<PurchaseRecordDTO> getPurchaseHistoryAll() {
         List<Purchase> purchases = purchaseRepository.findAll();
-        Map<Long, List<PurchaseDTO>> purchaseMap = new HashMap<>();
-        Map<Long, Long> purchaseUserMap = new HashMap<>();
-        Map<Long, Date> purchaseDateMap = new HashMap<>();
+        List<PurchaseRecordDTO> purchaseRecords = new ArrayList<>();
 
         for (Purchase purchase : purchases) {
-            PurchaseDTO dto = new PurchaseDTO(
-                    purchase.getShopItem().getName(),
-                    purchase.getQuantity(),
-                    purchase.getTotalPrice(),
-                    purchase.getShopItem().getPrice()
-            );
-
-            purchaseMap.computeIfAbsent(purchase.getId(), k -> new ArrayList<>()).add(dto);
-            purchaseUserMap.put(purchase.getId(), purchase.getUser().getId());
-            purchaseDateMap.put(purchase.getId(), purchase.getPurchaseDate());
-        }
-
-        List<PurchaseRecordDTO> purchaseRecords = new ArrayList<>();
-        for (Map.Entry<Long, List<PurchaseDTO>> entry : purchaseMap.entrySet()) {
-            double totalAmount = entry.getValue().stream().mapToDouble(PurchaseDTO::getTotalPrice).sum();
-            Long userId = purchaseUserMap.get(entry.getKey());
-            Date purchaseDate = purchaseDateMap.get(entry.getKey());
-            purchaseRecords.add(new PurchaseRecordDTO(entry.getKey(), userId, purchaseDate, entry.getValue(), (float) totalAmount));
+            List<PurchaseDTO> items = new ArrayList<>();
+            for (PurchaseItem item : purchase.getItems()) {
+                PurchaseDTO dto = new PurchaseDTO(
+                        item.getShopItem().getName(),
+                        item.getQuantity(),
+                        item.getPrice(),
+                        item.getTotalPrice()
+                );
+                items.add(dto);
+            }
+            purchaseRecords.add(new PurchaseRecordDTO(
+                    purchase.getId(),
+                    purchase.getUser().getId(),
+                    purchase.getPurchaseDate(),
+                    items,
+                    purchase.getTotalPrice()
+            ));
         }
 
         return purchaseRecords;

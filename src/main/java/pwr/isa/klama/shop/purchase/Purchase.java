@@ -1,4 +1,4 @@
-package pwr.isa.klama.shop;
+package pwr.isa.klama.shop.purchase;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -7,6 +7,7 @@ import lombok.Setter;
 import pwr.isa.klama.user.User;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @Entity
 @Getter
@@ -29,10 +30,9 @@ public class Purchase {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "shop_item_id", nullable = false)
-    private ShopItems shopItem;
-    private int quantity;
     private Timestamp purchaseDate;
     private float totalPrice;
+
+    @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL)
+    private List<PurchaseItem> items;
 }

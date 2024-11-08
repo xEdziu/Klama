@@ -8,7 +8,7 @@ import org.hibernate.proxy.HibernateProxy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import pwr.isa.klama.shop.Purchase;
+import pwr.isa.klama.shop.purchase.Purchase;
 
 import java.sql.Timestamp;
 import java.util.Collection;

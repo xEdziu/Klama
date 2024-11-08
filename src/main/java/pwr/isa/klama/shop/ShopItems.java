@@ -44,6 +44,7 @@ public class ShopItems {
                 ", description='" + description + '\'' +
                 ", price=" + price +
                 ", quantity=" + quantity +
+                ", active=" + active +
                 '}';
     }
 }

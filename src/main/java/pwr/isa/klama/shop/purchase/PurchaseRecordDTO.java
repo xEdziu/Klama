@@ -1,4 +1,4 @@
-package pwr.isa.klama.shop;
+package pwr.isa.klama.shop.purchase;
 
 import java.util.Date;
 import java.util.List;

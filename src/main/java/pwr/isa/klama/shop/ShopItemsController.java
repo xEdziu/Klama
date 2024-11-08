@@ -2,6 +2,8 @@ package pwr.isa.klama.shop;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import pwr.isa.klama.shop.purchase.PurchaseRecordDTO;
+import pwr.isa.klama.shop.purchase.PurchaseRequest;
 
 import java.util.List;
 import java.util.Map;
