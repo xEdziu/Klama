@@ -7,7 +7,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import pwr.isa.klama.auth.registration.token.ConfirmationToken;
@@ -27,8 +26,6 @@ import java.util.*;
 public class UserService implements UserDetailsService {
 
     private final static String USER_NOT_FOUND_MSG_USERNAME = "Nie znaleziono użytkownika o nicku %s";
-    private final static String USER_NOT_FOUND_MSG_EMAIL = "Nie znaleziono użytkownika o emailu %s";
-    private final static String USER_NOT_FOUND_MSG_USERNAME_OR_EMAIL = "Nie znaleziono użytkownika o nicku %s lub emailu %s";
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final UserRepository userRepository;
     private final ConfirmationTokenService confirmationTokenService;
@@ -50,18 +47,6 @@ public class UserService implements UserDetailsService {
         return userRepository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG_USERNAME, id)));
-    }
-
-    public UserDetails loadUserByEmail(String email) throws ResourceNotFoundException {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG_EMAIL, email)));
-    }
-
-    public UserDetails loadUserByUsernameOrEmail(String username, String email) throws UsernameNotFoundException {
-        return userRepository.findByUsernameOrEmail(username, email)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG_USERNAME_OR_EMAIL, username, email)));
     }
 
     @Transactional
@@ -121,14 +106,6 @@ public class UserService implements UserDetailsService {
                 "Kliknij <a href=\"" + link + "\">tutaj</a>, aby aktywować konto";
     }
 
-    public UserDTO getUserByUsername(String username) {
-        Optional<User> user = userRepository.findByUsername(username);
-        if (user.isEmpty()) {
-            throw new IllegalStateException("Użytkownik o nicku " + username + " nie istnieje");
-        }
-        return new UserDTO(user.get().getId(), user.get().getFirstName(), user.get().getSurname(), user.get().getUsername(), user.get().getEmail());
-    }
-
     public UserDTO getUserInfo() {
         Authentication authentication = getAuthentication();
         User user = (User) loadUserByUsername(authentication.getName());
@@ -149,6 +126,7 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
+    //TODO: Usunąć zależności od userId, ściągać je z organu Autoryzacyjnego
     public Map<String, Object> updateUser(Long userId, User user) {
         Optional<User> userOpt = userRepository.findById(userId);
         if (userOpt.isEmpty()) {
@@ -173,6 +151,7 @@ public class UserService implements UserDetailsService {
         return response;
     }
 
+    //TODO: Usunąć zależności od userId, ściągać je z organu Autoryzacyjnego
     public Map<String, Object> deleteUser(Long userId) {
         boolean exists = userRepository.existsById(userId);
         if (!exists) {
