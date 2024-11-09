@@ -30,10 +30,11 @@ public class WebSecurityConfig {
                                 .requestMatchers("/api/v1/authorized/admin/**").hasAuthority("ROLE_ADMIN") // Only for ADMIN
                                 .requestMatchers("/api/v1/authorized/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN") // For USER and ADMIN
                                 .requestMatchers("/api/v1/**").permitAll() // Publicly accessible, no login required
-                                .requestMatchers("/admin").hasAuthority("ROLE_ADMIN")
-                                .requestMatchers("/home").hasAuthority("ROLE_USER")
+                                .requestMatchers("/admin", "/admin/**").hasAuthority("ROLE_ADMIN")
+                                .requestMatchers("/home", "/home/**").hasAuthority("ROLE_USER")
                                 .requestMatchers("/login", "/register").permitAll()
                                 .requestMatchers("/").permitAll()
+                                .requestMatchers("/static/**").permitAll()
                                 .anyRequest()
                                 .authenticated()
                 )
