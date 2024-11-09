@@ -107,37 +107,17 @@ public class UserService implements UserDetailsService {
     }
 
     public UserDTO getUserInfo() {
-        Authentication authentication = getAuthentication();
-        User user = (User) loadUserByUsername(authentication.getName());
+        User user = (User) getAuthentication().getPrincipal();
 
         if (!user.getEnabled()) {
             throw new AccountNotActivatedException("Konto nie zostało jeszcze aktywowane, sprawdź email w celu aktywacji");
         }
 
         return new UserDTO(user.getId(), user.getFirstName(), user.getSurname(), user.getUsername(), user.getEmail());
-//        Optional<User> user = userRepository.findById(userId);
-//        if (user.isEmpty()) {
-//            throw new IllegalStateException("Użytkownik o id " + userId + " nie istnieje");
-//        }
-//        if (user.get().getRole() == UserRole.ROLE_ADMIN) {
-//            throw new IllegalStateException("Nie można wyświetlić danych - ADM_ERR");
-//        }
-//        return new UserDTO(user.get().getId(), user.get().getFirstName(), user.get().getSurname(), user.get().getUsername(), user.get().getEmail());
     }
 
-    @Transactional
-    //TODO: Usunąć zależności od userId, ściągać je z organu Autoryzacyjnego
-    public Map<String, Object> updateUser(Long userId, User user) {
-        Optional<User> userOpt = userRepository.findById(userId);
-        if (userOpt.isEmpty()) {
-            throw new IllegalStateException("Użytkownik o id " + userId + " nie istnieje");
-        }
-
-        if (userOpt.get().getRole() == UserRole.ROLE_ADMIN) {
-            throw new IllegalStateException("Nie można edytować danych - ADM_ERR");
-        }
-
-        User existingUser = userOpt.get();
+    public Map<String, Object> updateUser(User user) {
+        User existingUser = (User) getAuthentication().getPrincipal();
         existingUser.setFirstName(user.getFirstName());
         existingUser.setSurname(user.getSurname());
         existingUser.setUsername(user.getUsername());
@@ -145,14 +125,17 @@ public class UserService implements UserDetailsService {
         existingUser.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         userRepository.save(existingUser);
         Map<String, Object> response = new HashMap<>();
-        response.put("message", "Użytkownik o id " + userId + " został zaktualizowany");
+        response.put("message", "Użytkownik o id " + existingUser.getId() + " został zaktualizowany");
         response.put("error", HttpStatus.OK.value());
         response.put("timestamp", new Timestamp(new Date().getTime()));
         return response;
     }
 
-    //TODO: Usunąć zależności od userId, ściągać je z organu Autoryzacyjnego
-    public Map<String, Object> deleteUser(Long userId) {
+
+    public Map<String, Object> deleteUser() {
+        User user = (User) getAuthentication().getPrincipal();
+        Long userId = user.getId();
+
         boolean exists = userRepository.existsById(userId);
         if (!exists) {
             throw new IllegalStateException("Użytkownik o id " + userId + " nie istnieje, nie można go usunąć");
