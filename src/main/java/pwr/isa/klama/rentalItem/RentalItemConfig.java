@@ -16,14 +16,16 @@ public class RentalItemConfig {
                     "magnezja",
                     "opis jakis tam",
                     15.5F,
-                    30
+                    30,
+                    ItemStatus.ACTIVE
             );
 
             RentalItem buty = new RentalItem(
                     "buty",
                     "opis jakis tam",
                     18.5F,
-                    15
+                    15,
+                    ItemStatus.ACTIVE
             );
 
             repository.saveAll(

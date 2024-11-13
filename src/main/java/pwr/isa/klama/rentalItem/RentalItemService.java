@@ -1,6 +1,8 @@
 package pwr.isa.klama.rentalItem;
 
 import jakarta.transaction.Transactional;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -27,7 +29,13 @@ public class RentalItemService {
         this.rentRepository = rentRepository;
     }
 
-    public List<RentalItem> getRentalItem() {return rentalItemRepository.findAll(); }
+    public List<RentalItem> getRentalItemsForAdmin() {return rentalItemRepository.findAll(); }
+
+    public List<RentalItem> getRentalItems() {
+        return rentalItemRepository.findAll().stream()
+                .filter(rentalItem -> rentalItem.getStatus() == ItemStatus.ACTIVE)
+                .collect(Collectors.toList());
+    }
 
     public RentalItem getRentalItemById(Long rentalItemId) {
         boolean exists = rentalItemRepository.existsById(rentalItemId);
@@ -71,7 +79,9 @@ public class RentalItemService {
         if(rentalItem.getName() == null &&
                 rentalItem.getId() == null &&
                 rentalItem.getPrice() == null &&
-                rentalItem.getQuantity() == null) {
+                rentalItem.getQuantity() == null &&
+                rentalItem.getDescription() == null &&
+                rentalItem.getStatus() == null) {
             throw new IllegalArgumentException("Należy podać jeden z parametrów");
         }
         if(!rentalItemRepository.existsById(rentalItemId)) {
@@ -109,6 +119,13 @@ public class RentalItemService {
             rentalItemToUpdate.setDescription(rentalItem.getDescription());
         }
 
+        if(rentalItem.getStatus() != null) {
+            if(rentalItemToUpdate.getStatus() == null) {
+                throw new IllegalStateException("Status nie może być pusty");
+            }
+            rentalItemToUpdate.setStatus(rentalItem.getStatus());
+        }
+
         rentalItemRepository.save(rentalItemToUpdate);
 
         Map<String, Object> response = new HashMap<>();
@@ -128,8 +145,8 @@ public class RentalItemService {
         Timestamp currentTimestamp = new Timestamp(new Date().getTime());
 
         // Validate the rental date
-        if (rentDate.after(currentTimestamp)) {
-            throw new IllegalStateException("Data wypożyczenia nie może być późniejsza niż obecna data");
+        if (rentDate.before(currentTimestamp)) {
+            throw new IllegalStateException("Data wypożyczenia nie może być wcześniejsza niż obecna data");
         }
 
         // Calculate the number of rental days
@@ -139,6 +156,11 @@ public class RentalItemService {
         for (RentRequest request : rentRequests) {
             RentalItem rentalItem = rentalItemRepository.findById(request.getItemId())
                     .orElseThrow(() -> new ResourceNotFoundException("Przedmiot o id " + request.getItemId() + " nie istnieje w wypożyczlni"));
+
+            // Check if the item is active
+            if (rentalItem.getStatus() != ItemStatus.ACTIVE) {
+                throw new IllegalStateException("Przedmiot o id " + request.getItemId() + " jest nieaktywny");
+            }
 
             // Check if the quantity is valid
             if (request.getQuantity() <= 0) {

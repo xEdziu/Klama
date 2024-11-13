@@ -9,6 +9,7 @@ import pwr.isa.klama.rentalItem.rent.RentRequestBody;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = "api/v1")
@@ -24,7 +25,7 @@ public class RentalItemController {
     // ============ Freely available methods ============
     @GetMapping(path = "/rentalItem/all")
     public List<RentalItem> getRentalItems() {
-        return rentalItemService.getRentalItem();
+        return rentalItemService.getRentalItems();
     }
 
     @GetMapping(path = "/rentalItem/{rentalItemId}")
@@ -46,6 +47,11 @@ public class RentalItemController {
     }
 
     // ============ Admin methods ============
+    @GetMapping(path = "/authorized/admin/rentalItem/all")
+    public List<RentalItem> getRentalItemsForAdmin() {
+        return rentalItemService.getRentalItemsForAdmin();
+    }
+
     @GetMapping(path = "/authorized/admin/rentalItem/history")
     public List<RentRecordDTO> getRentHistoryAll() { return rentalItemService.getRentHistoryAll();
     }
