@@ -206,4 +206,16 @@ public class UserService implements UserDetailsService {
     private Authentication getAuthentication() {
         return SecurityContextHolder.getContext().getAuthentication();
     }
+
+    public Map<String, Object> updateUserPassword(User password) {
+        User user = (User) getAuthentication().getPrincipal();
+        String pwd = password.getPassword();
+        user.setPassword(bCryptPasswordEncoder.encode(pwd));
+        userRepository.save(user);
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Hasło zostało zaktualizowane");
+        response.put("error", HttpStatus.OK.value());
+        response.put("timestamp", new Timestamp(new Date().getTime()));
+        return response;
+    }
 }

@@ -29,6 +29,12 @@ public class UserController {
         return userService.updateUser(user);
     }
 
+    // This method is both for updating password of the user and for the admin
+    @PutMapping(path = "/user/update/password")
+    public Map<String, Object> updateUserPassword(@RequestBody User password) {
+        return userService.updateUserPassword(password);
+    }
+
     @DeleteMapping(path = "/user/delete")
     public Map<String, Object> deleteUser() {
         return userService.deleteUser();
