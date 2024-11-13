@@ -24,24 +24,35 @@ public class UserConfig {
                     "Admin",
                     "default.admin@gmail.com",
                     bCryptPasswordEncoder.encode(String.valueOf(UUID.randomUUID())),
-                    UserRole.ADMIN,
-                    new Timestamp(new Date().getTime()),
-                    null
+                    UserRole.ROLE_ADMIN,
+                    new Timestamp(new Date().getTime())
             );
             userRepository.save(admin);
             userRepository.enableUser(admin.getEmail());
+            String password = "superSecretPassword";
             User sampleAdmin = new User(
                     "Sample",
                     "Sample",
                     "Admin",
                     "sampleAdmin@mail.com",
-                    bCryptPasswordEncoder.encode(String.valueOf(UUID.randomUUID())),
-                    UserRole.ADMIN,
-                    new Timestamp(new Date().getTime()),
-                    null
+                    bCryptPasswordEncoder.encode(password),
+                    UserRole.ROLE_ADMIN,
+                    new Timestamp(new Date().getTime())
             );
             userRepository.save(sampleAdmin);
             userRepository.enableUser(sampleAdmin.getEmail());
+            String userPassword = "agoral06";
+            User user = new User(
+                    "eddy06",
+                    "Adrian",
+                    "Goral",
+                    "adrian.goral@gmail.com",
+                    bCryptPasswordEncoder.encode(userPassword),
+                    UserRole.ROLE_USER,
+                    new Timestamp(new Date().getTime())
+            );
+            userRepository.save(user);
+            userRepository.enableUser(user.getEmail());
         };
     }
 }

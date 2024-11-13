@@ -3,9 +3,10 @@ package pwr.isa.klama.user;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import pwr.isa.klama.auth.registration.token.ConfirmationToken;
@@ -25,8 +26,6 @@ import java.util.*;
 public class UserService implements UserDetailsService {
 
     private final static String USER_NOT_FOUND_MSG_USERNAME = "Nie znaleziono użytkownika o nicku %s";
-    private final static String USER_NOT_FOUND_MSG_EMAIL = "Nie znaleziono użytkownika o emailu %s";
-    private final static String USER_NOT_FOUND_MSG_USERNAME_OR_EMAIL = "Nie znaleziono użytkownika o nicku %s lub emailu %s";
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final UserRepository userRepository;
     private final ConfirmationTokenService confirmationTokenService;
@@ -48,18 +47,6 @@ public class UserService implements UserDetailsService {
         return userRepository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG_USERNAME, id)));
-    }
-
-    public UserDetails loadUserByEmail(String email) throws ResourceNotFoundException {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG_EMAIL, email)));
-    }
-
-    public UserDetails loadUserByUsernameOrEmail(String username, String email) throws UsernameNotFoundException {
-        return userRepository.findByUsernameOrEmail(username, email)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(String.format(USER_NOT_FOUND_MSG_USERNAME_OR_EMAIL, username, email)));
     }
 
     @Transactional
@@ -119,37 +106,18 @@ public class UserService implements UserDetailsService {
                 "Kliknij <a href=\"" + link + "\">tutaj</a>, aby aktywować konto";
     }
 
-    public UserDTO getUserByUsername(String username) {
-        Optional<User> user = userRepository.findByUsername(username);
-        if (user.isEmpty()) {
-            throw new IllegalStateException("Użytkownik o nicku " + username + " nie istnieje");
+    public UserDTO getUserInfo() {
+        User user = (User) getAuthentication().getPrincipal();
+
+        if (!user.getEnabled()) {
+            throw new AccountNotActivatedException("Konto nie zostało jeszcze aktywowane, sprawdź email w celu aktywacji");
         }
-        return new UserDTO(user.get().getId(), user.get().getFirstName(), user.get().getSurname(), user.get().getUsername(), user.get().getEmail());
+
+        return new UserDTO(user.getId(), user.getFirstName(), user.getSurname(), user.getUsername(), user.getEmail());
     }
 
-    public UserDTO getUserById(Long userId) {
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isEmpty()) {
-            throw new IllegalStateException("Użytkownik o id " + userId + " nie istnieje");
-        }
-        if (user.get().getRole() == UserRole.ADMIN) {
-            throw new IllegalStateException("Nie można wyświetlić danych - ADM_ERR");
-        }
-        return new UserDTO(user.get().getId(), user.get().getFirstName(), user.get().getSurname(), user.get().getUsername(), user.get().getEmail());
-    }
-
-    @Transactional
-    public Map<String, Object> updateUser(Long userId, User user) {
-        Optional<User> userOpt = userRepository.findById(userId);
-        if (userOpt.isEmpty()) {
-            throw new IllegalStateException("Użytkownik o id " + userId + " nie istnieje");
-        }
-
-        if (userOpt.get().getRole() == UserRole.ADMIN) {
-            throw new IllegalStateException("Nie można edytować danych - ADM_ERR");
-        }
-
-        User existingUser = userOpt.get();
+    public Map<String, Object> updateUser(User user) {
+        User existingUser = (User) getAuthentication().getPrincipal();
         existingUser.setFirstName(user.getFirstName());
         existingUser.setSurname(user.getSurname());
         existingUser.setUsername(user.getUsername());
@@ -157,19 +125,23 @@ public class UserService implements UserDetailsService {
         existingUser.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         userRepository.save(existingUser);
         Map<String, Object> response = new HashMap<>();
-        response.put("message", "Użytkownik o id " + userId + " został zaktualizowany");
+        response.put("message", "Użytkownik o id " + existingUser.getId() + " został zaktualizowany");
         response.put("error", HttpStatus.OK.value());
         response.put("timestamp", new Timestamp(new Date().getTime()));
         return response;
     }
 
-    public Map<String, Object> deleteUser(Long userId) {
+
+    public Map<String, Object> deleteUser() {
+        User user = (User) getAuthentication().getPrincipal();
+        Long userId = user.getId();
+
         boolean exists = userRepository.existsById(userId);
         if (!exists) {
             throw new IllegalStateException("Użytkownik o id " + userId + " nie istnieje, nie można go usunąć");
         }
 
-        if (userRepository.findById(userId).isPresent() && userRepository.findById(userId).get().getRole() == UserRole.ADMIN) {
+        if (userRepository.findById(userId).isPresent() && userRepository.findById(userId).get().getRole() == UserRole.ROLE_ADMIN) {
             throw new IllegalStateException("Nie można usunąć użytkownika - ADM_ERR");
         }
 
@@ -229,5 +201,9 @@ public class UserService implements UserDetailsService {
         response.put("error", HttpStatus.OK.value());
         response.put("timestamp", new Timestamp(new Date().getTime()));
         return response;
+    }
+
+    private Authentication getAuthentication() {
+        return SecurityContextHolder.getContext().getAuthentication();
     }
 }

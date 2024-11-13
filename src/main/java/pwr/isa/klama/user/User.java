@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -22,6 +23,7 @@ import java.util.Objects;
 @Setter
 @NoArgsConstructor
 @Entity
+@ToString
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class User implements UserDetails {
 
@@ -44,11 +46,11 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserRole role;
     @OneToMany(mappedBy = "user")
+    @ToString.Exclude
     private List<Purchase> purchases;
     private Boolean locked = false;
     private Boolean enabled = false;
     private Timestamp createdAt;
-    private Timestamp lastLogin;
 
     public User(Long id) {
         this.id = id;
@@ -60,8 +62,7 @@ public class User implements UserDetails {
                 String email,
                 String password,
                 UserRole role,
-                Timestamp createdAt,
-                Timestamp lastLogin) {
+                Timestamp createdAt) {
         this.username = username;
         this.firstName = firstName;
         this.surname = surname;
@@ -69,7 +70,6 @@ public class User implements UserDetails {
         this.password = password;
         this.role = role;
         this.createdAt = createdAt;
-        this.lastLogin = lastLogin;
     }
 
     @Override
@@ -124,19 +124,5 @@ public class User implements UserDetails {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 
-    @Override
-    public final String toString() {
-        return "User{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", surname='" + surname + '\'' +
-                ", email='" + email + '\'' +
-                ", role=" + role +
-                ", locked=" + locked +
-                ", enabled=" + enabled +
-                ", createdAt=" + createdAt +
-                ", lastLogin=" + lastLogin +
-                '}';
-    }
+
 }

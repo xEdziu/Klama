@@ -39,9 +39,8 @@ public class RegisterService {
                         request.getSurname(),
                         request.getEmail(),
                         request.getPassword(),
-                        UserRole.USER,
-                        new Timestamp(new Date().getTime()),
-                        null
+                        UserRole.ROLE_USER,
+                        new Timestamp(new Date().getTime())
                 )
         );
 

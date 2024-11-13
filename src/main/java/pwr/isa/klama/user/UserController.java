@@ -19,19 +19,19 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping(path = "/user/{userId}")
-    public UserDTO getUserById(@PathVariable("userId") Long userId) {
-        return userService.getUserById(userId);
+    @GetMapping(path = "/user")
+    public UserDTO getUserInfo() {
+        return userService.getUserInfo();
     }
 
-    @PutMapping(path = "/user/update/{userId}")
-    public Map<String, Object> updateUser(@PathVariable("userId") Long userId, @RequestBody User user) {
-        return userService.updateUser(userId, user);
+    @PutMapping(path = "/user/update")
+    public Map<String, Object> updateUser(@RequestBody User user) {
+        return userService.updateUser(user);
     }
 
-    @DeleteMapping(path = "/user/delete/{userId}")
-    public Map<String, Object> deleteUser(@PathVariable("userId") Long userId) {
-        return userService.deleteUser(userId);
+    @DeleteMapping(path = "/user/delete")
+    public Map<String, Object> deleteUser() {
+        return userService.deleteUser();
     }
 
     @GetMapping(path = "/admin/user/all")
