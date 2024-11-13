@@ -9,13 +9,11 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import pwr.isa.klama.security.logging.ApiLogger;
 
 @Service
 @AllArgsConstructor
 public class EmailService implements EmailSender {
-
-    private final static Logger LOGGER = LoggerFactory
-            .getLogger(EmailService.class);
 
     private final JavaMailSender mailSender;
 
@@ -33,7 +31,7 @@ public class EmailService implements EmailSender {
             helper.setFrom("adrian.goral@gmail.com");
             mailSender.send(mimeMessage);
         } catch (MessagingException e) {
-            LOGGER.error("failed to send email", e);
+            ApiLogger.logSevere("EmailService.class","failed to send email" + e);
             throw new IllegalStateException("Nie udało się wysłać emaila");
         }
     }

@@ -8,6 +8,7 @@ import org.springframework.web.context.request.WebRequest;
 import pwr.isa.klama.exceptions.AccountNotActivatedException;
 import pwr.isa.klama.exceptions.ForbiddenActionException;
 import pwr.isa.klama.exceptions.ResourceNotFoundException;
+import pwr.isa.klama.security.logging.ApiLogger;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -19,6 +20,7 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<Map<String, Object>> handleIllegalStateException(IllegalStateException ex, WebRequest request) {
+        ApiLogger.logWarning(request.getDescription(false).substring(4), ex.getMessage());
         Map<String, Object> response = new HashMap<>();
         response.put("timestamp", new Timestamp(new Date().getTime()));
         response.put("message", ex.getMessage());
@@ -30,6 +32,7 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
+        ApiLogger.logWarning(request.getDescription(false).substring(4), ex.getMessage());
         Map<String, Object> response = new HashMap<>();
         response.put("timestamp", new Timestamp(new Date().getTime()));
         response.put("message", ex.getMessage());
@@ -41,6 +44,7 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(AccountNotActivatedException.class)
     public ResponseEntity<Map<String, Object>> handleAccountNotActivated(AccountNotActivatedException ex, WebRequest request) {
+        ApiLogger.logWarning(request.getDescription(false).substring(4), ex.getMessage());
         Map<String, Object> response = new HashMap<>();
         response.put("timestamp", new Timestamp(new Date().getTime()));
         response.put("message", ex.getMessage());
@@ -52,6 +56,7 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(ForbiddenActionException.class)
     public ResponseEntity<Map<String, Object>> handleForbiddenAction(ForbiddenActionException ex, WebRequest request) {
+        ApiLogger.logSevere(request.getDescription(false).substring(4), ex.getMessage());
         Map<String, Object> response = new HashMap<>();
         response.put("timestamp", new Timestamp(new Date().getTime()));
         response.put("message", ex.getMessage());

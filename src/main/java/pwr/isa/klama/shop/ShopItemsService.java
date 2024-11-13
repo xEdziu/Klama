@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import pwr.isa.klama.exceptions.ResourceNotFoundException;
+import pwr.isa.klama.security.logging.ApiLogger;
 import pwr.isa.klama.shop.purchase.*;
 import pwr.isa.klama.user.User;
 import pwr.isa.klama.user.UserRepository;
@@ -28,10 +29,12 @@ public class ShopItemsService {
     }
 
     public List<ShopItems> getShopItems() {
+        ApiLogger.logInfo("/api/v1/shopItems", "Get all active shop items");
         return shopItemsRepository.findByActive(true);
     }
 
     public ShopItems getShopItemById(Long id) {
+        ApiLogger.logInfo("/api/v1/shopItems/" + id, "Get shop item by id");
         ShopItems shopItem = shopItemsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Przedmiot o  " + id + " nie istnieje w sklepie"));
 
@@ -42,11 +45,13 @@ public class ShopItemsService {
     }
 
     public List<ShopItems> getShopItemsAll() {
+        ApiLogger.logInfo("/api/v1/authorized/admin/shopItems", "Get all shop items");
         return shopItemsRepository.findAll();
     }
 
     @Transactional
     public Map<String, Object> buyShopItems(List<PurchaseRequest> purchaseRequests) {
+        ApiLogger.logInfo("/api/v1/authorized/shopItems/buy", "Buy shop items - user " + getCurrentUser().getId());
         Map<String, Object> response = new HashMap<>();
         float totalPurchasePrice = 0;
         List<PurchaseItem> purchaseItems = new ArrayList<>();
@@ -105,6 +110,8 @@ public class ShopItemsService {
 
     public Map<String, Object> addShopItem(ShopItems shopItems) {
 
+        ApiLogger.logInfo("/api/v1/authorized/admin/shopItems/add", "Add shop item - admin " + getCurrentUser().getId());
+
         if (shopItemsRepository.findByName(shopItems.getName()).isPresent()) {
             throw new IllegalStateException("Przedmiot o nazwie " + shopItems.getName() + " już istnieje w sklepie");
         }
@@ -142,6 +149,9 @@ public class ShopItemsService {
     }
 
     public Map<String, Object> updateShopItem(Long id, ShopItems shopItems) {
+
+        ApiLogger.logInfo("/api/v1/authorized/admin/shopItems/update/" + id, "Update shop item - admin " + getCurrentUser().getId());
+
         ShopItems shopItem = shopItemsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Przedmiot o id " + id + " nie istnieje w sklepie"));
 
@@ -174,12 +184,16 @@ public class ShopItemsService {
     }
 
     public Map<String, Object> deleteShopItem(Long id) {
+
+        ApiLogger.logInfo("/api/v1/authorized/admin/shopItems/delete/" + id, "Delete shop item - admin " + getCurrentUser().getId());
+
         ShopItems shopItem = shopItemsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Przedmiot o id " + id + " nie istnieje w sklepie"));
 
         String message;
         // Check if the item is associated with any purchase
         if (purchaseRepository.existsByItems_ShopItem_Id(id)) {
+            ApiLogger.logWarning("/api/v1/authorized/admin/shopItems/delete/" + id, "Przedmiot jest powiązany z zakupem, deaktywacja przedmiotu");
             message = "Przedmiot jest powiązany z zakupem, deaktywacja przedmiotu";
             shopItem.setActive(false);
             shopItemsRepository.save(shopItem);
@@ -196,6 +210,9 @@ public class ShopItemsService {
     }
 
     public List<PurchaseRecordDTO> getPurchaseHistory() {
+
+        ApiLogger.logInfo("/api/v1/authorized/user/purchaseHistory", "Get purchase history - user " + getCurrentUser().getId());
+
         Long userId = getCurrentUser().getId();
         List<Purchase> purchases = purchaseRepository.findByUserId(userId);
         List<PurchaseRecordDTO> purchaseRecords = new ArrayList<>();
@@ -224,6 +241,9 @@ public class ShopItemsService {
     }
 
     public List<PurchaseRecordDTO> getPurchaseHistoryAll() {
+
+        ApiLogger.logInfo("/api/v1/authorized/admin/shopItems/history", "Get purchase history - admin " + getCurrentUser().getId());
+
         List<Purchase> purchases = purchaseRepository.findAll();
         List<PurchaseRecordDTO> purchaseRecords = new ArrayList<>();
 

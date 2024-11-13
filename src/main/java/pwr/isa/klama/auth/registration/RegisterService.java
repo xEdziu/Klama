@@ -8,6 +8,7 @@ import pwr.isa.klama.auth.EmailValidator;
 import pwr.isa.klama.auth.PasswordValidator;
 import pwr.isa.klama.auth.registration.token.ConfirmationToken;
 import pwr.isa.klama.auth.registration.token.ConfirmationTokenService;
+import pwr.isa.klama.security.logging.ApiLogger;
 import pwr.isa.klama.user.User;
 import pwr.isa.klama.email.EmailSender;
 import pwr.isa.klama.user.UserRole;
@@ -29,6 +30,7 @@ public class RegisterService {
     private final EmailSender emailSender;
 
     public Map<String, Object> register(RegisterRequest request) {
+        ApiLogger.logInfo("/api/v1/register/signup", "Rejestracja nowego użytkownika");
         boolean isValidEmail = emailValidator.test(request.getEmail());
         boolean isValidPassword = passwordValidator.test(request.getPassword());
 
@@ -72,7 +74,7 @@ public class RegisterService {
 
     @Transactional
     public Map<String, Object> confirmToken(String token) {
-
+        ApiLogger.logInfo("/api/v1/register/confirm", "Potwierdzenie adresu email");
         ConfirmationToken confirmationToken = confirmationTokenService
                 .getToken(token);
 
