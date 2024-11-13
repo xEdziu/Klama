@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import pwr.isa.klama.exceptions.ResourceNotFoundException;
 import pwr.isa.klama.rentalItem.rent.*;
@@ -31,9 +32,16 @@ public class RentalItemService {
 
     public List<RentalItem> getRentalItemsForAdmin() {return rentalItemRepository.findAll(); }
 
-    public List<RentalItem> getRentalItems() {
+    public List<RentalItemDTO> getRentalItems() {
         return rentalItemRepository.findAll().stream()
                 .filter(rentalItem -> rentalItem.getStatus() == ItemStatus.ACTIVE)
+                .map(rentalItem -> new RentalItemDTO(
+                        rentalItem.getId(),
+                        rentalItem.getName(),
+                        rentalItem.getDescription(),
+                        rentalItem.getPrice(),
+                        rentalItem.getQuantity()
+                ))
                 .collect(Collectors.toList());
     }
 
@@ -62,8 +70,15 @@ public class RentalItemService {
     public Map<String, Object> deleteRentalItem(Long rentalItemId) {
         boolean exists = rentalItemRepository.existsById(rentalItemId);
         if( !exists ) {
-            throw new IllegalArgumentException("Przedmiot o id " + rentalItemId + " nie istnieje");
+            throw new IllegalStateException("Przedmiot o id " + rentalItemId + " nie istnieje");
         }
+
+        // Sprawdzenie, czy przedmiot figuruje w liście wypożyczeń
+        boolean isRented = rentRepository.existsByItems_RentalItem_Id(rentalItemId);
+        if (isRented) {
+            throw new IllegalStateException("Przedmiot o id " + rentalItemId + " jest/był wypożyczony i nie może zostać usunięty");
+        }
+
         rentalItemRepository.deleteById(rentalItemId);
 
         Map<String, Object> response = new HashMap<>();
@@ -147,6 +162,8 @@ public class RentalItemService {
         // Validate the rental date
         if (rentDate.before(currentTimestamp)) {
             throw new IllegalStateException("Data wypożyczenia nie może być wcześniejsza niż obecna data");
+        } else if (returnDate.before(rentDate)) {
+            throw new IllegalStateException("Data zwrotu nie może być wcześniejsza niż data wypożyczenia");
         }
 
         // Calculate the number of rental days
@@ -244,14 +261,6 @@ public class RentalItemService {
         return response;
     }
 
-    private User getCurrentUser() {
-        //TODO: temporary solution before implementing Logging in
-        // Implementacja pobierania ID aktualnie zalogowanego użytkownika
-        // Może to być np. z kontekstu bezpieczeństwa Spring Security
-        // return SecurityContextHolder.getContext().getAuthentication().getPrincipal().getId();
-        return userRepository.findById(1L).orElseThrow(() -> new ResourceNotFoundException("Nie znaleziono użytkownika o Id 1")); // Tymczasowe rozwiązanie
-    }
-
     public List<RentRecordDTO> getRentHistory() {
         Long userId = getCurrentUser().getId();
         List<Rent> rents = rentRepository.findByUserId(userId);
@@ -309,6 +318,10 @@ public class RentalItemService {
         }
 
         return rentRecords;
+    }
+
+    private User getCurrentUser() {
+        return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }
 

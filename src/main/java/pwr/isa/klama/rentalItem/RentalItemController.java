@@ -24,7 +24,7 @@ public class RentalItemController {
 
     // ============ Freely available methods ============
     @GetMapping(path = "/rentalItem/all")
-    public List<RentalItem> getRentalItems() {
+    public List<RentalItemDTO> getRentalItems() {
         return rentalItemService.getRentalItems();
     }
 
@@ -62,7 +62,7 @@ public class RentalItemController {
     }
 
     @DeleteMapping(path = "/authorized/admin/rentalItem/delete/{rentalItemId}")
-    //TODO: Nie da się usunąć przedmiotu, który jest wypożyczony, trzeba zwrócić na to uwagę bo wywala 500-tke zamiast ładnego komunikatu
+    //Nie da się usunąć przedmiotu, który jest lub był wypożyczony
     public Map<String, Object> deleteRentalItem(@PathVariable("rentalItemId") Long rentalItemID) {
         return rentalItemService.deleteRentalItem(rentalItemID);
     }
