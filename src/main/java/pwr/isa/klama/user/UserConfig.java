@@ -14,7 +14,7 @@ import java.util.UUID;
 public class UserConfig {
 
     @Bean
-    CommandLineRunner commandLineRunner(UserRepository userRepository) {
+    CommandLineRunner commandLineRunnerForUsers(UserRepository userRepository) {
         PasswordEncoder passwordEncoder = new PasswordEncoder();
         BCryptPasswordEncoder bCryptPasswordEncoder = passwordEncoder.bCryptPasswordEncoder();
         return args -> {
