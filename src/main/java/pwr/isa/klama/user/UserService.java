@@ -9,6 +9,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import pwr.isa.klama.auth.EmailValidator;
+import pwr.isa.klama.auth.PasswordValidator;
 import pwr.isa.klama.auth.registration.token.ConfirmationToken;
 import pwr.isa.klama.auth.registration.token.ConfirmationTokenService;
 import pwr.isa.klama.email.EmailSender;
@@ -31,6 +33,8 @@ public class UserService implements UserDetailsService {
     private final ConfirmationTokenService confirmationTokenService;
     private final EmailSender emailSender;
     private final PostService postService;
+    private final PasswordValidator passwordValidator;
+    private final EmailValidator emailValidator;
 
     public void enableUser(String email) {
         userRepository.enableUser(email);
@@ -85,6 +89,15 @@ public class UserService implements UserDetailsService {
             }
         }
 
+        boolean isValidEmail = emailValidator.test(user.getEmail());
+        boolean isValidPassword = passwordValidator.test(user.getPassword());
+
+        if (!isValidEmail)
+            throw new IllegalStateException("Email nie jest poprawny");
+
+        if (!isValidPassword)
+            throw new IllegalStateException("Hasło nie spełnia wymagań bezpieczeństwa");
+
         String encodedPassword = bCryptPasswordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
         userRepository.save(user);
@@ -118,13 +131,17 @@ public class UserService implements UserDetailsService {
 
     public Map<String, Object> updateUser(User user) {
         User existingUser = (User) getAuthentication().getPrincipal();
+        boolean isValidEmail = emailValidator.test(user.getEmail());
+        if (!isValidEmail)
+            throw new IllegalStateException("Email nie jest poprawny");
         existingUser.setFirstName(user.getFirstName());
         existingUser.setSurname(user.getSurname());
         existingUser.setUsername(user.getUsername());
         existingUser.setEmail(user.getEmail());
-        existingUser.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         userRepository.save(existingUser);
         Map<String, Object> response = new HashMap<>();
+        if (!user.getPassword().isEmpty() || user.getPassword() != null)
+            response.put("warning", "Hasło nie może być zmienione poprzez ten formularz. Użyj formularza zmiany hasła");
         response.put("message", "Użytkownik o id " + existingUser.getId() + " został zaktualizowany");
         response.put("error", HttpStatus.OK.value());
         response.put("timestamp", new Timestamp(new Date().getTime()));
@@ -163,11 +180,22 @@ public class UserService implements UserDetailsService {
             throw new IllegalStateException("Użytkownik o id " + userId + " nie istnieje");
         }
 
+        boolean isValidEmail = emailValidator.test(user.getEmail());
+        boolean isValidPassword = passwordValidator.test(user.getPassword());
+
+        if (!isValidEmail)
+            throw new IllegalStateException("Email nie jest poprawny");
+
+        if (!isValidPassword)
+            throw new IllegalStateException("Hasło nie spełnia wymagań bezpieczeństwa");
+
         User existingUser = userOpt.get();
         existingUser.setFirstName(user.getFirstName());
         existingUser.setSurname(user.getSurname());
         existingUser.setUsername(user.getUsername());
         existingUser.setEmail(user.getEmail());
+        // Allowed to change password here, because of specific conditions, when user forgot his password
+        // and asked admin to change it
         existingUser.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         userRepository.save(existingUser);
         Map<String, Object> response = new HashMap<>();
@@ -210,6 +238,9 @@ public class UserService implements UserDetailsService {
     public Map<String, Object> updateUserPassword(User password) {
         User user = (User) getAuthentication().getPrincipal();
         String pwd = password.getPassword();
+        boolean isValidPassword = passwordValidator.test(password.getPassword());
+        if (!isValidPassword)
+            throw new IllegalStateException("Hasło nie spełnia wymagań bezpieczeństwa");
         user.setPassword(bCryptPasswordEncoder.encode(pwd));
         userRepository.save(user);
         Map<String, Object> response = new HashMap<>();
