@@ -35,4 +35,5 @@ public class RentItem {
     private int quantity;
     private float price;
     private float totalPrice;
+
 }

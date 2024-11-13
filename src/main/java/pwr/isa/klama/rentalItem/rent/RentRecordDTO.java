@@ -17,4 +17,5 @@ public class RentRecordDTO {
     private Date returnDate;
     private List<RentDTO> items;
     private Float totalPrice;
+    private RentStatus status;
 }

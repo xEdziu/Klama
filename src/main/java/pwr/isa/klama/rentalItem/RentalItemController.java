@@ -4,7 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import pwr.isa.klama.rentalItem.rent.RentRecordDTO;
 import pwr.isa.klama.rentalItem.rent.RentRequest;
+import pwr.isa.klama.rentalItem.rent.RentRequestBody;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 
@@ -34,13 +36,14 @@ public class RentalItemController {
     public List<RentRecordDTO> getRentHistory() { return rentalItemService.getRentHistory(); }
 
     @PostMapping(path = "/authorized/rentalItem/rent")
-    //TODO: Dorobić uwzględznianie ceny zależnie od ilości dni
-    //TODO: Dorabić zaciąganie odpowiednich dat
-    public Map<String, Object> rentRentalItem(@RequestBody List<RentRequest> rentRequests) {
-        return rentalItemService.rentRentalItems(rentRequests);
+    public Map<String, Object> rentRentalItems(@RequestBody RentRequestBody rentRequestBody) {
+        return rentalItemService.rentRentalItems(rentRequestBody.getRentRequests(), rentRequestBody.getRentDate(), rentRequestBody.getReturnDate());
     }
 
-    //TODO: funkcja zwrotu przedmiotu
+    @PostMapping(path = "/authorized/rentalItem/return/{rentId}")
+    public Map<String, Object> returnRentalItem(@PathVariable("rentId") Long rentId) {
+        return rentalItemService.returnRentalItems(rentId);
+    }
 
     // ============ Admin methods ============
     @GetMapping(path = "/authorized/admin/rentalItem/history")

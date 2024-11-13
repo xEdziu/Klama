@@ -41,4 +41,7 @@ public class Rent {
     @OneToMany(mappedBy = "rent", cascade = CascadeType.ALL)
     private List<RentItem> items;
 
+    @Enumerated(EnumType.STRING)
+    private RentStatus status;
+
 }

@@ -119,11 +119,23 @@ public class RentalItemService {
     }
 
     @Transactional
-    public Map<String, Object> rentRentalItems(List<RentRequest> rentRequests) {
+    public Map<String, Object> rentRentalItems(List<RentRequest> rentRequests,
+                                               Timestamp rentDate,
+                                               Timestamp returnDate) {
         Map<String, Object> response = new HashMap<>();
         float totalRentPrice = 0;
         List<RentItem> rentItems = new ArrayList<>();
-        
+        Timestamp currentTimestamp = new Timestamp(new Date().getTime());
+
+        // Validate the rental date
+        if (rentDate.after(currentTimestamp)) {
+            throw new IllegalStateException("Data wypożyczenia nie może być późniejsza niż obecna data");
+        }
+
+        // Calculate the number of rental days
+        long milliseconds = returnDate.getTime() - rentDate.getTime();
+        int rentalDays = (int) (milliseconds / (1000 * 60 * 60 * 24));
+
         for (RentRequest request : rentRequests) {
             RentalItem rentalItem = rentalItemRepository.findById(request.getItemId())
                     .orElseThrow(() -> new ResourceNotFoundException("Przedmiot o id " + request.getItemId() + " nie istnieje w wypożyczlni"));
@@ -142,7 +154,7 @@ public class RentalItemService {
             rentalItem.setQuantity(rentalItem.getQuantity() - request.getQuantity());
             rentalItemRepository.save(rentalItem);
             
-            float itemTotalPrice = rentalItem.getPrice() * request.getQuantity();
+            float itemTotalPrice = rentalItem.getPrice() * request.getQuantity() * rentalDays;
             totalRentPrice += itemTotalPrice;
 
             RentItem rentItem = new RentItem();
@@ -160,11 +172,16 @@ public class RentalItemService {
         // Create a new rent
         Rent rent = new Rent();
         rent.setUser(getCurrentUser()); // Assuming user is retrieved from the security context
-        //TODO: Dostosować date wyporzyczania i zwrotu
-        rent.setRentDate(new Timestamp(new Date().getTime()));
-        rent.setReturnDate(new Timestamp(new Date().getTime()));
+        rent.setRentDate(rentDate);
+        rent.setReturnDate(returnDate);
         rent.setTotalPrice(totalRentPrice);
         rent.setItems(rentItems);
+
+        if (rent.getRentDate().equals(currentTimestamp)) {
+            rent.setStatus(RentStatus.RENTED);
+        } else {
+            rent.setStatus(RentStatus.RESERVED);
+        }
 
         for (RentItem item : rentItems) {
             item.setRent(rent);
@@ -174,6 +191,32 @@ public class RentalItemService {
 
         response.put("message", "Wypożycznie zakończone sukcesem");
         response.put("totalPrice", totalRentPrice);
+        response.put("error", HttpStatus.OK.value());
+        response.put("timestamp", new Timestamp(new Date().getTime()));
+        return response;
+    }
+
+    @Transactional
+    public Map<String, Object> returnRentalItems(Long rentId) {
+        Map<String, Object> response = new HashMap<>();
+
+        Rent rent = rentRepository.findById(rentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Rent o id " + rentId + " nie istnieje"));
+
+        if (rent.getStatus() == RentStatus.RETURNED) {
+            throw new IllegalStateException("Wypożyczenie o id " + rentId + " zostało już zwrócone");
+        }
+
+        for (RentItem rentItem : rent.getItems()) {
+            RentalItem rentalItem = rentItem.getRentalItem();
+            rentalItem.setQuantity(rentalItem.getQuantity() + rentItem.getQuantity());
+            rentalItemRepository.save(rentalItem);
+        }
+
+        rent.setStatus(RentStatus.RETURNED);
+        rentRepository.save(rent);
+
+        response.put("message", "Przedmioty zostały zwrócone");
         response.put("error", HttpStatus.OK.value());
         response.put("timestamp", new Timestamp(new Date().getTime()));
         return response;
@@ -209,7 +252,8 @@ public class RentalItemService {
                     rent.getRentDate(),
                     rent.getReturnDate(),
                     items,
-                    rent.getTotalPrice()
+                    rent.getTotalPrice(),
+                    rent.getStatus()
             ));
         }
 
@@ -237,13 +281,12 @@ public class RentalItemService {
                     rent.getRentDate(),
                     rent.getReturnDate(),
                     items,
-                    rent.getTotalPrice()
+                    rent.getTotalPrice(),
+                    rent.getStatus()
             ));
         }
 
         return rentRecords;
     }
-
-
 }
 
