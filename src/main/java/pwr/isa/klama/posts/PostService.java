@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import pwr.isa.klama.exceptions.ResourceNotFoundException;
+import pwr.isa.klama.security.logging.ApiLogger;
 import pwr.isa.klama.user.User;
 import pwr.isa.klama.user.UserRepository;
 
@@ -25,6 +26,7 @@ public class PostService {
     }
 
     public List<PostDTO> getAllPosts() {
+        ApiLogger.logInfo("/api/v1/posts", "Getting all posts");
         return postRepository.findAll().stream()
                 .map(post -> new PostDTO(
                         post.getId(),
@@ -38,6 +40,7 @@ public class PostService {
 
     public Optional<PostDTO> getPostById(Long postId)
     {
+        ApiLogger.logInfo("/api/v1/posts/" + postId, "Getting post by id = " + postId);
         Optional<Post> post = postRepository.findById(postId);
         return post.map(value -> new PostDTO(
                 value.getId(),
@@ -49,6 +52,7 @@ public class PostService {
     }
 
 public Map<String, Object> addPost(Post post) {
+    ApiLogger.logInfo("/api/v1/authorized/admin/posts/add", "Adding post");
     // Check if the author exists
     Optional<User> authorOptional = userRepository.findById(post.getAuthorId().getId());
     if (authorOptional.isEmpty()) {
@@ -69,6 +73,7 @@ public Map<String, Object> addPost(Post post) {
 }
 
     public Map<String, Object> deletePost(Long postId) {
+        ApiLogger.logInfo("/api/v1/authorized/admin/posts/delete/" + postId, "Deleting post by id = " + postId);
         boolean exists = postRepository.existsById(postId);
         if (!exists) {
             throw new IllegalStateException("Post o id " + postId + " nie istnieje, nie można go usunąć");
@@ -83,6 +88,7 @@ public Map<String, Object> addPost(Post post) {
 
     @Transactional
     public Map<String, Object> updatePost(Long postId, Post post) {
+        ApiLogger.logInfo("/api/v1/authorized/admin/posts/update/" + postId, "Updating post by id = " + postId);
         if (post.getTitle() == null && post.getContent() == null) {
             throw new IllegalStateException("Tytuł i treść nie mogą być puste");
         }
@@ -116,6 +122,7 @@ public Map<String, Object> addPost(Post post) {
     }
 
     public List<Post> getAllPostsByUser(Long userId) {
+        ApiLogger.logInfo("/api/v1/posts/user/" + userId, "Getting all posts by user id = " + userId);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Użytkownik o id " + userId + " nie istnieje"));
         return postRepository.findAllByAuthorId(user);

@@ -19,6 +19,7 @@ import pwr.isa.klama.exceptions.ForbiddenActionException;
 import pwr.isa.klama.exceptions.ResourceNotFoundException;
 import pwr.isa.klama.posts.Post;
 import pwr.isa.klama.posts.PostService;
+import pwr.isa.klama.security.logging.ApiLogger;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -55,6 +56,7 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public String signUpUser(User user) {
+        ApiLogger.logInfo("as above","Signing up user: " + user.getUsername());
         Optional<User> existingUserOpt = userRepository.findByUsernameOrEmail(user.getUsername(), user.getEmail());
 
         String token = UUID.randomUUID().toString();
@@ -122,6 +124,7 @@ public class UserService implements UserDetailsService {
     public UserDTO getUserInfo() {
         User user = (User) getAuthentication().getPrincipal();
 
+        ApiLogger.logInfo("/api/v1/authorized/user","Getting user info: " + user.getId());
         if (!user.getEnabled()) {
             throw new AccountNotActivatedException("Konto nie zostało jeszcze aktywowane, sprawdź email w celu aktywacji");
         }
@@ -131,6 +134,7 @@ public class UserService implements UserDetailsService {
 
     public Map<String, Object> updateUser(User user) {
         User existingUser = (User) getAuthentication().getPrincipal();
+        ApiLogger.logInfo("/api/v1/authorized/user/update","Updating user: " + existingUser.getId());
         boolean isValidEmail = emailValidator.test(user.getEmail());
         if (!isValidEmail)
             throw new IllegalStateException("Email nie jest poprawny");
@@ -140,8 +144,10 @@ public class UserService implements UserDetailsService {
         existingUser.setEmail(user.getEmail());
         userRepository.save(existingUser);
         Map<String, Object> response = new HashMap<>();
-        if (!user.getPassword().isEmpty() || user.getPassword() != null)
+        if (!user.getPassword().isEmpty() || user.getPassword() != null){
             response.put("warning", "Hasło nie może być zmienione poprzez ten formularz. Użyj formularza zmiany hasła");
+            ApiLogger.logWarning("/api/v1/authorized/user/update","Password cannot be changed through this form. Use password change form. User: " + existingUser.getId());
+        }
         response.put("message", "Użytkownik o id " + existingUser.getId() + " został zaktualizowany");
         response.put("error", HttpStatus.OK.value());
         response.put("timestamp", new Timestamp(new Date().getTime()));
@@ -153,6 +159,7 @@ public class UserService implements UserDetailsService {
         User user = (User) getAuthentication().getPrincipal();
         Long userId = user.getId();
 
+        ApiLogger.logInfo("/api/v1/authorized/user/delete","Deleting user: " + userId);
         boolean exists = userRepository.existsById(userId);
         if (!exists) {
             throw new IllegalStateException("Użytkownik o id " + userId + " nie istnieje, nie można go usunąć");
@@ -171,11 +178,13 @@ public class UserService implements UserDetailsService {
     }
 
     public List<User> getAllUsers() {
+        ApiLogger.logInfo("/api/v1/authorized/admin/user/all","Getting all users");
         return userRepository.findAll();
     }
 
     public Map<String, Object> updateUserAdmin(Long userId, User user) {
         Optional<User> userOpt = userRepository.findById(userId);
+        ApiLogger.logInfo("/api/v1/authorized/admin/user/update","Updating user: " + userId);
         if (userOpt.isEmpty()) {
             throw new IllegalStateException("Użytkownik o id " + userId + " nie istnieje");
         }
@@ -208,6 +217,7 @@ public class UserService implements UserDetailsService {
     @Transactional
     public Map<String, Object> deleteUserAdmin(Long userId) {
         boolean exists = userRepository.existsById(userId);
+        ApiLogger.logInfo("/api/v1/authorized/admin/user/delete","Deleting user: " + userId);
         if (!exists) {
             throw new IllegalStateException("Użytkownik o id " + userId + " nie istnieje, nie można go usunąć");
         }
@@ -237,6 +247,7 @@ public class UserService implements UserDetailsService {
 
     public Map<String, Object> updateUserPassword(User password) {
         User user = (User) getAuthentication().getPrincipal();
+        ApiLogger.logInfo("/api/v1/authorized/user/update/password","Updating user password. User: " + user.getId());
         String pwd = password.getPassword();
         boolean isValidPassword = passwordValidator.test(password.getPassword());
         if (!isValidPassword)
