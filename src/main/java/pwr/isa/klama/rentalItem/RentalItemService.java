@@ -48,7 +48,7 @@ public class RentalItemService {
     public RentalItem getRentalItemById(Long rentalItemId) {
         boolean exists = rentalItemRepository.existsById(rentalItemId);
         if( !exists ) {
-            throw new IllegalArgumentException("Przedmiot o id " + rentalItemId + " nie istnieje");
+            throw new ResourceNotFoundException("Przedmiot o id " + rentalItemId + " nie istnieje");
         }
         return rentalItemRepository.findById(rentalItemId).orElse(null);
     }
@@ -56,7 +56,7 @@ public class RentalItemService {
     public Map<String, Object> addNewRentalItem(RentalItem rentalItem) {
         Optional<RentalItem> rentalItemOptional = rentalItemRepository.findRentalItemByName(rentalItem.getName());
         if (rentalItemOptional.isPresent()) {
-            throw new IllegalArgumentException("Przedmiot o nazwie: " + rentalItem.getName() + " już istnieje");
+            throw new IllegalStateException("Przedmiot o nazwie: " + rentalItem.getName() + " już istnieje");
         }
         rentalItemRepository.save(rentalItem);
 
@@ -70,19 +70,22 @@ public class RentalItemService {
     public Map<String, Object> deleteRentalItem(Long rentalItemId) {
         boolean exists = rentalItemRepository.existsById(rentalItemId);
         if( !exists ) {
-            throw new IllegalStateException("Przedmiot o id " + rentalItemId + " nie istnieje");
+            throw new ResourceNotFoundException("Przedmiot o id " + rentalItemId + " nie istnieje");
         }
 
+        String message;
         // Sprawdzenie, czy przedmiot figuruje w liście wypożyczeń
-        boolean isRented = rentRepository.existsByItems_RentalItem_Id(rentalItemId);
-        if (isRented) {
-            throw new IllegalStateException("Przedmiot o id " + rentalItemId + " jest/był wypożyczony i nie może zostać usunięty");
+        if(rentRepository.existsByItems_RentalItem_Id(rentalItemId)){
+            message = "Przedmiot o id " + rentalItemId + " jest powiązany z wypożyczeniem, przedmiot ustawiono jako nieaktywny";
+            getRentalItemById(rentalItemId).setStatus(ItemStatus.INACTIVE);
+            rentalItemRepository.save(getRentalItemById(rentalItemId));
+        } else {
+            message = "Przedmiot o id " + rentalItemId + " został usunięty";
+            rentalItemRepository.deleteById(rentalItemId);
         }
-
-        rentalItemRepository.deleteById(rentalItemId);
 
         Map<String, Object> response = new HashMap<>();
-        response.put("message", "Przedmiot o id " + rentalItemId + " został usunięty");
+        response.put("message", message);
         response.put("error", HttpStatus.OK.value());
         response.put("timestamp", new Timestamp(new Date().getTime()));
         return response;
@@ -97,14 +100,14 @@ public class RentalItemService {
                 rentalItem.getQuantity() == null &&
                 rentalItem.getDescription() == null &&
                 rentalItem.getStatus() == null) {
-            throw new IllegalArgumentException("Należy podać jeden z parametrów");
+            throw new IllegalStateException("Należy podać jeden z parametrów");
         }
         if(!rentalItemRepository.existsById(rentalItemId)) {
-            throw new IllegalArgumentException("Przedmiot o id " + rentalItemId + " nie istnieje");
+            throw new ResourceNotFoundException("Przedmiot o id " + rentalItemId + " nie istnieje");
         }
 
         RentalItem rentalItemToUpdate = rentalItemRepository.findById(rentalItemId)
-                .orElseThrow(() -> new IllegalStateException("Przedmiot o id " + rentalItemId + " nie istnieje"));
+                .orElseThrow(() -> new ResourceNotFoundException("Przedmiot o id " + rentalItemId + " nie istnieje"));
 
         if(rentalItem.getName() != null) {
             if(rentalItemToUpdate.getName().isEmpty()) {
@@ -115,7 +118,7 @@ public class RentalItemService {
 
         if(rentalItem.getPrice() != null) {
             if(rentalItemToUpdate.getPrice() == null) {
-                throw new IllegalStateException("Cena nie możę być pusta");
+                throw new IllegalStateException("Cena nie może być pusta");
             }
             rentalItemToUpdate.setPrice(rentalItem.getPrice());
         }

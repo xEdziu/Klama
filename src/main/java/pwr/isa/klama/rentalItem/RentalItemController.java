@@ -37,6 +37,7 @@ public class RentalItemController {
     public List<RentRecordDTO> getRentHistory() { return rentalItemService.getRentHistory(); }
 
     @PostMapping(path = "/authorized/rentalItem/rent")
+    //TODO: Przerobić sprawdzanie daty zeby miała margines błędu
     public Map<String, Object> rentRentalItems(@RequestBody RentRequestBody rentRequestBody) {
         return rentalItemService.rentRentalItems(rentRequestBody.getRentRequests(), rentRequestBody.getRentDate(), rentRequestBody.getReturnDate());
     }
@@ -73,4 +74,6 @@ public class RentalItemController {
             @RequestBody RentalItem rentalItem) {
          return rentalItemService.updateRentalItem(rentalItemId, rentalItem);
     }
+
+    //TODO: Dodać sprawdzanie ważności razem z get
 }
