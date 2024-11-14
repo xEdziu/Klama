@@ -76,4 +76,5 @@ public class RentalItemController {
     }
 
     //TODO: Dodać sprawdzanie ważności razem z get
+    //TODO: Dla admina sprawdzanie wypożyczeń konkretnego urzytkownika
 }
