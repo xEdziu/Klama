@@ -1,5 +1,6 @@
 package pwr.isa.klama.pass;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -45,12 +46,13 @@ public class PassService {
 
     public Pass getPassById(Long passId) {
         return passRepository.findById(passId)
-                .orElseThrow(() -> new IllegalStateException("Pass with id " + passId + " does not exist"));
+                .orElseThrow(() -> new ResourceNotFoundException("Karnet o id " + passId + " nie istnieje"));
     }
 
     public List<UserPassHistoryDTO> getPassHistory() {
         Long userId = getCurrentUser().getId();
         return userPassRepository.findByUserId(userId).stream()
+                .peek(this::updatePassStatus)
                 .map(userPass -> new UserPassHistoryDTO(
                         userPass.getPass().getId(),
                         userPass.getPass().getName(),
@@ -63,22 +65,29 @@ public class PassService {
 
     public List<UserPassDTO> getPassHistoryAll() {
         return userPassRepository.findAll().stream()
+                .peek(this::updatePassStatus)
                 .map(userPass -> new UserPassDTO(
                         userPass.getId(),
                         userPass.getUser().getId(),
                         userPass.getPass().getId(),
                         userPass.getStatus().toString(),
+                        userPass.getBuyDate().toString(),
                         userPass.getExpirationDate().toString()
                 ))
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public Map<String, Object> buyNewPass(Long passId) {
         Map<String, Object> response = new HashMap<>();
         Timestamp buyDate = new Timestamp(new Date().getTime());
 
         Pass pass = passRepository.findById(passId)
                 .orElseThrow(() -> new ResourceNotFoundException("Karnet o id " + passId + " nie istnieje"));
+
+        if (pass.getStatus() != PassStatus.VISIBLE) {
+            throw new IllegalStateException("Karnet o id " + passId + " nie jest możliwy do zakupu");
+        }
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(buyDate);
@@ -123,7 +132,7 @@ public class PassService {
         String message;
         // Sprawdzenie, czy karnet jest wypożyczony
         if(userPassRepository.existsByPass_Id(passId)){
-            message = "Karnet o id " + passId + " jest powiązany z userem, karnet ustawiono jako ukryty";
+            message = "Karnet o id " + passId + " jest powiązany z userem i nie można go usunąć, karnet ustawiono jako ukryty";
             getPassById(passId).setStatus(PassStatus.HIDDEN);
             passRepository.save(getPassById(passId));
         } else {
@@ -138,6 +147,7 @@ public class PassService {
         return response;
     }
 
+    @Transactional
     public Map<String, Object> disablePass(Long passId) {
         boolean exists = passRepository.existsById(passId);
         if( !exists ) {
@@ -155,6 +165,7 @@ public class PassService {
         return response;
     }
 
+    @Transactional
     public Map<String, Object> updatePass(Pass pass, Long passId) {
         if(pass.getName() == null &&
                 pass.getId() == null &&
@@ -217,5 +228,12 @@ public class PassService {
 
     private User getCurrentUser() {
         return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
+
+    private void updatePassStatus(UserPass userPass) {
+        if (userPass.getStatus() == UserPassStatus.ACTIVE && userPass.getExpirationDate().before(new Date())) {
+            userPass.setStatus(UserPassStatus.EXPIRED);
+            userPassRepository.save(userPass);
+        }
     }
 }

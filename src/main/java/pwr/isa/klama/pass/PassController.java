@@ -43,7 +43,6 @@ public class PassController {
 
     // ============ Admin methods ============
     @GetMapping(path = "/authorized/admin/pass/passHistory/all")
-    //TODO: admin nie widzi daty zakupu
     public List<UserPassDTO> getPassHistoryAll() {
         return passService.getPassHistoryAll();
     }
@@ -73,4 +72,6 @@ public class PassController {
                                           @PathVariable("passId") Long passId) {
         return passService.updatePass(pass, passId);
     }
+
+    //TODO: Dodanie sprawdzenia statusu karnetu przy każdym get i ewentualna zmiana statusu, zmiana na posdtawie daty ważności
 }
