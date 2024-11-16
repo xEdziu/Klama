@@ -270,6 +270,7 @@ public class RentalItemService {
         List<RentRecordDTO> rentRecords = new ArrayList<>();
 
         for (Rent rent : rents) {
+            updateRentStatus(rent);
             List<RentDTO> items = new ArrayList<>();
             for (RentItem item : rent.getItems()) {
                 RentDTO dto = new RentDTO(
@@ -299,6 +300,7 @@ public class RentalItemService {
         List<RentRecordDTO> rentRecords = new ArrayList<>();
 
         for (Rent rent : rents) {
+            updateRentStatus(rent);
             List<RentDTO> items = new ArrayList<>();
             for (RentItem item : rent.getItems()) {
                 RentDTO dto = new RentDTO(
@@ -325,6 +327,14 @@ public class RentalItemService {
 
     private User getCurrentUser() {
         return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
+
+    private void updateRentStatus(Rent rent) {
+        Timestamp currentTimestamp = new Timestamp(new Date().getTime());
+        if (rent.getStatus() == RentStatus.RESERVED && rent.getRentDate().before(currentTimestamp)) {
+            rent.setStatus(RentStatus.RENTED);
+            rentRepository.save(rent);
+        }
     }
 }
 

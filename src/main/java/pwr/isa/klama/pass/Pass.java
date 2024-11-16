@@ -1,71 +1,72 @@
-package pwr.isa.klama.rentalItem;
+package pwr.isa.klama.pass;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import pwr.isa.klama.rentalItem.ItemStatus;
 
 @Entity
 @Table
 @Getter
 @Setter
-public class RentalItem {
+public class Pass {
 
     @Id
     @SequenceGenerator(
-            name = "rentalItem_sequence",
-            sequenceName = "rentalItem_sequence",
+            name = "pass_sequence",
+            sequenceName = "pass_sequence",
             allocationSize = 1
     )
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "rentalItem_sequence"
+            generator = "pass_sequence"
     )
     private Long id;
     private String name;
     private String description;
     private Float price;
-    private Integer quantity;
+    private Integer days;
     @Enumerated(EnumType.STRING)
-    private ItemStatus status;
+    private PassStatus status;
 
-    public RentalItem() {
+    public Pass() {
     }
 
-    public RentalItem(Long id,
-                      String name,
-                      String description,
-                      Float price,
-                      Integer quantity,
-                      ItemStatus status) {
+    public Pass(Long id,
+                String name,
+                String description,
+                Float price,
+                Integer days,
+                PassStatus status) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
-        this.quantity = quantity;
+        this.days = days;
         this.status = status;
     }
 
-    public RentalItem(String name,
-                      String description,
-                      Float price,
-                      Integer quantity,
-                      ItemStatus status) {
+    public Pass(String name,
+                String description,
+                Float price,
+                Integer days,
+                PassStatus status) {
         this.name = name;
         this.description = description;
         this.price = price;
-        this.quantity = quantity;
+        this.days = days;
         this.status = status;
     }
 
     @Override
     public String toString() {
-        return "RentalItem{" +
+        return "Pass{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", price=" + price +
-                ", quantity=" + quantity +
+                ", days=" + days +
+                ", status=" + status +
                 '}';
     }
 }
