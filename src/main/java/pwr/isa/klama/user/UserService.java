@@ -9,6 +9,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import pwr.isa.klama.auth.EmailValidator;
+import pwr.isa.klama.auth.PasswordValidator;
 import pwr.isa.klama.auth.registration.token.ConfirmationToken;
 import pwr.isa.klama.auth.registration.token.ConfirmationTokenService;
 import pwr.isa.klama.email.EmailSender;
@@ -17,6 +19,7 @@ import pwr.isa.klama.exceptions.ForbiddenActionException;
 import pwr.isa.klama.exceptions.ResourceNotFoundException;
 import pwr.isa.klama.posts.Post;
 import pwr.isa.klama.posts.PostService;
+import pwr.isa.klama.security.logging.ApiLogger;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -31,6 +34,8 @@ public class UserService implements UserDetailsService {
     private final ConfirmationTokenService confirmationTokenService;
     private final EmailSender emailSender;
     private final PostService postService;
+    private final PasswordValidator passwordValidator;
+    private final EmailValidator emailValidator;
 
     public void enableUser(String email) {
         userRepository.enableUser(email);
@@ -51,6 +56,7 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public String signUpUser(User user) {
+        ApiLogger.logInfo("as above","Signing up user: " + user.getUsername());
         Optional<User> existingUserOpt = userRepository.findByUsernameOrEmail(user.getUsername(), user.getEmail());
 
         String token = UUID.randomUUID().toString();
@@ -85,6 +91,15 @@ public class UserService implements UserDetailsService {
             }
         }
 
+        boolean isValidEmail = emailValidator.test(user.getEmail());
+        boolean isValidPassword = passwordValidator.test(user.getPassword());
+
+        if (!isValidEmail)
+            throw new IllegalStateException("Email nie jest poprawny");
+
+        if (!isValidPassword)
+            throw new IllegalStateException("Hasło nie spełnia wymagań bezpieczeństwa");
+
         String encodedPassword = bCryptPasswordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
         userRepository.save(user);
@@ -109,6 +124,7 @@ public class UserService implements UserDetailsService {
     public UserDTO getUserInfo() {
         User user = (User) getAuthentication().getPrincipal();
 
+        ApiLogger.logInfo("/api/v1/authorized/user","Getting user info: " + user.getId());
         if (!user.getEnabled()) {
             throw new AccountNotActivatedException("Konto nie zostało jeszcze aktywowane, sprawdź email w celu aktywacji");
         }
@@ -118,13 +134,20 @@ public class UserService implements UserDetailsService {
 
     public Map<String, Object> updateUser(User user) {
         User existingUser = (User) getAuthentication().getPrincipal();
+        ApiLogger.logInfo("/api/v1/authorized/user/update","Updating user: " + existingUser.getId());
+        boolean isValidEmail = emailValidator.test(user.getEmail());
+        if (!isValidEmail)
+            throw new IllegalStateException("Email nie jest poprawny");
         existingUser.setFirstName(user.getFirstName());
         existingUser.setSurname(user.getSurname());
         existingUser.setUsername(user.getUsername());
         existingUser.setEmail(user.getEmail());
-        existingUser.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         userRepository.save(existingUser);
         Map<String, Object> response = new HashMap<>();
+        if (!user.getPassword().isEmpty() || user.getPassword() != null){
+            response.put("warning", "Hasło nie może być zmienione poprzez ten formularz. Użyj formularza zmiany hasła");
+            ApiLogger.logWarning("/api/v1/authorized/user/update","Password cannot be changed through this form. Use password change form. User: " + existingUser.getId());
+        }
         response.put("message", "Użytkownik o id " + existingUser.getId() + " został zaktualizowany");
         response.put("error", HttpStatus.OK.value());
         response.put("timestamp", new Timestamp(new Date().getTime()));
@@ -136,6 +159,7 @@ public class UserService implements UserDetailsService {
         User user = (User) getAuthentication().getPrincipal();
         Long userId = user.getId();
 
+        ApiLogger.logInfo("/api/v1/authorized/user/delete","Deleting user: " + userId);
         boolean exists = userRepository.existsById(userId);
         if (!exists) {
             throw new IllegalStateException("Użytkownik o id " + userId + " nie istnieje, nie można go usunąć");
@@ -154,20 +178,33 @@ public class UserService implements UserDetailsService {
     }
 
     public List<User> getAllUsers() {
+        ApiLogger.logInfo("/api/v1/authorized/admin/user/all","Getting all users");
         return userRepository.findAll();
     }
 
     public Map<String, Object> updateUserAdmin(Long userId, User user) {
         Optional<User> userOpt = userRepository.findById(userId);
+        ApiLogger.logInfo("/api/v1/authorized/admin/user/update","Updating user: " + userId);
         if (userOpt.isEmpty()) {
             throw new IllegalStateException("Użytkownik o id " + userId + " nie istnieje");
         }
+
+        boolean isValidEmail = emailValidator.test(user.getEmail());
+        boolean isValidPassword = passwordValidator.test(user.getPassword());
+
+        if (!isValidEmail)
+            throw new IllegalStateException("Email nie jest poprawny");
+
+        if (!isValidPassword)
+            throw new IllegalStateException("Hasło nie spełnia wymagań bezpieczeństwa");
 
         User existingUser = userOpt.get();
         existingUser.setFirstName(user.getFirstName());
         existingUser.setSurname(user.getSurname());
         existingUser.setUsername(user.getUsername());
         existingUser.setEmail(user.getEmail());
+        // Allowed to change password here, because of specific conditions, when user forgot his password
+        // and asked admin to change it
         existingUser.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         userRepository.save(existingUser);
         Map<String, Object> response = new HashMap<>();
@@ -180,6 +217,7 @@ public class UserService implements UserDetailsService {
     @Transactional
     public Map<String, Object> deleteUserAdmin(Long userId) {
         boolean exists = userRepository.existsById(userId);
+        ApiLogger.logInfo("/api/v1/authorized/admin/user/delete","Deleting user: " + userId);
         if (!exists) {
             throw new IllegalStateException("Użytkownik o id " + userId + " nie istnieje, nie można go usunąć");
         }
@@ -205,5 +243,21 @@ public class UserService implements UserDetailsService {
 
     private Authentication getAuthentication() {
         return SecurityContextHolder.getContext().getAuthentication();
+    }
+
+    public Map<String, Object> updateUserPassword(User password) {
+        User user = (User) getAuthentication().getPrincipal();
+        ApiLogger.logInfo("/api/v1/authorized/user/update/password","Updating user password. User: " + user.getId());
+        String pwd = password.getPassword();
+        boolean isValidPassword = passwordValidator.test(password.getPassword());
+        if (!isValidPassword)
+            throw new IllegalStateException("Hasło nie spełnia wymagań bezpieczeństwa");
+        user.setPassword(bCryptPasswordEncoder.encode(pwd));
+        userRepository.save(user);
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Hasło zostało zaktualizowane");
+        response.put("error", HttpStatus.OK.value());
+        response.put("timestamp", new Timestamp(new Date().getTime()));
+        return response;
     }
 }

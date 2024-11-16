@@ -5,8 +5,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import pwr.isa.klama.auth.EmailValidator;
+import pwr.isa.klama.auth.PasswordValidator;
 import pwr.isa.klama.auth.registration.token.ConfirmationToken;
 import pwr.isa.klama.auth.registration.token.ConfirmationTokenService;
+import pwr.isa.klama.security.logging.ApiLogger;
 import pwr.isa.klama.user.User;
 import pwr.isa.klama.email.EmailSender;
 import pwr.isa.klama.user.UserRole;
@@ -23,14 +25,20 @@ public class RegisterService {
 
     private final UserService userService;
     private final EmailValidator emailValidator;
+    private final PasswordValidator passwordValidator;
     private final ConfirmationTokenService confirmationTokenService;
     private final EmailSender emailSender;
 
     public Map<String, Object> register(RegisterRequest request) {
+        ApiLogger.logInfo("/api/v1/register/signup", "Rejestracja nowego użytkownika");
         boolean isValidEmail = emailValidator.test(request.getEmail());
+        boolean isValidPassword = passwordValidator.test(request.getPassword());
 
         if (!isValidEmail)
             throw new IllegalStateException("Email nie jest poprawny");
+
+        if (!isValidPassword)
+            throw new IllegalStateException("Hasło nie spełnia wymagań bezpieczeństwa");
 
         String token = userService.signUpUser(
                 new User(
@@ -66,7 +74,7 @@ public class RegisterService {
 
     @Transactional
     public Map<String, Object> confirmToken(String token) {
-
+        ApiLogger.logInfo("/api/v1/register/confirm", "Potwierdzenie adresu email");
         ConfirmationToken confirmationToken = confirmationTokenService
                 .getToken(token);
 
