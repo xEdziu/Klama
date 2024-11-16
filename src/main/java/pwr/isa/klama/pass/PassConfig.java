@@ -13,24 +13,24 @@ public class PassConfig {
     CommandLineRunner commandLineRunnerForPasses(PassRepository repository) {
         return args -> {
             Pass monthlyPass = new Pass(
-                    "Monthly Pass",
-                    "Access for one month",
+                    "Karnet miesięczny",
+                    "Nielimitowany dostęp na 30 dni",
                     100.00F,
                     30,
                     PassStatus.VISIBLE
             );
 
             Pass weeklyPass = new Pass(
-                    "Weekly Pass",
-                    "Access for one week",
+                    "Karnet tygodniowy",
+                    "Nielimitowany dostęp na 7 dni",
                     30.00F,
                     7,
                     PassStatus.VISIBLE
             );
 
             Pass dailyPass = new Pass(
-                    "Daily Pass",
-                    "Access for one day",
+                    "Karnet dzienny",
+                    "Nielimitowany dostęp na 1 dzień",
                     5.00F,
                     1,
                     PassStatus.VISIBLE

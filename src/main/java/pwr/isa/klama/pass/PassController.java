@@ -73,5 +73,4 @@ public class PassController {
         return passService.updatePass(pass, passId);
     }
 
-    //TODO: Dodanie sprawdzenia statusu karnetu przy każdym get i ewentualna zmiana statusu, zmiana na posdtawie daty ważności
 }

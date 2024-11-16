@@ -74,7 +74,6 @@ public class RentalItemController {
             @RequestBody RentalItem rentalItem) {
          return rentalItemService.updateRentalItem(rentalItemId, rentalItem);
     }
-
-    //TODO: Dodać sprawdzanie ważności razem z get
+    
     //TODO: Dla admina sprawdzanie wypożyczeń konkretnego urzytkownika
 }
