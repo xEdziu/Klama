@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import pwr.isa.klama.exceptions.ResourceNotFoundException;
 import pwr.isa.klama.rentalItem.rent.*;
+import pwr.isa.klama.security.logging.ApiLogger;
 import pwr.isa.klama.user.User;
 import pwr.isa.klama.user.UserRepository;
 
@@ -30,9 +31,13 @@ public class RentalItemService {
         this.rentRepository = rentRepository;
     }
 
-    public List<RentalItem> getRentalItemsForAdmin() {return rentalItemRepository.findAll(); }
+    public List<RentalItem> getRentalItemsForAdmin() {
+        ApiLogger.logInfo("/api/v1/authorized/admin/rentalItem/all", "Getting all rental items for admin");
+        return rentalItemRepository.findAll();
+    }
 
     public List<RentalItemDTO> getRentalItems() {
+        ApiLogger.logInfo("/api/v1/rentalItem/all", "Getting all rental items");
         return rentalItemRepository.findAll().stream()
                 .filter(rentalItem -> rentalItem.getStatus() == ItemStatus.ACTIVE)
                 .map(rentalItem -> new RentalItemDTO(
@@ -46,16 +51,20 @@ public class RentalItemService {
     }
 
     public RentalItem getRentalItemById(Long rentalItemId) {
+        ApiLogger.logInfo("/api/v1/rentalItem/" + rentalItemId, "Getting rental item: " + rentalItemId);
         boolean exists = rentalItemRepository.existsById(rentalItemId);
         if( !exists ) {
+            ApiLogger.logSevere("/api/v1/rentalItem/" + rentalItemId, "Rental item " + rentalItemId + " not found");
             throw new ResourceNotFoundException("Przedmiot o id " + rentalItemId + " nie istnieje");
         }
         return rentalItemRepository.findById(rentalItemId).orElse(null);
     }
 
     public Map<String, Object> addNewRentalItem(RentalItem rentalItem) {
+        ApiLogger.logInfo("/api/v1/authorized/admin/rentalItem/add", "Adding new rental item: " + rentalItem.getName());
         Optional<RentalItem> rentalItemOptional = rentalItemRepository.findRentalItemByName(rentalItem.getName());
         if (rentalItemOptional.isPresent()) {
+            ApiLogger.logWarning("/api/v1/authorized/admin/rentalItem/add", "Rental item with name " + rentalItem.getName() + " already exists");
             throw new IllegalStateException("Przedmiot o nazwie: " + rentalItem.getName() + " już istnieje");
         }
         rentalItemRepository.save(rentalItem);
@@ -64,12 +73,16 @@ public class RentalItemService {
         response.put("message", "Przedmiot został dodany");
         response.put("error", HttpStatus.OK.value());
         response.put("timestamp", new Timestamp(new Date().getTime()));
+
+        ApiLogger.logInfo("/api/v1/authorized/admin/rentalItem/add", "Rental item " + rentalItem.getName() + " added successfully");
         return response;
     }
 
     public Map<String, Object> deleteRentalItem(Long rentalItemId) {
+        ApiLogger.logInfo("/api/v1/authorized/admin/rentalItem/delete/" + rentalItemId, "Deleting rental item: " + rentalItemId);
         boolean exists = rentalItemRepository.existsById(rentalItemId);
-        if( !exists ) {
+        if (!exists) {
+            ApiLogger.logSevere("/api/v1/authorized/admin/rentalItem/delete/" + rentalItemId, "Rental item " + rentalItemId + " not found");
             throw new ResourceNotFoundException("Przedmiot o id " + rentalItemId + " nie istnieje");
         }
 
@@ -79,9 +92,11 @@ public class RentalItemService {
             message = "Przedmiot o id " + rentalItemId + " jest powiązany z wypożyczeniem, przedmiot ustawiono jako nieaktywny";
             getRentalItemById(rentalItemId).setStatus(ItemStatus.INACTIVE);
             rentalItemRepository.save(getRentalItemById(rentalItemId));
+            ApiLogger.logInfo("/api/v1/authorized/admin/rentalItem/delete/" + rentalItemId, "Deleting impossible, Hiding rental item: " + rentalItemId);
         } else {
             message = "Przedmiot o id " + rentalItemId + " został usunięty";
             rentalItemRepository.deleteById(rentalItemId);
+            ApiLogger.logInfo("/api/v1/authorized/admin/rentalItem/delete/" + rentalItemId, "Deleting rental item: " + rentalItemId);
         }
 
         Map<String, Object> response = new HashMap<>();
@@ -94,15 +109,18 @@ public class RentalItemService {
     @Transactional
     public Map<String, Object> updateRentalItem(Long rentalItemId,
                                                 RentalItem rentalItem) {
+        ApiLogger.logInfo("/api/v1/authorized/admin/rentalItem/update/" + rentalItemId, "Updating rental item: " + rentalItemId);
         if(rentalItem.getName() == null &&
                 rentalItem.getId() == null &&
                 rentalItem.getPrice() == null &&
                 rentalItem.getQuantity() == null &&
                 rentalItem.getDescription() == null &&
                 rentalItem.getStatus() == null) {
+            ApiLogger.logWarning("/api/v1/authorized/admin/rentalItem/update/" + rentalItemId, "No parameters provided for update");
             throw new IllegalStateException("Należy podać jeden z parametrów");
         }
-        if(!rentalItemRepository.existsById(rentalItemId)) {
+        if (!rentalItemRepository.existsById(rentalItemId)) {
+            ApiLogger.logSevere("/api/v1/authorized/admin/rentalItem/update/" + rentalItemId, "Rental item " + rentalItemId + " not found");
             throw new ResourceNotFoundException("Przedmiot o id " + rentalItemId + " nie istnieje");
         }
 
@@ -111,6 +129,7 @@ public class RentalItemService {
 
         if(rentalItem.getName() != null) {
             if(rentalItemToUpdate.getName().isEmpty()) {
+                ApiLogger.logWarning("/api/v1/authorized/admin/rentalItem/update/" + rentalItemId, "Rental item name cannot be empty");
                 throw new IllegalStateException("Nazwa nie może być pusta");
             }
             rentalItemToUpdate.setName(rentalItem.getName());
@@ -118,6 +137,7 @@ public class RentalItemService {
 
         if(rentalItem.getPrice() != null) {
             if(rentalItemToUpdate.getPrice() == null) {
+                ApiLogger.logWarning("/api/v1/authorized/admin/rentalItem/update/" + rentalItemId, "Rental item price cannot be empty");
                 throw new IllegalStateException("Cena nie może być pusta");
             }
             rentalItemToUpdate.setPrice(rentalItem.getPrice());
@@ -125,6 +145,7 @@ public class RentalItemService {
 
         if(rentalItem.getQuantity() != null) {
             if(rentalItemToUpdate.getQuantity() == null) {
+                ApiLogger.logWarning("/api/v1/authorized/admin/rentalItem/update/" + rentalItemId, "Rental item quantity cannot be empty");
                 throw new IllegalStateException("Ilość nie może być pusta");
             }
             rentalItemToUpdate.setQuantity(rentalItem.getQuantity());
@@ -132,6 +153,7 @@ public class RentalItemService {
 
         if(rentalItem.getDescription() != null) {
             if(rentalItemToUpdate.getDescription().isEmpty()) {
+                ApiLogger.logWarning("/api/v1/authorized/admin/rentalItem/update/" + rentalItemId, "Rental item description cannot be empty");
                 throw new IllegalStateException("Opis nie może być pusty");
             }
             rentalItemToUpdate.setDescription(rentalItem.getDescription());
@@ -139,6 +161,7 @@ public class RentalItemService {
 
         if(rentalItem.getStatus() != null) {
             if(rentalItemToUpdate.getStatus() == null) {
+                ApiLogger.logWarning("/api/v1/authorized/admin/rentalItem/update/" + rentalItemId, "Rental item status cannot be empty");
                 throw new IllegalStateException("Status nie może być pusty");
             }
             rentalItemToUpdate.setStatus(rentalItem.getStatus());
@@ -150,6 +173,8 @@ public class RentalItemService {
         response.put("message", "Przedmiot został zaktualizowany");
         response.put("error", HttpStatus.OK.value());
         response.put("timestamp", new Timestamp(new Date().getTime()));
+
+        ApiLogger.logInfo("/api/v1/authorized/admin/rentalItem/update/" + rentalItemId, "Rental item " + rentalItemId + " updated successfully");
         return response;
     }
 
@@ -157,6 +182,8 @@ public class RentalItemService {
     public Map<String, Object> rentRentalItems(List<RentRequest> rentRequests,
                                                Timestamp rentDate,
                                                Timestamp returnDate) {
+        Long userId = getCurrentUser().getId();
+        ApiLogger.logInfo("/api/v1/authorized/rentalItem/rent", "Renting items for user: " + userId);
         Map<String, Object> response = new HashMap<>();
         float totalRentPrice = 0;
         List<RentItem> rentItems = new ArrayList<>();
@@ -164,8 +191,10 @@ public class RentalItemService {
 
         // Validate the rental date
         if (rentDate.before(currentTimestamp)) {
+            ApiLogger.logWarning("/api/v1/authorized/rentalItem/rent", "Rental date cannot be before current date");
             throw new IllegalStateException("Data wypożyczenia nie może być wcześniejsza niż obecna data");
         } else if (returnDate.before(rentDate)) {
+            ApiLogger.logWarning("/api/v1/authorized/rentalItem/rent", "Return date cannot be before rental date");
             throw new IllegalStateException("Data zwrotu nie może być wcześniejsza niż data wypożyczenia");
         }
 
@@ -175,20 +204,23 @@ public class RentalItemService {
 
         for (RentRequest request : rentRequests) {
             RentalItem rentalItem = rentalItemRepository.findById(request.getItemId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Przedmiot o id " + request.getItemId() + " nie istnieje w wypożyczlni"));
+                    .orElseThrow(() -> {
+                        ApiLogger.logSevere("/api/v1/authorized/rentalItem/rent", "Rental item " + request.getItemId() + " not found");
+                        return new ResourceNotFoundException("Przedmiot o id " + request.getItemId() + " nie istnieje w wypożyczlni");
+                    });
 
-            // Check if the item is active
             if (rentalItem.getStatus() != ItemStatus.ACTIVE) {
+                ApiLogger.logWarning("/api/v1/authorized/rentalItem/rent", "Rental item " + request.getItemId() + " is inactive");
                 throw new IllegalStateException("Przedmiot o id " + request.getItemId() + " jest nieaktywny");
             }
 
-            // Check if the quantity is valid
             if (request.getQuantity() <= 0) {
+                ApiLogger.logWarning("/api/v1/authorized/rentalItem/rent", "Invalid quantity for rental item " + request.getItemId());
                 throw new IllegalStateException("Niepoprawna ilość przedmiotów");
             }
 
-            // Check if the quantity is available
             if (rentalItem.getQuantity() < request.getQuantity()) {
+                ApiLogger.logWarning("/api/v1/authorized/rentalItem/rent", "Insufficient quantity for rental item " + request.getItemId());
                 throw new IllegalStateException("Brak wystarczającej ilości przedmiotów");
             }
 
@@ -235,17 +267,24 @@ public class RentalItemService {
         response.put("totalPrice", totalRentPrice);
         response.put("error", HttpStatus.OK.value());
         response.put("timestamp", new Timestamp(new Date().getTime()));
+
+        ApiLogger.logInfo("/api/v1/authorized/rentalItem/rent", "Items rented successfully for user: " + userId);
         return response;
     }
 
     @Transactional
     public Map<String, Object> returnRentalItems(Long rentId) {
+        ApiLogger.logInfo("/api/v1/authorized/rentalItem/return/" + rentId, "Returning rental items for rent: " + rentId);
         Map<String, Object> response = new HashMap<>();
 
         Rent rent = rentRepository.findById(rentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Rent o id " + rentId + " nie istnieje"));
+                .orElseThrow(() -> {
+                    ApiLogger.logSevere("/api/v1/authorized/rentalItem/return/" + rentId, "Rent " + rentId + " not found");
+                    return new ResourceNotFoundException("Rent o id " + rentId + " nie istnieje");
+                });
 
         if (rent.getStatus() == RentStatus.RETURNED) {
+            ApiLogger.logWarning("/api/v1/authorized/rentalItem/return/" + rentId, "Rent " + rentId + " already returned");
             throw new IllegalStateException("Wypożyczenie o id " + rentId + " zostało już zwrócone");
         }
 
@@ -261,11 +300,14 @@ public class RentalItemService {
         response.put("message", "Przedmioty zostały zwrócone");
         response.put("error", HttpStatus.OK.value());
         response.put("timestamp", new Timestamp(new Date().getTime()));
+
+        ApiLogger.logInfo("/api/v1/authorized/rentalItem/return/" + rentId, "Rental items returned successfully for rent: " + rentId);
         return response;
     }
 
     public List<RentRecordDTO> getRentHistory() {
         Long userId = getCurrentUser().getId();
+        ApiLogger.logInfo("/api/v1/authorized/rentalItem/rentHistory", "Getting rent history for user: " + userId);
         List<Rent> rents = rentRepository.findByUserId(userId);
         List<RentRecordDTO> rentRecords = new ArrayList<>();
 
@@ -296,6 +338,7 @@ public class RentalItemService {
     }
 
     public List<RentRecordDTO> getRentHistoryAll() {
+        ApiLogger.logInfo("/api/v1/authorized/admin/rentalItem/rentHistory/all", "Getting all users rent history for Admin");
         List<Rent> rents = rentRepository.findAll();
         List<RentRecordDTO> rentRecords = new ArrayList<>();
 
