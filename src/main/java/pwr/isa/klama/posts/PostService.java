@@ -66,7 +66,7 @@ public class PostService {
         }
         postRepository.save(post);
         Map<String, Object> response = new HashMap<>();
-        response.put("message", "Post has been added");
+        response.put("message", "Post został dodany");
         response.put("error", HttpStatus.OK.value());
         response.put("timestamp", new Timestamp(new Date().getTime()));
         return response;
