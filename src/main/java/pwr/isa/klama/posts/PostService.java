@@ -3,6 +3,7 @@ package pwr.isa.klama.posts;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import pwr.isa.klama.exceptions.ResourceNotFoundException;
 import pwr.isa.klama.security.logging.ApiLogger;
@@ -51,26 +52,25 @@ public class PostService {
         ));
     }
 
-public Map<String, Object> addPost(Post post) {
-    ApiLogger.logInfo("/api/v1/authorized/admin/posts/add", "Adding post");
-    // Check if the author exists
-    Optional<User> authorOptional = userRepository.findById(post.getAuthorId().getId());
-    if (authorOptional.isEmpty()) {
-        throw new IllegalStateException("Author z " + post.getAuthorId().getId() + " nie istnieje");
+    public Map<String, Object> addPost(Post post) {
+        ApiLogger.logInfo("/api/v1/authorized/admin/posts/add", "Adding post");
+
+        User author = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        post.setAuthorId(author); // Set the User object to the Post
+
+        post.setCreatedAt(new Timestamp(new Date().getTime()));
+        post.setUpdatedAt(new Timestamp(new Date().getTime()));
+        Optional<Post> postOptional = postRepository.findPostByTitle(post.getTitle());
+        if (postOptional.isPresent()) {
+            throw new IllegalStateException("Post z tytułem " + post.getTitle() + " już istnieje");
+        }
+        postRepository.save(post);
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Post has been added");
+        response.put("error", HttpStatus.OK.value());
+        response.put("timestamp", new Timestamp(new Date().getTime()));
+        return response;
     }
-    post.setCreatedAt(new Timestamp(new Date().getTime()));
-    post.setUpdatedAt(new Timestamp(new Date().getTime()));
-    Optional<Post> postOptional = postRepository.findPostByTitle(post.getTitle());
-    if (postOptional.isPresent()) {
-        throw new IllegalStateException("Post z tytułem " + post.getTitle() + " już istnieje");
-    }
-    postRepository.save(post);
-    Map<String, Object> response = new HashMap<>();
-    response.put("message", "Post has been added");
-    response.put("error", HttpStatus.OK.value());
-    response.put("timestamp", new Timestamp(new Date().getTime()));
-    return response;
-}
 
     public Map<String, Object> deletePost(Long postId) {
         ApiLogger.logInfo("/api/v1/authorized/admin/posts/delete/" + postId, "Deleting post by id = " + postId);
@@ -86,7 +86,6 @@ public Map<String, Object> addPost(Post post) {
         return response;
     }
 
-    @Transactional
     public Map<String, Object> updatePost(Long postId, Post post) {
         ApiLogger.logInfo("/api/v1/authorized/admin/posts/update/" + postId, "Updating post by id = " + postId);
         if (post.getTitle() == null && post.getContent() == null) {
@@ -114,6 +113,7 @@ public Map<String, Object> addPost(Post post) {
         }
 
         postToUpdate.setUpdatedAt(new Timestamp(new Date().getTime()));
+        postRepository.save(postToUpdate);
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Post został zaktualizowany");
         response.put("error", HttpStatus.OK.value());
@@ -126,5 +126,10 @@ public Map<String, Object> addPost(Post post) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Użytkownik o id " + userId + " nie istnieje"));
         return postRepository.findAllByAuthorId(user);
+    }
+
+    public List<Post> getAllPostsAdmin() {
+        ApiLogger.logInfo("/api/v1/authorized/admin/posts", "Getting all posts as admin");
+        return postRepository.findAll();
     }
 }

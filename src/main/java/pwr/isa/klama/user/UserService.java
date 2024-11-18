@@ -18,6 +18,7 @@ import pwr.isa.klama.exceptions.AccountNotActivatedException;
 import pwr.isa.klama.exceptions.ForbiddenActionException;
 import pwr.isa.klama.exceptions.ResourceNotFoundException;
 import pwr.isa.klama.posts.Post;
+import pwr.isa.klama.posts.PostRepository;
 import pwr.isa.klama.posts.PostService;
 import pwr.isa.klama.security.logging.ApiLogger;
 
@@ -36,6 +37,7 @@ public class UserService implements UserDetailsService {
     private final PostService postService;
     private final PasswordValidator passwordValidator;
     private final EmailValidator emailValidator;
+    private final PostRepository postRepository;
 
     public void enableUser(String email) {
         userRepository.enableUser(email);
@@ -231,6 +233,7 @@ public class UserService implements UserDetailsService {
         List<Post> posts = postService.getAllPostsByUser(userId);
         for (Post post : posts) {
             post.setAuthorId(defaultAdmin);
+            postRepository.save(post);
         }
 
         userRepository.deleteById(userId);

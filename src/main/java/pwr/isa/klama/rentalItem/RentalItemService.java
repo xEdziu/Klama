@@ -106,7 +106,6 @@ public class RentalItemService {
         return response;
     }
 
-    @Transactional
     public Map<String, Object> updateRentalItem(Long rentalItemId,
                                                 RentalItem rentalItem) {
         ApiLogger.logInfo("/api/v1/authorized/admin/rentalItem/update/" + rentalItemId, "Updating rental item: " + rentalItemId);
