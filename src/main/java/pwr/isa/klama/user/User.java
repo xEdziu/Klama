@@ -11,6 +11,8 @@ import org.hibernate.proxy.HibernateProxy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import pwr.isa.klama.pass.userPass.UserPass;
+import pwr.isa.klama.rentalItem.rent.Rent;
 import pwr.isa.klama.shop.purchase.Purchase;
 
 import java.sql.Timestamp;
@@ -48,6 +50,12 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user")
     @ToString.Exclude
     private List<Purchase> purchases;
+    @OneToMany(mappedBy = "user")
+    @ToString.Exclude
+    private List<Rent> rents;
+    @OneToMany(mappedBy = "user")
+    @ToString.Exclude
+    private List<UserPass> userPasses;
     private Boolean locked = false;
     private Boolean enabled = false;
     private Timestamp createdAt;
