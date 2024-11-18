@@ -33,6 +33,11 @@ public class PostController {
             return post.get();
         }
 
+        @GetMapping(path = "/authorized/admin/posts")
+        public List<Post> getPostsAdmin() {
+            return postService.getAllPostsAdmin();
+        }
+
         @PostMapping(path = "/authorized/admin/posts/add")
         public Map<String, Object> addPost(@RequestBody Post post) {
             return postService.addPost(post);

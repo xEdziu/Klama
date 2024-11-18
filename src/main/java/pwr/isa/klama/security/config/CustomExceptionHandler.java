@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.context.request.WebRequest;
 import pwr.isa.klama.exceptions.AccountNotActivatedException;
 import pwr.isa.klama.exceptions.ForbiddenActionException;
@@ -56,7 +57,7 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(ForbiddenActionException.class)
     public ResponseEntity<Map<String, Object>> handleForbiddenAction(ForbiddenActionException ex, WebRequest request) {
-        ApiLogger.logSevere(request.getDescription(false).substring(4), ex.getMessage());
+        ApiLogger.logWarning(request.getDescription(false).substring(4), ex.getMessage());
         Map<String, Object> response = new HashMap<>();
         response.put("timestamp", new Timestamp(new Date().getTime()));
         response.put("message", ex.getMessage());
@@ -64,6 +65,30 @@ public class CustomExceptionHandler {
         response.put("status", HttpStatus.FORBIDDEN.value());
         response.put("uri", request.getDescription(false).substring(4));
         return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(HttpServerErrorException.InternalServerError.class)
+    public ResponseEntity<Map<String, Object>> handleInternalServerError(HttpServerErrorException.InternalServerError ex, WebRequest request) {
+        ApiLogger.logSevere(request.getDescription(false).substring(4), ex.getMessage());
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", new Timestamp(new Date().getTime()));
+        response.put("message", ex.getMessage());
+        response.put("error", HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
+        response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        response.put("uri", request.getDescription(false).substring(4));
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(InternalError.class)
+    public ResponseEntity<Map<String, Object>> handleInternalError(InternalError ex, WebRequest request) {
+        ApiLogger.logSevere(request.getDescription(false).substring(4), ex.getMessage());
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", new Timestamp(new Date().getTime()));
+        response.put("message", ex.getMessage());
+        response.put("error", HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
+        response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        response.put("uri", request.getDescription(false).substring(4));
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     // Add other exception handlers as needed

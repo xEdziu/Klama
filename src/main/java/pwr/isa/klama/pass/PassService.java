@@ -86,7 +86,6 @@ public class PassService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
     public Map<String, Object> buyNewPass(Long passId) {
         Map<String, Object> response = new HashMap<>();
         Long userId = getCurrentUser().getId();
@@ -172,7 +171,6 @@ public class PassService {
         return response;
     }
 
-    @Transactional
     public Map<String, Object> disablePass(Long passId) {
         boolean exists = passRepository.existsById(passId);
         if (!exists) {
@@ -193,7 +191,6 @@ public class PassService {
         return response;
     }
 
-    @Transactional
     public Map<String, Object> updatePass(Pass pass, Long passId) {
         if(pass.getName() == null &&
                 pass.getId() == null &&
