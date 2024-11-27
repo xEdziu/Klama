@@ -33,5 +33,15 @@ public class PurchaseItem {
 
     private int quantity;
     private float price;
+
+    @Transient
     private float totalPrice;
+
+    public float getTotalPrice() {
+        return quantity * price;
+    }
+
+    public void setTotalPrice() {
+        totalPrice = quantity * price;
+    }
 }
