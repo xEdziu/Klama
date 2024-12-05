@@ -121,7 +121,7 @@ public class ShopItemsService {
         }
 
         // Check if the quantity is valid
-        if (shopItems.getQuantity() == 0) {
+        if (shopItems.getQuantity() < 0) {
             throw new IllegalStateException("Niepoprawna ilość przedmiotów");
         }
 

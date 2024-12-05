@@ -133,12 +133,12 @@ public class PassService {
             ApiLogger.logWarning("/api/v1/authorized/admin/pass/add", "Pass with name " + pass.getName() + " already exists");
             throw new IllegalStateException("Przedmiot o nazwie: " + pass.getName() + " już istnieje");
         }
-        if (pass.getPrice() < 0) {
+        if (pass.getPrice() <= 0) {
             ApiLogger.logWarning("/api/v1/authorized/admin/pass/add", "Price cannot be less than 0");
             throw new IllegalStateException("Cena nie może być mniejsza niż 0");
         }
 
-        if (pass.getDays() < 0) {
+        if (pass.getDays() <= 0) {
             ApiLogger.logWarning("/api/v1/authorized/admin/pass/add", "Days cannot be less than 0");
             throw new IllegalStateException("Ilość dni nie może być mniejsza niż 0");
         }

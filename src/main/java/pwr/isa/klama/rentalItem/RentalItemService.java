@@ -68,7 +68,7 @@ public class RentalItemService {
             ApiLogger.logWarning("/api/v1/authorized/admin/rentalItem/add", "Rental item with name " + rentalItem.getName() + " already exists");
             throw new IllegalStateException("Przedmiot o nazwie: " + rentalItem.getName() + " już istnieje");
         }
-        if (rentalItem.getPrice() < 0) {
+        if (rentalItem.getPrice() <= 0) {
             ApiLogger.logWarning("/api/v1/authorized/admin/rentalItem/add", "Price cannot be less than 0");
             throw new IllegalStateException("Cena nie może być mniejsza niż 0");
         }
