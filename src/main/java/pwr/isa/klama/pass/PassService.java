@@ -234,7 +234,7 @@ public class PassService {
                 ApiLogger.logWarning("/api/v1/authorized/admin/pass/update/" + passId, "Pass price cannot be empty");
                 throw new IllegalStateException("Cena nie może być pusta");
             }
-            if (pass.getPrice() < 0) {
+            if (pass.getPrice() <= 0) {
                 ApiLogger.logWarning("/api/v1/authorized/admin/pass/update/" + passId, "Price cannot be less than 0");
                 throw new IllegalStateException("Cena nie może być mniejsza niż 0");
             }
@@ -246,9 +246,9 @@ public class PassService {
                 ApiLogger.logWarning("/api/v1/authorized/admin/pass/update/" + passId, "Pass days cannot be empty");
                 throw new IllegalStateException("Ilość dni nie może być pusta");
             }
-            if (pass.getDays() < 0) {
+            if (pass.getDays() <= 0) {
                 ApiLogger.logWarning("/api/v1/authorized/admin/pass/update/" + passId, "Days cannot be less than 0");
-                throw new IllegalStateException("Ilość dni nie może być mniejsza niż 0");
+                throw new IllegalStateException("Ilość dni nie może być mniejsza lub równa 0");
             }
             passToUpdate.setDays(pass.getDays());
         }

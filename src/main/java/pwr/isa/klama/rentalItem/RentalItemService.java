@@ -159,9 +159,9 @@ public class RentalItemService {
                 ApiLogger.logWarning("/api/v1/authorized/admin/rentalItem/update/" + rentalItemId, "Rental item price cannot be empty");
                 throw new IllegalStateException("Cena nie może być pusta");
             }
-            if (rentalItem.getPrice() < 0) {
+            if (rentalItem.getPrice() <= 0) {
                 ApiLogger.logWarning("/api/v1/authorized/admin/rentalItem/update/" + rentalItemId, "Price cannot be less than 0");
-                throw new IllegalStateException("Cena nie może być mniejsza niż 0");
+                throw new IllegalStateException("Cena nie może być mniejsza lub równa 0");
             }
             rentalItemToUpdate.setPrice(rentalItem.getPrice());
         }
