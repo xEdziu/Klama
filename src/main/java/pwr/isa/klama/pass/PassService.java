@@ -133,6 +133,15 @@ public class PassService {
             ApiLogger.logWarning("/api/v1/authorized/admin/pass/add", "Pass with name " + pass.getName() + " already exists");
             throw new IllegalStateException("Przedmiot o nazwie: " + pass.getName() + " już istnieje");
         }
+        if (pass.getPrice() < 0) {
+            ApiLogger.logWarning("/api/v1/authorized/admin/pass/add", "Price cannot be less than 0");
+            throw new IllegalStateException("Cena nie może być mniejsza niż 0");
+        }
+
+        if (pass.getDays() < 0) {
+            ApiLogger.logWarning("/api/v1/authorized/admin/pass/add", "Days cannot be less than 0");
+            throw new IllegalStateException("Ilość dni nie może być mniejsza niż 0");
+        }
         passRepository.save(pass);
 
         Map<String, Object> response = new HashMap<>();
@@ -192,6 +201,9 @@ public class PassService {
     }
 
     public Map<String, Object> updatePass(Pass pass, Long passId) {
+        ApiLogger.logInfo("/api/v1/authorized/admin/pass/update/" + passId, "Updating pass: " + passId);
+
+
         if(pass.getName() == null &&
                 pass.getId() == null &&
                 pass.getPrice() == null &&
@@ -222,6 +234,10 @@ public class PassService {
                 ApiLogger.logWarning("/api/v1/authorized/admin/pass/update/" + passId, "Pass price cannot be empty");
                 throw new IllegalStateException("Cena nie może być pusta");
             }
+            if (pass.getPrice() < 0) {
+                ApiLogger.logWarning("/api/v1/authorized/admin/pass/update/" + passId, "Price cannot be less than 0");
+                throw new IllegalStateException("Cena nie może być mniejsza niż 0");
+            }
             passToUpdate.setPrice(pass.getPrice());
         }
 
@@ -229,6 +245,10 @@ public class PassService {
             if(passToUpdate.getDays() == null) {
                 ApiLogger.logWarning("/api/v1/authorized/admin/pass/update/" + passId, "Pass days cannot be empty");
                 throw new IllegalStateException("Ilość dni nie może być pusta");
+            }
+            if (pass.getDays() < 0) {
+                ApiLogger.logWarning("/api/v1/authorized/admin/pass/update/" + passId, "Days cannot be less than 0");
+                throw new IllegalStateException("Ilość dni nie może być mniejsza niż 0");
             }
             passToUpdate.setDays(pass.getDays());
         }
