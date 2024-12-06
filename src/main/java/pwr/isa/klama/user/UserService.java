@@ -146,7 +146,7 @@ public class UserService implements UserDetailsService {
         existingUser.setEmail(user.getEmail());
         userRepository.save(existingUser);
         Map<String, Object> response = new HashMap<>();
-        if (!user.getPassword().isEmpty() || user.getPassword() != null){
+        if (!user.getPassword().isEmpty()) {
             response.put("warning", "Hasło nie może być zmienione poprzez ten formularz. Użyj formularza zmiany hasła");
             ApiLogger.logWarning("/api/v1/authorized/user/update","Password cannot be changed through this form. Use password change form. User: " + existingUser.getId());
         }

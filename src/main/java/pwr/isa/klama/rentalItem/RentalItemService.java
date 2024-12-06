@@ -62,10 +62,19 @@ public class RentalItemService {
 
     public Map<String, Object> addNewRentalItem(RentalItem rentalItem) {
         ApiLogger.logInfo("/api/v1/authorized/admin/rentalItem/add", "Adding new rental item: " + rentalItem.getName());
+
         Optional<RentalItem> rentalItemOptional = rentalItemRepository.findRentalItemByName(rentalItem.getName());
         if (rentalItemOptional.isPresent()) {
             ApiLogger.logWarning("/api/v1/authorized/admin/rentalItem/add", "Rental item with name " + rentalItem.getName() + " already exists");
             throw new IllegalStateException("Przedmiot o nazwie: " + rentalItem.getName() + " już istnieje");
+        }
+        if (rentalItem.getPrice() <= 0) {
+            ApiLogger.logWarning("/api/v1/authorized/admin/rentalItem/add", "Price cannot be less than 0");
+            throw new IllegalStateException("Cena nie może być mniejsza niż 0");
+        }
+        if (rentalItem.getQuantity() < 0) {
+            ApiLogger.logWarning("/api/v1/authorized/admin/rentalItem/add", "Quantity cannot be less than 0");
+            throw new IllegalStateException("Ilość nie może być mniejsza niż 0");
         }
         rentalItemRepository.save(rentalItem);
 
@@ -109,6 +118,17 @@ public class RentalItemService {
     public Map<String, Object> updateRentalItem(Long rentalItemId,
                                                 RentalItem rentalItem) {
         ApiLogger.logInfo("/api/v1/authorized/admin/rentalItem/update/" + rentalItemId, "Updating rental item: " + rentalItemId);
+
+        if (rentalItem.getQuantity() != null && rentalItem.getQuantity() < 0) {
+            ApiLogger.logWarning("/api/v1/authorized/admin/rentalItem/update/" + rentalItemId, "Quantity cannot be less than 0");
+            throw new IllegalStateException("Ilość nie może być mniejsza niż 0");
+        }
+
+        if (rentalItem.getPrice() != null && rentalItem.getPrice() < 0) {
+            ApiLogger.logWarning("/api/v1/authorized/admin/rentalItem/update/" + rentalItemId, "Price cannot be less than 0");
+            throw new IllegalStateException("Cena nie może być mniejsza niż 0");
+        }
+
         if(rentalItem.getName() == null &&
                 rentalItem.getId() == null &&
                 rentalItem.getPrice() == null &&
@@ -139,6 +159,10 @@ public class RentalItemService {
                 ApiLogger.logWarning("/api/v1/authorized/admin/rentalItem/update/" + rentalItemId, "Rental item price cannot be empty");
                 throw new IllegalStateException("Cena nie może być pusta");
             }
+            if (rentalItem.getPrice() <= 0) {
+                ApiLogger.logWarning("/api/v1/authorized/admin/rentalItem/update/" + rentalItemId, "Price cannot be less than 0");
+                throw new IllegalStateException("Cena nie może być mniejsza lub równa 0");
+            }
             rentalItemToUpdate.setPrice(rentalItem.getPrice());
         }
 
@@ -146,6 +170,10 @@ public class RentalItemService {
             if(rentalItemToUpdate.getQuantity() == null) {
                 ApiLogger.logWarning("/api/v1/authorized/admin/rentalItem/update/" + rentalItemId, "Rental item quantity cannot be empty");
                 throw new IllegalStateException("Ilość nie może być pusta");
+            }
+            if (rentalItem.getQuantity() < 0) {
+                ApiLogger.logWarning("/api/v1/authorized/admin/rentalItem/update/" + rentalItemId, "Quantity cannot be less than 0");
+                throw new IllegalStateException("Ilość nie może być mniejsza niż 0");
             }
             rentalItemToUpdate.setQuantity(rentalItem.getQuantity());
         }
