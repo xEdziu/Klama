@@ -1,0 +1,28 @@
+/* Hamburger animation */
+.hamburger.active span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.hamburger.active span:nth-child(2) {
+  opacity: 0;
+}
+.hamburger.active span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+.hamburger span {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  background-color: #333;
+}
+
+.dark .hamburger span {
+  background-color: #fff;
+}
+
+.gallery-grid img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.dark .testimonial-item {
+  background-color: #4b5563; /* Darker background for testimonials */
+}

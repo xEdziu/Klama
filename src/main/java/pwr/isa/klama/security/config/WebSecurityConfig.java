@@ -33,8 +33,8 @@ public class WebSecurityConfig {
                                 .requestMatchers("/admin", "/admin/**").hasAuthority("ROLE_ADMIN")
                                 .requestMatchers("/home", "/home/**").hasAuthority("ROLE_USER")
                                 .requestMatchers("/login", "/register").permitAll()
-                                .requestMatchers("/").permitAll()
-                                .requestMatchers("/static/**").permitAll()
+                                .requestMatchers("/", "/index.html", "/static/**", "/resources/**").permitAll() // Allow access to static resources
+                                .requestMatchers("/scripts/**", "/styles/**", "/img/**").permitAll() // Allow access to static resources
                                 .anyRequest()
                                 .authenticated()
                 )
@@ -49,6 +49,7 @@ public class WebSecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 )
                 .authenticationProvider(daoAuthenticationProvider());
+
 
         return http.build();
     }
