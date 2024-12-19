@@ -33,18 +33,18 @@ public class ContentController {
     @GetMapping("/shop")
     public String getShop() {
         System.out.println("ContentController.getLogin -> shop");
-        return "shop/shop";
+        return "auth/shop";
     }
 
     @GetMapping("/rent")
     public String getRent() {
         System.out.println("ContentController.getLogin -> rent");
-        return "rent/rent";
+        return "auth/rent";
     }
 
     @GetMapping("/blog")
     public String getBlog() {
         System.out.println("ContentController.getLogin -> blog");
-        return "blog/blog";
+        return "blog";
     }
 }
