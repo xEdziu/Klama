@@ -45,8 +45,15 @@ public class WebSecurityConfig {
                         .successHandler(customAuthenticationSuccessHandler)
                         .failureUrl("/login?error=true")
                 )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout=true")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                        .maximumSessions(1)
                 )
                 .authenticationProvider(daoAuthenticationProvider());
 
