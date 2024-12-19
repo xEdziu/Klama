@@ -1,22 +1,97 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Klama Wrocław</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#e5b700',
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body>
-    <form action="/login" method="post">
-        <div>
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username">
+<body class="font-roboto text-gray-800 dark:text-gray-200 dark:bg-gray-900">
+    <header class="bg-white dark:bg-gray-800 shadow-md sticky top-0 w-full z-10">
+        <nav class="container mx-auto flex items-center justify-between p-4">
+            <div class="logo">
+                <img src="/img/Klama-Climbing-Gym.svg" alt="Logo Klama" class="h-24">
+            </div>
+            <!-- Desktop menu -->
+            <ul class="menu hidden md:flex space-x-6">
+                <li><a href="/" class="hover:text-primary">STRONA GŁÓWNA</a></li>
+                <li><a href="/shop" class="hover:text-primary">SKLEP</a></li>
+                <li><a href="/rent" class="hover:text-primary">WYPOŻYCZALNIA</a></li>
+                <li><a href="/blog" class="hover:text-primary">BLOG</a></li>
+                <li><a href="login" class="hover:text-primary">MOJE KONTO</a></li>
+            </ul>
+            <div class="flex items-center space-x-4">
+                <button id="theme-toggle" class="focus:outline-none">
+                    <svg id="theme-icon" class="w-6 h-6 text-gray-800 dark:text-gray-200" fill="currentColor"
+                        viewBox="0 0 20 20">
+                    </svg>
+                </button>
+                <button class="hamburger md:hidden focus:outline-none flex flex-col justify-around w-8 h-6">
+                    <span class="block w-6 h-0.5 bg-gray-800 dark:bg-gray-200"></span>
+                    <span class="block w-6 h-0.5 bg-gray-800 dark:bg-gray-200"></span>
+                    <span class="block w-6 h-0.5 bg-gray-800 dark:bg-gray-200"></span>
+                </button>
+            </div>
+        </nav>
+        <!-- Mobile menu -->
+        <div class="mobile-menu hidden">
+            <ul class="flex flex-col items-center space-y-2 p-4">
+                <li><a href="/" class="hover:text-primary">STRONA GŁÓWNA</a></li>
+                <li><a href="/shop" class="hover:text-primary">SKLEP</a></li>
+                <li><a href="/rent" class="hover:text-primary">WYPOŻYCZALNIA</a></li>
+                <li><a href="/blog" class="hover:text-primary">BLOG</a></li>
+                <li><a href="login" class="hover:text-primary">MOJE KONTO</a></li>
+            </ul>
         </div>
-        <div>
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password">
+    </header>
+    <main class="min-h-screen flex flex-col items-center justify-center">
+        <div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200 text-center">Logowanie</h2>
+            <form action="/login" method="post" class="space-y-6">
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nazwa użytkownika</label>
+                    <input type="text" id="username" name="username" required
+                        class="mt-1 block w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary focus:border-primary bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                </div>
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Hasło</label>
+                    <input type="password" id="password" name="password" required
+                        class="mt-1 block w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary focus:border-primary bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                </div>
+                <div class="flex items-center justify-between">
+                    <a href="#" class="text-sm text-primary hover:underline">Zapomniałeś hasła?</a>
+                    <button type="submit"
+                        class="bg-primary text-white py-2 px-6 rounded-lg shadow-lg hover:bg-yellow-600 transition">Zaloguj się</button>
+                </div>
+            </form>
+            <p class="mt-6 text-center text-gray-700 dark:text-gray-300">
+                Nie masz konta?
+                <a href="#" class="text-primary hover:underline">Zarejestruj się</a>
+            </p>
         </div>
-        <div>
-            <button type="submit">Login</button>
-        </div>
-    </form>
+        <a href="/" class="text-primary hover:underline block text-center mt-8">
+            Wróć do strony głównej
+        </a>
+    </main>
+
+    <footer class="bg-gray-800 text-white text-center py-4">
+        <p>© 2024 Klama Wrocław</p>
+    </footer>
+    <script src="/scripts/script.js"></script>
 </body>
 </html>

@@ -29,14 +29,14 @@
     <header class="bg-white dark:bg-gray-800 shadow-md sticky top-0 w-full z-10">
         <nav class="container mx-auto flex items-center justify-between p-4">
             <div class="logo">
-                <img src="/img/Klama-Climbing-Gym.svg" alt="Logo Klama" class="h-32">
+                <img src="/img/Klama-Climbing-Gym.svg" alt="Logo Klama" class="h-24">
             </div>
             <!-- Desktop menu -->
             <ul class="menu hidden md:flex space-x-6">
-                <li><a href="#" class="hover:text-primary">O KLAMIE</a></li>
-                <li><a href="#" class="hover:text-primary">SKLEP</a></li>
-                <li><a href="#" class="hover:text-primary">WYPOŻYCZALNIA</a></li>
-                <li><a href="#" class="hover:text-primary">CENNIK</a></li>
+                <li><a href="/" class="hover:text-primary">STRONA GŁÓWNA</a></li>
+                <li><a href="/shop" class="hover:text-primary">SKLEP</a></li>
+                <li><a href="/rent" class="hover:text-primary">WYPOŻYCZALNIA</a></li>
+                <li><a href="/blog" class="hover:text-primary">BLOG</a></li>
                 <li><a href="login" class="hover:text-primary">MOJE KONTO</a></li>
             </ul>
             <div class="flex items-center space-x-4">
@@ -55,11 +55,11 @@
         <!-- Mobile menu -->
         <div class="mobile-menu hidden">
             <ul class="flex flex-col items-center space-y-2 p-4">
-                <li><a href="#" class="hover:text-primary">O KLAMIE</a></li>
-                <li><a href="#" class="hover:text-primary">OFERTA</a></li>
-                <li><a href="#" class="hover:text-primary">WYDARZENIA</a></li>
-                <li><a href="#" class="hover:text-primary">CENNIK</a></li>
-                <li><a href="#" class="hover:text-primary">PANEL KLIENTA</a></li>
+                <li><a href="/" class="hover:text-primary">STRONA GŁÓWNA</a></li>
+                <li><a href="/shop" class="hover:text-primary">SKLEP</a></li>
+                <li><a href="/rent" class="hover:text-primary">WYPOŻYCZALNIA</a></li>
+                <li><a href="/blog" class="hover:text-primary">BLOG</a></li>
+                <li><a href="login" class="hover:text-primary">MOJE KONTO</a></li>
             </ul>
         </div>
     </header>
@@ -155,7 +155,35 @@
                     class="rounded-lg shadow hover:shadow-lg transition">
             </div>
         </section>
-
+        <section id="prices" class="container mx-auto px-4 py-8">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Cennik</h2>
+            <table class="min-w-full bg-white dark:bg-gray-700 rounded-lg shadow-lg">
+                <thead>
+                    <tr>
+                        <th class="py-2 px-4 text-left text-gray-800 dark:text-gray-200">Usługa</th>
+                        <th class="py-2 px-4 text-left text-gray-800 dark:text-gray-200">Opis</th>
+                        <th class="py-2 px-4 text-left text-gray-800 dark:text-gray-200">Cena</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="border-t border-primary py-2 px-4 text-gray-700 dark:text-gray-300">Usługa 1</td>
+                        <td class="border-t border-primary py-2 px-4 text-gray-700 dark:text-gray-300">Opis usługi 1.</td>
+                        <td class="border-t border-primary py-2 px-4 text-gray-700 dark:text-gray-300">10 zł</td>
+                    </tr>
+                    <tr>
+                        <td class="border-t border-primary py-2 px-4 text-gray-700 dark:text-gray-300">Usługa 2</td>
+                        <td class="border-t border-primary py-2 px-4 text-gray-700 dark:text-gray-300">Opis usługi 2.</td>
+                        <td class="border-t border-primary py-2 px-4 text-gray-700 dark:text-gray-300">20 zł</td>
+                    </tr>
+                    <tr>
+                        <td class="border-t border-primary py-2 px-4 text-gray-700 dark:text-gray-300">Usługa 3</td>
+                        <td class="border-t border-primary py-2 px-4 text-gray-700 dark:text-gray-300">Opis usługi 3.</td>
+                        <td class="border-t border-primary py-2 px-4 text-gray-700 dark:text-gray-300">30 zł</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
         <section
             class="contact bg-white dark:bg-gray-800 w-full p-6 rounded-lg shadow-md mb-6 flex flex-col lg:flex-row">
             <!-- Contact Form -->

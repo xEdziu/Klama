@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Moje Konto - Klama Wrocław</title>
+    <title>Blog - Klama Wrocław</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
@@ -34,7 +34,7 @@
                 <li><a href="/" class="hover:text-primary">STRONA GŁÓWNA</a></li>
                 <li><a href="/shop" class="hover:text-primary">SKLEP</a></li>
                 <li><a href="/rent" class="hover:text-primary">WYPOŻYCZALNIA</a></li>
-                <li><a href="#" class="hover:text-primary">BLOG</a></li>
+                <li><a href="/blog" class="hover:text-primary">BLOG</a></li>
                 <li><a href="login" class="hover:text-primary">MOJE KONTO</a></li>
             </ul>
             <div class="flex items-center space-x-4">
@@ -56,39 +56,37 @@
                 <li><a href="/" class="hover:text-primary">STRONA GŁÓWNA</a></li>
                 <li><a href="/shop" class="hover:text-primary">SKLEP</a></li>
                 <li><a href="/rent" class="hover:text-primary">WYPOŻYCZALNIA</a></li>
-                <li><a href="#" class="hover:text-primary">BLOG</a></li>
+                <li><a href="/blog" class="hover:text-primary">BLOG</a></li>
                 <li><a href="login" class="hover:text-primary">MOJE KONTO</a></li>
             </ul>
         </div>
     </header>
 
     <main class="container mx-auto p-4">
-        <section class="account bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6">
-            <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Moje Konto</h2>
-            <p class="mb-4 text-gray-700 dark:text-gray-300">Witaj, [Nazwa Użytkownika]!</p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg shadow hover:shadow-lg transition">
-                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">Dane osobowe</h3>
-                    <p class="text-gray-700 dark:text-gray-300">Imię: [Imię]</p>
-                    <p class="text-gray-700 dark:text-gray-300">Nazwisko: [Nazwisko]</p>
-                    <p class="text-gray-700 dark:text-gray-300">Email: [Email]</p>
-                    <p class="text-gray-700 dark:text-gray-300">Nick: [Nick]</p>
+        <section class="blog bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Blog</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Blog Post 1 -->
+                <div class="blog-post bg-gray-50 dark:bg-gray-700 p-4 rounded-lg shadow hover:shadow-lg transition">
+                    <img src="https://via.placeholder.com/150" alt="Blog Post 1" class="w-full h-48 object-cover rounded-lg mb-4">
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">Post 1</h3>
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">Opis posta 1.</p>
+                    <a href="#" class="text-primary hover:underline">Czytaj więcej</a>
                 </div>
-                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg shadow hover:shadow-lg transition">
-                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">Historia zamówień</h3>
-                    <ul class="list-disc list-inside text-gray-700 dark:text-gray-300">
-                        <li>Zamówienie #1 - Data: [Data] - Status: [Status]</li>
-                        <li>Zamówienie #2 - Data: [Data] - Status: [Status]</li>
-                        <li>Zamówienie #3 - Data: [Data] - Status: [Status]</li>
-                    </ul>
+                <!-- Blog Post 2 -->
+                <div class="blog-post bg-gray-50 dark:bg-gray-700 p-4 rounded-lg shadow hover:shadow-lg transition">
+                    <img src="https://via.placeholder.com/150" alt="Blog Post 2" class="w-full h-48 object-cover rounded-lg mb-4">
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">Post 2</h3>
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">Opis posta 2.</p>
+                    <a href="#" class="text-primary hover:underline">Czytaj więcej</a>
                 </div>
-            </div>
-        </section>
-        <section class="account-actions bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6">
-            <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Akcje</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <a href="#" class="bg-primary text-white py-3 px-6 rounded-lg shadow-lg hover:bg-yellow-600 transition text-center">Edytuj Profil</a>
-                <a href="#" class="bg-primary text-white py-3 px-6 rounded-lg shadow-lg hover:bg-yellow-600 transition text-center">Wyloguj się</a>
+                <!-- Blog Post 3 -->
+                <div class="blog-post bg-gray-50 dark:bg-gray-700 p-4 rounded-lg shadow hover:shadow-lg transition">
+                    <img src="https://via.placeholder.com/150" alt="Blog Post 3" class="w-full h-48 object-cover rounded-lg mb-4">
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">Post 3</h3>
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">Opis posta 3.</p>
+                    <a href="#" class="text-primary hover:underline">Czytaj więcej</a>
+                </div>
             </div>
         </section>
     </main>

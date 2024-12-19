@@ -29,4 +29,22 @@ public class ContentController {
         System.out.println("ContentController.getLogin -> login");
         return "auth/login";
     }
+
+    @GetMapping("/shop")
+    public String getShop() {
+        System.out.println("ContentController.getLogin -> shop");
+        return "shop/shop";
+    }
+
+    @GetMapping("/rent")
+    public String getRent() {
+        System.out.println("ContentController.getLogin -> rent");
+        return "rent/rent";
+    }
+
+    @GetMapping("/blog")
+    public String getBlog() {
+        System.out.println("ContentController.getLogin -> blog");
+        return "blog/blog";
+    }
 }
