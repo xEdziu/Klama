@@ -11,13 +11,33 @@ public class ShopItemsConfig {
 
     @Bean
     CommandLineRunner commandLineRunnerForShopItems(
-            ShopItemsRepository repository){
+            ShopItemsRepository repository) {
         return args -> {
             ShopItems magnezja = new ShopItems(
                     "Magnezja 100g Black Diamond",
                     "Substancja zwiększająca tarcie i umożliwianie pewne chwytanie przedmiotów",
                     25.99F,
                     100
+            );
+
+            ShopItems magnezja2 = new ShopItems(
+                    "Magnezja 500g Black Diamond",
+                    "Substancja zwiększająca tarcie i umożliwianie pewne chwytanie przedmiotów",
+                    119.99F,
+                    100
+            );
+
+            ShopItems karabinek = new ShopItems(
+                    "Karabinek Black Diamond",
+                    "Karabinek wspinaczkowy o wysokiej wytrzymałości",
+                    45.99F,
+                    50
+            );
+            ShopItems lina = new ShopItems(
+                    "Lina wspinaczkowa 60m",
+                    "Lina dynamiczna do wspinaczki o długości 60 metrów",
+                    599.99F,
+                    10
             );
 
             ShopItems buty = new ShopItems(
@@ -28,7 +48,7 @@ public class ShopItemsConfig {
             );
 
             repository.saveAll(
-                    List.of(magnezja, buty)
+                    List.of(magnezja, buty, karabinek, lina)
             );
         };
     }

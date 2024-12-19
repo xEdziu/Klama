@@ -1,11 +1,238 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
+
 <head>
     <meta charset="UTF-8">
-    <title>Projekt Baza Danych</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Klama Wrocław</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#e5b700',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="/styles/style.css">
 </head>
-<body>
-    <h1>Projekt Baza Danych</h1>
-    <a href="/login">Logowanie</a>
-    <a href="/register">Rejestracja</a>
+
+<body class="font-roboto text-gray-800 dark:text-gray-200 dark:bg-gray-900">
+
+    <header class="bg-white dark:bg-gray-800 shadow-md sticky top-0 w-full z-10">
+        <nav class="container mx-auto flex items-center justify-between p-4">
+            <div class="logo">
+                <img src="/img/Klama-Climbing-Gym.svg" alt="Logo Klama" class="h-24">
+            </div>
+            <!-- Desktop menu -->
+            <ul class="menu hidden md:flex space-x-6">
+                <li><a href="/" class="hover:text-primary">STRONA GŁÓWNA</a></li>
+                <li><a href="/shop" class="hover:text-primary">SKLEP</a></li>
+                <li><a href="/rent" class="hover:text-primary">WYPOŻYCZALNIA</a></li>
+                <li><a href="/blog" class="hover:text-primary">BLOG</a></li>
+                <li><a href="login" class="hover:text-primary">MOJE KONTO</a></li>
+            </ul>
+            <div class="flex items-center space-x-4">
+                <button id="theme-toggle" class="focus:outline-none">
+                    <svg id="theme-icon" class="w-6 h-6 text-gray-800 dark:text-gray-200" fill="currentColor"
+                        viewBox="0 0 20 20">
+                    </svg>
+                </button>
+                <button class="hamburger md:hidden focus:outline-none flex flex-col justify-around w-8 h-6">
+                    <span class="block w-6 h-0.5 bg-gray-800 dark:bg-gray-200"></span>
+                    <span class="block w-6 h-0.5 bg-gray-800 dark:bg-gray-200"></span>
+                    <span class="block w-6 h-0.5 bg-gray-800 dark:bg-gray-200"></span>
+                </button>
+            </div>
+        </nav>
+        <!-- Mobile menu -->
+        <div class="mobile-menu hidden">
+            <ul class="flex flex-col items-center space-y-2 p-4">
+                <li><a href="/" class="hover:text-primary">STRONA GŁÓWNA</a></li>
+                <li><a href="/shop" class="hover:text-primary">SKLEP</a></li>
+                <li><a href="/rent" class="hover:text-primary">WYPOŻYCZALNIA</a></li>
+                <li><a href="/blog" class="hover:text-primary">BLOG</a></li>
+                <li><a href="login" class="hover:text-primary">MOJE KONTO</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <div class="hero mt-20 container mx-auto flex flex-col md:flex-row items-center p-4">
+        <div class="hero-content flex-1 p-4">
+            <h1 class="text-4xl font-bold mb-8 text-gray-800 dark:text-gray-200">Spotkajmy się na Klamie we Wrocławiu!
+            </h1>
+            <div class="buttons space-x-6">
+                <a href="tel:+48..."
+                    class="button bg-primary text-white py-3 px-8 text-lg rounded-lg shadow-lg hover:bg-yellow-600 transition">ZADZWOŃ</a>
+                <a href="..."
+                    class="button bg-primary text-white py-3 px-8 text-lg rounded-lg shadow-lg hover:bg-yellow-600 transition">PRZYJEDŹ</a>
+            </div>
+        </div>
+        <div class="hero-image flex-1 text-center md:text-right p-4">
+            <img src="https://wellness.studentaffairs.miami.edu/outdoor-adventures/images/lakeside-village-outdoor-adventures_32-1240-x-550.png"
+                alt="Climbing Wall" class="rounded-lg shadow-lg">
+        </div>
+    </div>
+
+    <main class="container mx-auto p-4">
+        <section class="info bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-2xl font-bold mb-2 text-gray-800 dark:text-gray-200">Uwaga!</h2>
+            <p class="mb-2 text-gray-700 dark:text-gray-300">Najbliższe kręcenie: środa 11.12.2024 r.</p>
+            <p class="mb-4 text-gray-700 dark:text-gray-300">Do godziny 17:00 mogą wystąpić utrudnienia w korzystaniu ze
+                ściany.</p>
+            <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">Routesetting w grudniu:</h3>
+            <ul class="list-disc list-inside text-gray-700 dark:text-gray-300">
+                <li>04.12</li>
+                <li>11.12</li>
+                <li>18.12</li>
+            </ul>
+        </section>
+
+        <section class="features grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <div class="feature bg-yellow-600 p-6 text-center rounded-lg shadow-md hover:shadow-lg transition">
+                <img src="/img/coffee.svg" alt="Kawiarnia" class="mx-auto mb-4 h-20">
+                <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200">Kawiarnia</h3>
+            </div>
+            <div class="feature bg-yellow-600 p-6 text-center rounded-lg shadow-md hover:shadow-lg transition">
+                <img src="/img/training.svg" alt="Strefy treningowe" class="mx-auto mb-4 h-20">
+                <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200">Strefy treningowe</h3>
+            </div>
+            <div class="feature bg-yellow-600 p-6 text-center rounded-lg shadow-md hover:shadow-lg transition">
+                <img src="/img/shop.svg" alt="Buty wspinaczkowe" class="mx-auto mb-4 h-20">
+                <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200">Buty wspinaczkowe</h3>
+            </div>
+            <div class="feature bg-yellow-600 p-6 text-center rounded-lg shadow-md hover:shadow-lg transition">
+                <img src="/img/crashpad.svg" alt="Crashpad" class="mx-auto mb-4 h-20">
+                <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200">Crashpad</h3>
+            </div>
+        </section>
+
+        <section class="testimonials bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Opinie naszych klientów</h2>
+            <div class="testimonial grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div
+                    class="testimonial-item bg-gray-50 dark:bg-gray-700 p-4 rounded-lg shadow hover:shadow-lg transition">
+                    <p class="mb-2 text-gray-700 dark:text-gray-300">"Świetne miejsce do wspinaczki! Profesjonalna
+                        obsługa i super atmosfera."</p>
+                    <p class="font-semibold text-gray-800 dark:text-gray-200">- Jan Kowalski</p>
+                </div>
+                <div
+                    class="testimonial-item bg-gray-50 dark:bg-gray-700 p-4 rounded-lg shadow hover:shadow-lg transition">
+                    <p class="mb-2 text-gray-700 dark:text-gray-300">"Najlepsza ścianka wspinaczkowa we Wrocławiu.
+                        Polecam wszystkim!"</p>
+                    <p class="font-semibold text-gray-800 dark:text-gray-200">- Anna Nowak</p>
+                </div>
+                <div
+                    class="testimonial-item bg-gray-50 dark:bg-gray-700 p-4 rounded-lg shadow hover:shadow-lg transition">
+                    <p class="mb-2 text-gray-700 dark:text-gray-300">"Idealne miejsce na aktywne spędzenie czasu z
+                        rodziną."</p>
+                    <p class="font-semibold text-gray-800 dark:text-gray-200">- Piotr Wiśniewski</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="gallery bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Galeria</h2>
+            <div class="gallery-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <img src="https://rockwerxclimbing.com/cdn/shop/files/Valley_Rock_Gym_a_Gym_Rock_Lite_Bouldering_Climbing_Wall_built_by_Rockwerx.jpg?v=1665588370&width=1500"
+                    alt="Gallery Image 1" class="rounded-lg shadow hover:shadow-lg transition">
+                <img src="https://columns.wlu.edu/wp-content/uploads/2022/10/PHOTO-1-CLIMBING-scaled.jpg"
+                    alt="Gallery Image 2" class="rounded-lg shadow hover:shadow-lg transition">
+                <img src="https://images.squarespace-cdn.com/content/v1/5b6d8215b1059890c89e29bb/1648501507261-BZT62CBEWYKLCPW4TLZH/2020_02_ARCH_TOUR_2+%28138+of+284%29.jpg?format=1000w"
+                    alt="Gallery Image 3" class="rounded-lg shadow hover:shadow-lg transition">
+                <img src="https://www.wfla.com/wp-content/uploads/sites/71/2023/04/GettyImages-828532530.jpg?w=2560&h=1440&crop=1"
+                    alt="Gallery Image 4" class="rounded-lg shadow hover:shadow-lg transition">
+                <img src="https://media.timeout.com/images/103733032/750/562/image.jpg" alt="Gallery Image 5"
+                    class="rounded-lg shadow hover:shadow-lg transition">
+                <img src="https://defy.com/wp-content/uploads/2020/11/NovemberBlog2.jpg" alt="Gallery Image 6"
+                    class="rounded-lg shadow hover:shadow-lg transition">
+            </div>
+        </section>
+        <section id="prices" class="container mx-auto px-4 py-8">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Cennik</h2>
+            <table class="min-w-full bg-white dark:bg-gray-700 rounded-lg shadow-lg">
+                <thead>
+                    <tr>
+                        <th class="py-2 px-4 text-left text-gray-800 dark:text-gray-200">Usługa</th>
+                        <th class="py-2 px-4 text-left text-gray-800 dark:text-gray-200">Opis</th>
+                        <th class="py-2 px-4 text-left text-gray-800 dark:text-gray-200">Cena</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="border-t border-primary py-2 px-4 text-gray-700 dark:text-gray-300">Usługa 1</td>
+                        <td class="border-t border-primary py-2 px-4 text-gray-700 dark:text-gray-300">Opis usługi 1.</td>
+                        <td class="border-t border-primary py-2 px-4 text-gray-700 dark:text-gray-300">10 zł</td>
+                    </tr>
+                    <tr>
+                        <td class="border-t border-primary py-2 px-4 text-gray-700 dark:text-gray-300">Usługa 2</td>
+                        <td class="border-t border-primary py-2 px-4 text-gray-700 dark:text-gray-300">Opis usługi 2.</td>
+                        <td class="border-t border-primary py-2 px-4 text-gray-700 dark:text-gray-300">20 zł</td>
+                    </tr>
+                    <tr>
+                        <td class="border-t border-primary py-2 px-4 text-gray-700 dark:text-gray-300">Usługa 3</td>
+                        <td class="border-t border-primary py-2 px-4 text-gray-700 dark:text-gray-300">Opis usługi 3.</td>
+                        <td class="border-t border-primary py-2 px-4 text-gray-700 dark:text-gray-300">30 zł</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        <section
+            class="contact bg-white dark:bg-gray-800 w-full p-6 rounded-lg shadow-md mb-6 flex flex-col lg:flex-row">
+            <!-- Contact Form -->
+            <div class="w-full lg:w-1/2">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Kontakt</h2>
+                <form class="space-y-4">
+                    <div>
+                        <label for="name"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">Imię</label>
+                        <input type="text" id="name" name="name"
+                            class="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary focus:border-primary bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                    </div>
+                    <div>
+                        <label for="email"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+                        <input type="email" id="email" name="email"
+                            class="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary focus:border-primary bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                    </div>
+                    <div>
+                        <label for="message"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">Wiadomość</label>
+                        <textarea id="message" name="message" rows="4"
+                            class="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary focus:border-primary bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"></textarea>
+                    </div>
+                    <button type="submit"
+                        class="bg-primary text-white py-2 px-4 rounded-lg shadow-lg hover:bg-yellow-600 transition">Wyślij</button>
+                </form>
+            </div>
+            <div class="w-full lg:w-1/2 lg:pl-6 mt-6 lg:mt-0">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Informacje Kontaktowe</h2>
+                <p class="text-gray-700 dark:text-gray-300 mb-4">
+                    <strong>Adres:</strong> ul. Przykładowa 1, 50-000 Wrocław
+                </p>
+                <p class="text-gray-700 dark:text-gray-300 mb-4">
+                    <strong>Telefon:</strong> <a href="tel:+48123456789" class="text-primary hover:underline">+48 123
+                        456 789</a>
+                </p>
+                <p class="text-gray-700 dark:text-gray-300 mb-4">
+                    <strong>Email:</strong> <a href="mailto:kontakt@klama.pl"
+                        class="text-primary hover:underline">kontakt@klama.pl</a>
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white text-center py-4">
+        <p>© 2024 Klama Wrocław</p>
+    </footer>
+    <script src="/scripts/script.js"></script>
 </body>
+
+</html>

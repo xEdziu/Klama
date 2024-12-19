@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sklep - Klama Wrocław</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#e5b700',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="/styles/style.css">
+</head>
+<body class="font-roboto text-gray-800 dark:text-gray-200 dark:bg-gray-900">
+
+    <header class="bg-white dark:bg-gray-800 shadow-md sticky top-0 w-full z-10">
+        <nav class="container mx-auto flex items-center justify-between p-4">
+            <div class="logo">
+                <img src="/img/Klama-Climbing-Gym.svg" alt="Logo Klama" class="h-24">
+            </div>
+            <!-- Desktop menu -->
+            <ul class="menu hidden md:flex space-x-6">
+                <li><a href="/" class="hover:text-primary">STRONA GŁÓWNA</a></li>
+                <li><a href="/shop" class="hover:text-primary">SKLEP</a></li>
+                <li><a href="/rent" class="hover:text-primary">WYPOŻYCZALNIA</a></li>
+                <li><a href="/blog" class="hover:text-primary">BLOG</a></li>
+                <li><a href="login" class="hover:text-primary">MOJE KONTO</a></li>
+            </ul>
+            <div class="flex items-center space-x-4">
+                <button id="theme-toggle" class="focus:outline-none">
+                    <svg id="theme-icon" class="w-6 h-6 text-gray-800 dark:text-gray-200" fill="currentColor"
+                        viewBox="0 0 20 20">
+                    </svg>
+                </button>
+                <div class="relative">
+                    <button id="cart-button" class="focus:outline-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                        </svg>
+                    </button>
+                    <div id="cart-dropdown" class="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-700 rounded-lg shadow-lg hidden">
+                        <div id="cart-items" class="p-4 text-gray-800 dark:text-gray-200">
+                            <!-- Cart items will be displayed here -->
+                        </div>
+                        <div class="p-4 border-t border-gray-300 dark:border-gray-600">
+                            <div class="flex justify-between mb-2">
+                                <span class="font-bold">Suma:</span>
+                                <span id="cart-total">0 zł</span>
+                            </div>
+                            <button id="buy-button" class="bg-primary text-white py-2 px-4 rounded-lg shadow-lg hover:bg-yellow-600 transition block text-center">Kup teraz</button>
+                        </div>
+                    </div>
+                </div>
+                <button class="hamburger md:hidden focus:outline-none flex flex-col justify-around w-8 h-6">
+                    <span class="block w-6 h-0.5 bg-gray-800 dark:bg-gray-200"></span>
+                    <span class="block w-6 h-0.5 bg-gray-800 dark:bg-gray-200"></span>
+                    <span class="block w-6 h-0.5 bg-gray-800 dark:bg-gray-200"></span>
+                </button>
+            </div>
+        </nav>
+        <!-- Mobile menu -->
+        <div class="mobile-menu hidden">
+            <ul class="flex flex-col items-center space-y-2 p-4">
+                <li><a href="/" class="hover:text-primary">STRONA GŁÓWNA</a></li>
+                <li><a href="/shop" class="hover:text-primary">SKLEP</a></li>
+                <li><a href="/rent" class="hover:text-primary">WYPOŻYCZALNIA</a></li>
+                <li><a href="/blog" class="hover:text-primary">BLOG</a></li>
+                <li><a href="login" class="hover:text-primary">MOJE KONTO</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-4 flex">
+        <aside class="w-full md:w-1/4 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6 md:mr-6">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Filtry</h2>
+            <form class="space-y-4">
+                <div>
+                    <label for="search" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Szukaj</label>
+                    <input type="text" id="search" name="search"
+                        class="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary focus:border-primary bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                </div>
+                <div>
+                    <label for="price" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Cena</label>
+                    <input type="range" id="price" name="price" value="1000" min="0" max="1000" step="10"
+                        class="mt-1 block w-full" oninput="updatePriceValue(this.value)">
+                    <div class="flex justify-between text-sm text-gray-700 dark:text-gray-300 mt-2">
+                        <span id="min-price">0 zł</span>
+                        <span id="max-price">1000 zł</span>
+                    </div>
+                </div>
+                <button type="submit"
+                    class="bg-primary text-white py-2 px-4 rounded-lg shadow-lg hover:bg-yellow-600 transition block text-center">Zastosuj</button>
+            </form>
+        </aside>
+        <section class="shop w-full md:w-3/4 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Sklep</h2>
+            <div id="product-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Products will be rendered here -->
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white text-center py-4">
+        <p>© 2024 Klama Wrocław</p>
+    </footer>
+    <script src="/scripts/script.js"></script>
+    <script>
+        const products = [
+            {
+                name: "Produkt 1",
+                description: "Opis produktu 1.",
+                price: 100,
+                stock: 10,
+                imageUrl: "https://via.placeholder.com/150",
+                id: 1
+            },
+            {
+                name: "Produkt 2",
+                description: "Opis produktu 2.",
+                price: 200,
+                stock: 5,
+                imageUrl: "https://via.placeholder.com/150",
+                id: 2
+            },
+            {
+                name: "Produkt 3",
+                description: "Opis produktu 3.",
+                price: 300,
+                stock: 2,
+                imageUrl: "https://via.placeholder.com/150",
+                id: 3
+            }
+        ];
+
+        function renderProducts(filteredProducts) {
+            const productList = document.getElementById('product-list');
+            productList.innerHTML = '';
+            filteredProducts.forEach(product => {
+                const productDiv = document.createElement('div');
+                productDiv.classList.add('product', 'bg-gray-50', 'dark:bg-gray-700', 'p-4', 'rounded-lg', 'shadow', 'hover:shadow-lg', 'transition');
+                productDiv.innerHTML = `
+                    <img src="${product.imageUrl}" alt="${product.name}" class="w-full h-48 object-cover rounded-lg mb-4">
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">${product.name}</h3>
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">${product.description}</p>
+                    <p class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-4">${product.price} zł</p>
+                    <p class="text-sm text-gray-700 dark:text-gray-300 mb-4">Pozostało: ${product.stock} szt.</p>
+                    <button onclick="addToCart('${product.name}', ${product.price}, ${product.id})" class="bg-primary text-white py-2 px-4 rounded-lg shadow-lg hover:bg-yellow-600 transition block text-center">Dodaj do koszyka</button>
+                `;
+                productList.appendChild(productDiv);
+            });
+        }
+
+        function filterProducts() {
+            const searchValue = document.getElementById('search').value.toLowerCase();
+            const priceValue = document.getElementById('price').value;
+            const filteredProducts = products.filter(product => {
+                return product.name.toLowerCase().includes(searchValue) && product.price <= priceValue;
+            });
+            renderProducts(filteredProducts);
+        }
+
+        document.getElementById('search').addEventListener('input', filterProducts);
+        document.getElementById('price').addEventListener('input', filterProducts);
+
+        // Initial render
+        renderProducts(products);
+
+        function updatePriceValue(value) {
+            document.getElementById('max-price').innerText = value + ' zł';
+        }
+
+        function addToCart(productName, productPrice, productId) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            let existingProduct = cart.find(item => item.id === productId);
+            if (existingProduct) {
+                existingProduct.quantity += 1;
+            } else {
+                cart.push({ id: productId, name: productName, price: productPrice, quantity: 1 });
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            displayCartItems();
+        }
+
+        function displayCartItems() {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            let cartItems = document.getElementById('cart-items');
+            cartItems.innerHTML = '';
+            let total = 0;
+            cart.forEach(item => {
+                let div = document.createElement('div');
+                div.classList.add('flex', 'justify-between', 'mb-2');
+                div.innerHTML = `<span>${item.name} x${item.quantity}</span><span>${item.price * item.quantity} zł</span>`;
+                cartItems.appendChild(div);
+                total += item.price * item.quantity;
+            });
+            document.getElementById('cart-total').innerText = total + ' zł';
+        }
+
+        document.getElementById('cart-button').addEventListener('click', () => {
+            let cartDropdown = document.getElementById('cart-dropdown');
+            cartDropdown.classList.toggle('hidden');
+        });
+
+        document.getElementById('buy-button').addEventListener('click', () => {
+            alert('Zakupiono produkty!');
+            localStorage.removeItem('cart');
+            displayCartItems();
+        });
+
+        // Display cart items on page load
+        displayCartItems();
+    </script>
+</body>
+</html>
