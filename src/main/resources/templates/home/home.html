@@ -34,7 +34,7 @@
                 <li><a href="/" class="hover:text-primary">STRONA GŁÓWNA</a></li>
                 <li><a href="/shop" class="hover:text-primary">SKLEP</a></li>
                 <li><a href="/rent" class="hover:text-primary">WYPOŻYCZALNIA</a></li>
-                <li><a href="#" class="hover:text-primary">BLOG</a></li>
+                <li><a href="/blog" class="hover:text-primary">BLOG</a></li>
                 <li><a href="login" class="hover:text-primary">MOJE KONTO</a></li>
             </ul>
             <div class="flex items-center space-x-4">
@@ -56,7 +56,7 @@
                 <li><a href="/" class="hover:text-primary">STRONA GŁÓWNA</a></li>
                 <li><a href="/shop" class="hover:text-primary">SKLEP</a></li>
                 <li><a href="/rent" class="hover:text-primary">WYPOŻYCZALNIA</a></li>
-                <li><a href="#" class="hover:text-primary">BLOG</a></li>
+                <li><a href="/blog" class="hover:text-primary">BLOG</a></li>
                 <li><a href="login" class="hover:text-primary">MOJE KONTO</a></li>
             </ul>
         </div>
@@ -65,30 +65,48 @@
     <main class="container mx-auto p-4">
         <section class="account bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6">
             <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Moje Konto</h2>
-            <p class="mb-4 text-gray-700 dark:text-gray-300">Witaj, [Nazwa Użytkownika]!</p>
+            <p class="mb-4 text-gray-700 dark:text-gray-300">Witaj, <span class="username">[Nick]</span>!</p>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg shadow hover:shadow-lg transition">
                     <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">Dane osobowe</h3>
-                    <p class="text-gray-700 dark:text-gray-300">Imię: [Imię]</p>
-                    <p class="text-gray-700 dark:text-gray-300">Nazwisko: [Nazwisko]</p>
-                    <p class="text-gray-700 dark:text-gray-300">Email: [Email]</p>
-                    <p class="text-gray-700 dark:text-gray-300">Nick: [Nick]</p>
+                    <p class="text-gray-700 dark:text-gray-300">Imię: <span class="first-name">[Imię]</span></p>
+                    <p class="text-gray-700 dark:text-gray-300">Nazwisko: <span class="surname">[Nazwisko]</span></p>
+                    <p class="text-gray-700 dark:text-gray-300">Email: <span class="email">[Email]</span></p>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg shadow hover:shadow-lg transition">
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">Historia wypożyczeń</h3>
+                    <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 rental-history">
+                        <!-- Wypożyczenia będą tutaj wstawiane przez JavaScript -->
+                    </ul>
+                    <div class="text-right mt-4">
+                        <a href="/rentalHistory" class="hover:underline text-gray-700 dark:text-gray-300">Zobacz wszystkie</a>
+                    </div>
                 </div>
                 <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg shadow hover:shadow-lg transition">
                     <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">Historia zamówień</h3>
-                    <ul class="list-disc list-inside text-gray-700 dark:text-gray-300">
-                        <li>Zamówienie #1 - Data: [Data] - Status: [Status]</li>
-                        <li>Zamówienie #2 - Data: [Data] - Status: [Status]</li>
-                        <li>Zamówienie #3 - Data: [Data] - Status: [Status]</li>
+                    <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 purchase-history">
+                        <!-- Zakupy będą tutaj wstawiane przez JavaScript -->
                     </ul>
+                    <div class="text-right mt-4">
+                        <a href="/purchaseHistory" class="hover:underline text-gray-700 dark:text-gray-300">Zobacz wszystkie</a>
+                    </div>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg shadow hover:shadow-lg transition">
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">Historia karnetów</h3>
+                    <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 pass-history">
+                        <!-- Karnety będą tutaj wstawiane przez JavaScript -->
+                    </ul>
+                    <div class="text-right mt-4">
+                        <a href="/purchaseHistory" class="hover:underline text-gray-700 dark:text-gray-300">Zobacz wszystkie</a>
+                    </div>
                 </div>
             </div>
         </section>
         <section class="account-actions bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6">
             <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Akcje</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <a href="#" class="bg-primary text-white py-3 px-6 rounded-lg shadow-lg hover:bg-yellow-600 transition text-center">Edytuj Profil</a>
-                <a href="#" class="bg-primary text-white py-3 px-6 rounded-lg shadow-lg hover:bg-yellow-600 transition text-center">Wyloguj się</a>
+                <a href="/account" class="bg-primary text-white py-3 px-6 rounded-lg shadow-lg hover:bg-yellow-600 transition text-center">Edytuj Profil</a>
+                <a href="/logout" class="bg-primary text-white py-3 px-6 rounded-lg shadow-lg hover:bg-yellow-600 transition text-center">Wyloguj się</a>
             </div>
         </section>
     </main>
@@ -97,5 +115,82 @@
         <p>© 2024 Klama Wrocław</p>
     </footer>
     <script src="/scripts/script.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Fetch user data
+            fetch("http://localhost:8080/api/v1/authorized/user")
+                .then(response => response.json())
+                .then(data => {
+                    document.querySelector(".account .first-name").textContent = data.firstName;
+                    document.querySelector(".account .surname").textContent = data.surname;
+                    document.querySelector(".account .email").textContent = data.email;
+                    document.querySelector(".account .username").textContent = data.username;
+                })
+                .catch(error => console.error('Error:', error));
+    
+            // Fetch purchase history
+            fetch("http://localhost:8080/api/v1/authorized/user/purchaseHistory")
+                .then(response => response.json())
+                .then(data => {
+                    const purchaseHistory = data.slice(-3).reverse(); // Get the 3 most recent purchases
+                    const purchaseList = document.querySelector(".purchase-history");
+                    purchaseList.innerHTML = ""; // Clear existing list items
+                    if (purchaseHistory.length === 0) {
+                        const listItem = document.createElement("li");
+                        listItem.textContent = "Brak zamówień.";
+                        purchaseList.appendChild(listItem);
+                    } else {
+                        purchaseHistory.forEach(purchase => {
+                            const listItem = document.createElement("li");
+                            listItem.textContent = `Zamówienie #${purchase.purchaseId} - Data: ${new Date(purchase.purchaseDate).toLocaleDateString("pl-PL")} - Cena: ${purchase.totalPrice.toFixed(2)} PLN`;
+                            purchaseList.appendChild(listItem);
+                        });
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+    
+            // Fetch pass history
+            fetch("http://localhost:8080/api/v1/authorized/pass/passHistory")
+                .then(response => response.json())
+                .then(data => {
+                    const passHistory = data.slice(-3).reverse(); // Get the 3 most recent passes
+                    const passList = document.querySelector(".pass-history");
+                    passList.innerHTML = ""; // Clear existing list items
+                    if (passHistory.length === 0) {
+                        const listItem = document.createElement("li");
+                        listItem.textContent = "Brak karnetów.";
+                        passList.appendChild(listItem);
+                    } else {
+                        passHistory.forEach(pass => {
+                            const listItem = document.createElement("li");
+                            listItem.textContent = `Karnet: ${pass.passName} - Data zakupu: ${new Date(pass.buyDate).toLocaleDateString("pl-PL")} - Ważność do: ${new Date(pass.expirationDate).toLocaleDateString("pl-PL")}`;
+                            passList.appendChild(listItem);
+                        });
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+    
+            // Fetch rental history
+            fetch("http://localhost:8080/api/v1/authorized/rentalItem/rentHistory")
+                .then(response => response.json())
+                .then(data => {
+                    const rentalHistory = data.slice(-3).reverse(); // Get the 3 most recent rentals
+                    const rentalList = document.querySelector(".rental-history");
+                    rentalList.innerHTML = ""; // Clear existing list items
+                    if (rentalHistory.length === 0) {
+                        const listItem = document.createElement("li");
+                        listItem.textContent = "Brak wypożyczeń.";
+                        rentalList.appendChild(listItem);
+                    } else {
+                        rentalHistory.forEach(rental => {
+                            const listItem = document.createElement("li");
+                            listItem.textContent = `Wypożyczenie #${rental.rentId} - Data: ${new Date(rental.rentDate).toLocaleDateString("pl-PL")} - Status: ${rental.status} - Cena: ${rental.totalPrice.toFixed(2)} PLN`;
+                            rentalList.appendChild(listItem);
+                        });
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
+    </script>
 </body>
 </html>
