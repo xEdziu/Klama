@@ -43,21 +43,27 @@ public class ContentController {
         return "auth/login";
     }
 
+    @GetMapping("/register")
+    public String getRegister() {
+        System.out.println("ContentController.getRegister -> register");
+        return "auth/register";
+    }
+
     @GetMapping("/shop")
     public String getShop() {
-        System.out.println("ContentController.getLogin -> shop");
+        System.out.println("ContentController.getShop -> shop");
         return "auth/shop";
     }
 
     @GetMapping("/rent")
     public String getRent() {
-        System.out.println("ContentController.getLogin -> rent");
+        System.out.println("ContentController.getRent -> rent");
         return "auth/rent";
     }
 
     @GetMapping("/blog")
     public String getBlog() {
-        System.out.println("ContentController.getLogin -> blog");
+        System.out.println("ContentController.getBlog -> blog");
         return "blog";
     }
 
