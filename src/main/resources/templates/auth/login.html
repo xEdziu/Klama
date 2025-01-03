@@ -74,14 +74,14 @@
                         class="mt-1 block w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary focus:border-primary bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
                 </div>
                 <div class="flex items-center justify-between">
-                    <a href="#" class="text-sm text-primary hover:underline">Zapomniałeś hasła?</a>
+                    <a href="reset-password" class="text-sm text-primary hover:underline">Zapomniałeś hasła?</a>
                     <button type="submit"
                         class="bg-primary text-white py-2 px-6 rounded-lg shadow-lg hover:bg-yellow-600 transition">Zaloguj się</button>
                 </div>
             </form>
             <p class="mt-6 text-center text-gray-700 dark:text-gray-300">
                 Nie masz konta?
-                <a href="#" class="text-primary hover:underline">Zarejestruj się</a>
+                <a href="register" class="text-primary hover:underline">Zarejestruj się</a>
             </p>
         </div>
         <a href="/" class="text-primary hover:underline block text-center mt-8">
@@ -93,5 +93,37 @@
         <p>© 2024 Klama Wrocław</p>
     </footer>
     <script src="/scripts/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        //get parameters from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+
+        const toastMixin = Swal.mixin({
+            toast: true,
+            icon: 'success',
+            title: 'General Title',
+            position: 'top-right',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+
+        if (error === 'true') {
+            toastMixin.fire({
+                icon: 'error',
+                title: 'Nieprawidłowe dane'
+            });
+        } else if (error === 'logout') {
+            toastMixin.fire({
+                icon: 'success',
+                title: 'Wylogowano pomyślnie'
+            });
+        }
+    </script>
 </body>
 </html>

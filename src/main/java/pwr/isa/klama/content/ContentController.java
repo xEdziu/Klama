@@ -67,6 +67,12 @@ public class ContentController {
         return "blog";
     }
 
+    @GetMapping("/reset-password")
+    public String getResetPassword() {
+        System.out.println("ContentController.getResetPassword -> reset-password");
+        return "auth/resetPwd";
+    }
+
     private Authentication getAuthentication() {
         return SecurityContextHolder.getContext().getAuthentication();
     }

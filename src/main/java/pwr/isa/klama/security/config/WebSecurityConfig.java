@@ -32,7 +32,7 @@ public class WebSecurityConfig {
                                 .requestMatchers("/api/v1/**").permitAll() // Publicly accessible, no login required
                                 .requestMatchers("/admin", "/admin/**").hasAuthority("ROLE_ADMIN")
                                 .requestMatchers("/home", "/home/**").hasAuthority("ROLE_USER")
-                                .requestMatchers("/login", "/register").permitAll()
+                                .requestMatchers("/login", "/register", "/reset-password").permitAll()
                                 .requestMatchers("/", "/index.html", "/static/**", "/resources/**").permitAll() // Allow access to static resources
                                 .requestMatchers("/scripts/**", "/styles/**", "/img/**").permitAll() // Allow access to static resources
                                 .requestMatchers("/blog").permitAll()
