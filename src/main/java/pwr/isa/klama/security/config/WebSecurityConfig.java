@@ -35,6 +35,7 @@ public class WebSecurityConfig {
                                 .requestMatchers("/login", "/register").permitAll()
                                 .requestMatchers("/", "/index.html", "/static/**", "/resources/**").permitAll() // Allow access to static resources
                                 .requestMatchers("/scripts/**", "/styles/**", "/img/**").permitAll() // Allow access to static resources
+                                .requestMatchers("/blog").permitAll()
                                 .anyRequest()
                                 .authenticated()
                 )

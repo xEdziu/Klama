@@ -4,17 +4,20 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import pwr.isa.klama.posts.Post;
+import pwr.isa.klama.posts.PostRepository;
 import pwr.isa.klama.security.PasswordEncoder;
 
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.Optional;
 import java.util.UUID;
 
 @Configuration
 public class UserConfig {
 
     @Bean
-    CommandLineRunner commandLineRunnerForUsers(UserRepository userRepository) {
+    CommandLineRunner commandLineRunnerForUsers(UserRepository userRepository, PostRepository postRepository) {
         PasswordEncoder passwordEncoder = new PasswordEncoder();
         BCryptPasswordEncoder bCryptPasswordEncoder = passwordEncoder.bCryptPasswordEncoder();
         return args -> {
@@ -53,6 +56,38 @@ public class UserConfig {
             );
             userRepository.save(user);
             userRepository.enableUser(user.getEmail());
+            Post post = new Post(
+                    "Sample post",
+                    "Sample post content",
+                    admin,
+                    new Timestamp(new Date().getTime()),
+                    new Timestamp(new Date().getTime())
+            );
+            postRepository.save(post);
+            Post post2 = new Post(
+                    "Sample post 2",
+                    "Sample post content 2",
+                    admin,
+                    new Timestamp(new Date().getTime()),
+                    new Timestamp(new Date().getTime())
+            );
+            postRepository.save(post2);
+            Post post3 = new Post(
+                    "Sample post 3",
+                    "Sample post content 3",
+                    admin,
+                    new Timestamp(new Date().getTime()),
+                    new Timestamp(new Date().getTime())
+            );
+            postRepository.save(post3);
+            Post post4 = new Post(
+                    "Sample post 4",
+                    "Sample post content 4",
+                    admin,
+                    new Timestamp(new Date().getTime()),
+                    new Timestamp(new Date().getTime())
+            );
+            postRepository.save(post4);
         };
     }
 }
