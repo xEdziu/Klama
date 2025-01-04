@@ -183,8 +183,16 @@
                         rentalList.appendChild(listItem);
                     } else {
                         rentalHistory.forEach(rental => {
+                            let statusCell = "";
+                            if (rental.status === "RENTED") {
+                                statusCell = "Wypożyczony";
+                            } else if (rental.status === "RETURNED") {
+                                statusCell = "Zwrócony";
+                            } else if (rental.status === "RESERVED") {
+                                statusCell = "Zarezerwowany";
+                            }
                             const listItem = document.createElement("li");
-                            listItem.textContent = `Wypożyczenie #${rental.rentId} - Data: ${new Date(rental.rentDate).toLocaleDateString("pl-PL")} - Status: ${rental.status} - Cena: ${rental.totalPrice.toFixed(2)} PLN`;
+                            listItem.textContent = `Wypożyczenie #${rental.rentId} - Data: ${new Date(rental.rentDate).toLocaleDateString("pl-PL")} - Status: ${statusCell} - Cena: ${rental.totalPrice.toFixed(2)} PLN`;
                             rentalList.appendChild(listItem);
                         });
                     }

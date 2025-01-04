@@ -39,6 +39,12 @@ public class ContentController {
         return "home/purchaseHistory";
     }
 
+    @GetMapping("/rentalHistory")
+    public String getRentalHistory() {
+        System.out.println("ContentController.getRentalHistory -> rentalHistory");
+        return "home/rentalHistory";
+    }
+
     @GetMapping("/login")
     public String getLogin() {
         Authentication authentication = getAuthentication();
