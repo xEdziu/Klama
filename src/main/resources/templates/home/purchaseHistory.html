@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historia Zakupów - Klama Wrocław</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#e5b700',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="/styles/style.css">
+</head>
+<body class="font-roboto text-gray-800 dark:text-gray-200 dark:bg-gray-900">
+    <header class="bg-white dark:bg-gray-800 shadow-md sticky top-0 w-full z-10">
+        <nav class="container mx-auto flex items-center justify-between p-4">
+            <div class="logo">
+                <img src="/img/Klama-Climbing-Gym.svg" alt="Logo Klama" class="h-24">
+            </div>
+            <!-- Desktop menu -->
+            <ul class="menu hidden md:flex space-x-6">
+                <li><a href="/" class="hover:text-primary">STRONA GŁÓWNA</a></li>
+                <li><a href="/shop" class="hover:text-primary">SKLEP</a></li>
+                <li><a href="/rent" class="hover:text-primary">WYPOŻYCZALNIA</a></li>
+                <li><a href="/blog" class="hover:text-primary">BLOG</a></li>
+                <li><a href="login" class="hover:text-primary">MOJE KONTO</a></li>
+            </ul>
+            <div class="flex items-center space-x-4">
+                <button id="theme-toggle" class="focus:outline-none">
+                    <svg id="theme-icon" class="w-6 h-6 text-gray-800 dark:text-gray-200" fill="currentColor"
+                        viewBox="0 0 20 20">
+                    </svg>
+                </button>
+                <button class="hamburger md:hidden focus:outline-none flex flex-col justify-around w-8 h-6">
+                    <span class="block w-6 h-0.5 bg-gray-800 dark:bg-gray-200"></span>
+                    <span class="block w-6 h-0.5 bg-gray-800 dark:bg-gray-200"></span>
+                    <span class="block w-6 h-0.5 bg-gray-800 dark:bg-gray-200"></span>
+                </button>
+            </div>
+        </nav>
+        <!-- Mobile menu -->
+        <div class="mobile-menu hidden">
+            <ul class="flex flex-col items-center space-y-2 p-4">
+                <li><a href="/" class="hover:text-primary">STRONA GŁÓWNA</a></li>
+                <li><a href="/shop" class="hover:text-primary">SKLEP</a></li>
+                <li><a href="/rent" class="hover:text-primary">WYPOŻYCZALNIA</a></li>
+                <li><a href="/blog" class="hover:text-primary">BLOG</a></li>
+                <li><a href="login" class="hover:text-primary">MOJE KONTO</a></li>
+            </ul>
+        </div>
+    </header>
+    <main class="container mx-auto p-6">
+        <a href="/home" class="text-primary hover:text-yellow-600 transition">Powrót</a>
+        <section class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Historia Zakupów</h2>
+            <table class="min-w-full bg-white dark:bg-gray-800">
+                <thead class="text-left">
+                    <tr>
+                        <th class="py-2 px-4 border-b border-gray-200 dark:border-gray-700">ID Zakupu</th>
+                        <th class="py-2 px-4 border-b border-gray-200 dark:border-gray-700">Data Zakupu</th>
+                        <th class="py-2 px-4 border-b border-gray-200 dark:border-gray-700">Przedmioty</th>
+                        <th class="py-2 px-4 border-b border-gray-200 dark:border-gray-700">Łączna Cena</th>
+                    </tr>
+                </thead>
+                <tbody class="purchase-history">
+                    <!-- Zakupy będą tutaj wstawiane przez JavaScript -->
+                </tbody>
+            </table>
+        </section>
+        <section class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Historia Karnetów</h2>
+            <table class="min-w-full bg-white dark:bg-gray-800">
+                <thead class="text-left">
+                    <tr>
+                        <th class="py-2 px-4 border-b border-gray-200 dark:border-gray-700">ID Karnetu</th>
+                        <th class="py-2 px-4 border-b border-gray-200 dark:border-gray-700">Nazwa Karnetu</th>
+                        <th class="py-2 px-4 border-b border-gray-200 dark:border-gray-700">Cena</th>
+                        <th class="py-2 px-4 border-b border-gray-200 dark:border-gray-700">Data Zakupu</th>
+                        <th class="py-2 px-4 border-b border-gray-200 dark:border-gray-700">Data Wygaśnięcia</th>
+                        <th class="py-2 px-4 border-b border-gray-200 dark:border-gray-700">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="pass-history">
+                    <!-- Karnety będą tutaj wstawiane przez JavaScript -->
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white text-center py-4">
+        <p>© 2024 Klama Wrocław</p>
+    </footer>
+    <script src="/scripts/script.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Fetch purchase history
+            fetch("http://localhost:8080/api/v1/authorized/user/purchaseHistory")
+                .then(response => response.json())
+                .then(data => {
+                    const purchaseList = document.querySelector(".purchase-history");
+                    purchaseList.innerHTML = ""; // Clear existing list items
+                    if (data.length === 0) {
+                        const row = document.createElement("tr");
+                        const cell = document.createElement("td");
+                        cell.colSpan = 4;
+                        cell.textContent = "Brak zamówień.";
+                        cell.className = "py-2 px-4 border-b border-gray-200 dark:border-gray-700 text-center";
+                        row.appendChild(cell);
+                        purchaseList.appendChild(row);
+                    } else {
+                        data.forEach(purchase => {
+                            const row = document.createElement("tr");
+
+                            const idCell = document.createElement("td");
+                            idCell.textContent = purchase.purchaseId;
+                            idCell.className = "py-2 px-4 border-b border-gray-200 dark:border-gray-700";
+                            row.appendChild(idCell);
+
+                            const dateCell = document.createElement("td");
+                            dateCell.textContent = new Date(purchase.purchaseDate).toLocaleDateString("pl-PL");
+                            dateCell.className = "py-2 px-4 border-b border-gray-200 dark:border-gray-700";
+                            row.appendChild(dateCell);
+
+                            const itemsCell = document.createElement("td");
+                            itemsCell.className = "py-2 px-4 border-b border-gray-200 dark:border-gray-700";
+                            const itemsList = document.createElement("ul");
+                            purchase.items.forEach(item => {
+                                const listItem = document.createElement("li");
+                                listItem.textContent = `${item.itemName} - Ilość: ${item.quantity} - Cena: ${item.totalPrice.toFixed(2)} PLN`;
+                                itemsList.appendChild(listItem);
+                            });
+                            itemsCell.appendChild(itemsList);
+                            row.appendChild(itemsCell);
+
+                            const totalPriceCell = document.createElement("td");
+                            totalPriceCell.textContent = `${purchase.totalPrice.toFixed(2)} PLN`;
+                            totalPriceCell.className = "py-2 px-4 border-b border-gray-200 dark:border-gray-700";
+                            row.appendChild(totalPriceCell);
+
+                            purchaseList.appendChild(row);
+                        });
+                    }
+                })
+                .catch(error => console.error('Error:', error)
+            );
+            // Fetch pass history
+            fetch("http://localhost:8080/api/v1/authorized/pass/passHistory")
+                .then(response => response.json())
+                .then(data => {
+                    const passList = document.querySelector(".pass-history");
+                    passList.innerHTML = ""; // Clear existing list items
+                    if (data.length === 0) {
+                        const row = document.createElement("tr");
+                        const cell = document.createElement("td");
+                        cell.colSpan = 5;
+                        cell.textContent = "Brak karnetów.";
+                        cell.className = "py-2 px-4 border-b border-gray-200 dark:border-gray-700 text-center";
+                        row.appendChild(cell);
+                        passList.appendChild(row);
+                    } else {
+                        data.forEach(pass => {
+                            const row = document.createElement("tr");
+
+                            const idCell = document.createElement("td");
+                            idCell.textContent = pass.passId;
+                            idCell.className = "py-2 px-4 border-b border-gray-200 dark:border-gray-700";
+                            row.appendChild(idCell);
+
+                            const nameCell = document.createElement("td");
+                            nameCell.textContent = pass.passName;
+                            nameCell.className = "py-2 px-4 border-b border-gray-200 dark:border-gray-700";
+                            row.appendChild(nameCell);
+
+                            const priceCell = document.createElement("td");
+                            priceCell.textContent = `${pass.price.toFixed(2)} PLN`;
+                            priceCell.className = "py-2 px-4 border-b border-gray-200 dark:border-gray-700";
+                            row.appendChild(priceCell);
+
+                            const buyDateCell = document.createElement("td");
+                            buyDateCell.textContent = new Date(pass.buyDate).toLocaleDateString("pl-PL");
+                            buyDateCell.className = "py-2 px-4 border-b border-gray-200 dark:border-gray-700";
+                            row.appendChild(buyDateCell);
+
+                            const expirationDateCell = document.createElement("td");
+                            expirationDateCell.textContent = new Date(pass.expirationDate).toLocaleDateString("pl-PL");
+                            expirationDateCell.className = "py-2 px-4 border-b border-gray-200 dark:border-gray-700";
+                            row.appendChild(expirationDateCell);
+
+                            const statusCell = document.createElement("td");
+                            const currentDate = new Date();
+                            const expirationDate = new Date(pass.expirationDate);
+                            if (expirationDate > currentDate) {
+                                statusCell.textContent = "Aktywny";
+                                statusCell.className = "py-2 px-4 border-b border-gray-200 dark:border-gray-700 text-green-500";
+                            } else {
+                                statusCell.textContent = "Wygasł";
+                                statusCell.className = "py-2 px-4 border-b border-gray-200 dark:border-gray-700 text-red-500";
+                            }
+                            row.appendChild(statusCell);
+
+                            passList.appendChild(row);
+                        });
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>
