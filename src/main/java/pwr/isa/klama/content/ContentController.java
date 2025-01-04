@@ -27,6 +27,18 @@ public class ContentController {
         return "admin/admin";
     }
 
+    @GetMapping("/account")
+    public String getAccount() {
+        System.out.println("ContentController.getAccount -> account");
+        return "home/account";
+    }
+
+    @GetMapping("/purchaseHistory")
+    public String getPurchaseHistory() {
+        System.out.println("ContentController.getPurchaseHistory -> purchaseHistory");
+        return "home/purchaseHistory";
+    }
+
     @GetMapping("/login")
     public String getLogin() {
         Authentication authentication = getAuthentication();
@@ -65,12 +77,6 @@ public class ContentController {
     public String getBlog() {
         System.out.println("ContentController.getBlog -> blog");
         return "blog";
-    }
-
-    @GetMapping("/reset-password")
-    public String getResetPassword() {
-        System.out.println("ContentController.getResetPassword -> reset-password");
-        return "auth/resetPwd";
     }
 
     private Authentication getAuthentication() {
