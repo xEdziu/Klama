@@ -115,35 +115,42 @@
         <p>© 2024 Klama Wrocław</p>
     </footer>
     <script src="/scripts/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        const products = [
-            {
-                name: "Produkt 1",
-                description: "Opis produktu 1.",
-                price: 100,
-                stock: 10,
-                imageUrl: "https://via.placeholder.com/150",
-                id: 1
-            },
-            {
-                name: "Produkt 2",
-                description: "Opis produktu 2.",
-                price: 200,
-                stock: 5,
-                imageUrl: "https://via.placeholder.com/150",
-                id: 2
-            },
-            {
-                name: "Produkt 3",
-                description: "Opis produktu 3.",
-                price: 300,
-                stock: 2,
-                imageUrl: "https://via.placeholder.com/150",
-                id: 3
+        const toastMixin = Swal.mixin({
+            toast: true,
+            icon: 'success',
+            title: 'General Title',
+            position: 'top-right',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
             }
-        ];
-
+        });
+        let products = [];
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch("http://localhost:8080/api/v1/shopItems")
+                .then(response => response.json())
+                .then(data => {
+                    products = data.map(item => ({
+                        name: item.name,
+                        description: item.description,
+                        price: item.price,
+                        stock: item.quantity,
+                        imageUrl: "https://via.placeholder.com/150", // Placeholder image URL
+                        id: item.id
+                    }));
+                    console.log(products); // For debugging purposes
+                    renderProducts(products); // Initial render with fetched products
+                })
+                .catch(error => console.error('Error fetching products:', error));
+        });
+    
         function renderProducts(filteredProducts) {
+            console.log("Products to render:", filteredProducts); // For debugging purposes
             const productList = document.getElementById('product-list');
             productList.innerHTML = '';
             filteredProducts.forEach(product => {
@@ -160,7 +167,7 @@
                 productList.appendChild(productDiv);
             });
         }
-
+    
         function filterProducts() {
             const searchValue = document.getElementById('search').value.toLowerCase();
             const priceValue = document.getElementById('price').value;
@@ -169,17 +176,22 @@
             });
             renderProducts(filteredProducts);
         }
-
+    
         document.getElementById('search').addEventListener('input', filterProducts);
         document.getElementById('price').addEventListener('input', filterProducts);
 
+
+        // Initial render
+        renderProducts(products);
+
+    
         // Initial render
         renderProducts(products);
 
         function updatePriceValue(value) {
             document.getElementById('max-price').innerText = value + ' zł';
         }
-
+    
         function addToCart(productName, productPrice, productId) {
             let cart = JSON.parse(localStorage.getItem('cart')) || [];
             let existingProduct = cart.find(item => item.id === productId);
@@ -189,9 +201,35 @@
                 cart.push({ id: productId, name: productName, price: productPrice, quantity: 1 });
             }
             localStorage.setItem('cart', JSON.stringify(cart));
+            toastMixin.fire({
+                icon: 'success',
+                title: 'Dodano do koszyka',
+                timer: 1000
+            });
             displayCartItems();
         }
 
+        function removeFromCart(productId) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            let existingProduct = cart.find(item => item.id === productId);
+            if (existingProduct) {
+                if (existingProduct.quantity > 1) {
+                    existingProduct.quantity -= 1;
+                } else {
+                    cart = cart.filter(item => item.id !== productId);
+                }
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            displayCartItems();
+        }
+
+        function deleteFromCart(productId) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart = cart.filter(item => item.id !== productId);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            displayCartItems();
+        }
+    
         function displayCartItems() {
             let cart = JSON.parse(localStorage.getItem('cart')) || [];
             let cartItems = document.getElementById('cart-items');
@@ -200,22 +238,75 @@
             cart.forEach(item => {
                 let div = document.createElement('div');
                 div.classList.add('flex', 'justify-between', 'mb-2');
-                div.innerHTML = `<span>${item.name} x${item.quantity}</span><span>${item.price * item.quantity} zł</span>`;
+                div.innerHTML = `
+                    <span class="space-x-2">
+                    <span>${item.name} x${item.quantity}</span>
+                    <span>${item.price * item.quantity} zł</span>
+                    <span class="space-x-2">
+                    <button onclick="removeFromCart(${item.id})" class="text-red-500 border border-red-500 rounded px-2 py-1 text-lg font-bold">-</button>
+                    <button onclick="deleteFromCart(${item.id})" class="text-red-500 border border-red-500 rounded px-2 py-1 text-lg font-bold">x</button>
+                    </span></span>
+                `;
                 cartItems.appendChild(div);
                 total += item.price * item.quantity;
             });
             document.getElementById('cart-total').innerText = total + ' zł';
         }
-
+    
         document.getElementById('cart-button').addEventListener('click', () => {
             let cartDropdown = document.getElementById('cart-dropdown');
             cartDropdown.classList.toggle('hidden');
         });
-
+    
         document.getElementById('buy-button').addEventListener('click', () => {
-            alert('Zakupiono produkty!');
-            localStorage.removeItem('cart');
-            displayCartItems();
+            Swal.fire({
+                title: 'Symulacja płatności...',
+                timer: 1500,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            }).then(() => {
+                let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                let purchaseData = cart.map(item => ({
+                    itemId: item.id,
+                    quantity: item.quantity
+                }));
+    
+                fetch('http://localhost:8080/api/v1/authorized/shopItems/buy', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(purchaseData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error === 200) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: data.message,
+                            text: `Łączna cena: ${data.totalPrice} zł`
+                        });
+                        localStorage.removeItem('cart');
+                        displayCartItems();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Błąd',
+                            text: data.message,
+                            footer: data.status
+                        });
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Błąd',
+                        text: 'Wystąpił błąd podczas realizacji zakupu.'
+                    });
+                    console.error('Error:', error);
+                });
+            });
         });
 
         // Display cart items on page load
