@@ -47,18 +47,18 @@
         <!-- Sidebar Start -->
         <div class="sidebar pe-4 pb-3">
             <nav class="navbar bg-secondary navbar-dark">
-                <a href="admin.html" class="navbar-brand mx-4 mb-3">
+                <a href="/admin" class="navbar-brand mx-4 mb-3">
                     <h3 class="text-primary"><i class="fa fa-user-edit me-2"></i>Panel admina</h3>
                 </a>
                 <div class="d-flex align-items-center ms-4 mb-4">
                     <div class="position-relative">
-                        <img class="rounded-circle" src="/img/admin/logo.png" alt="logo" style="width: 40px; height: 40px;">
+                        <img class="rounded-circle" src="/img/Klama-Climbing-Gym.svg" alt="logo" style="width: 40px; height: 40px;">
                         <div
                             class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1">
                         </div>
                     </div>
                     <div class="ms-3">
-                        <h6 class="mb-0">WebAce</h6>
+                        <h6 class="mb-0">admin1</h6>
                         <span>Admin</span>
                     </div>
                 </div>
@@ -67,32 +67,57 @@
                         główny</a>
                     <div class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i
-                                class="fas fa-paw me-2"></i>Zwierzęta</a>
+                                class="far fa-file-alt me-2"></i>Użytkownicy</a>
                         <div class="dropdown-menu bg-transparent border-0">
-                            <a href="addDog.html" class="dropdown-item">Dodaj</a>
-                            <a href="editDog.html" class="dropdown-item">Edytuj</a>
-                            <a href="listDog.html" class="dropdown-item">Zobacz wszystkie</a>
+                            <a href="element.html" class="dropdown-item">Zobacz wszystkich użytkowników</a>
+                            <a href="element.html" class="dropdown-item">Zobacz użytkownika</a>
+                            <a href="element.html" class="dropdown-item">Zobacz posty użytkownika</a>
+                            <a href="element.html" class="dropdown-item">Zobacz wypożyczenia użytkownika</a>
+                            <a href="element.html" class="dropdown-item">Zobacz zakupy użytkownika</a>
+                            <a href="element.html" class="dropdown-item">Zobacz karnety użytkownika</a>
                         </div>
                     </div>
                     <div class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i
                                 class="far fa-file-alt me-2"></i>Blog</a>
                         <div class="dropdown-menu bg-transparent border-0">
-                            <a href="button.html" class="dropdown-item">Dodaj</a>
-                            <a href="typography.html" class="dropdown-item">Edytuj</a>
-                            <a href="element.html" class="dropdown-item">Zobacz wszystkie</a>
+                            <a href="button.html" class="dropdown-item">Dodaj post</a>
+                            <a href="typography.html" class="dropdown-item">Edytuj post</a>
+                            <a href="element.html" class="dropdown-item">Zobacz wszystkie posty</a>
+                            <a href="element.html" class="dropdown-item">Usuń post</a>
                         </div>
                     </div>
                     <div class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i
-                                class="fa fa-envelope me-2"></i>Newsletter</a>
+                                class="fas fa-paw me-2"></i>Wypożyczalnia</a>
                         <div class="dropdown-menu bg-transparent border-0">
-                            <a href="button.html" class="dropdown-item">Stwórz</a>
-                            <a href="typography.html" class="dropdown-item">Wyświetl wszystkie</a>
-                            <a href="element.html" class="dropdown-item">Zobacz subskrybentów</a>
+                            <a href="/addRentalItem" class="dropdown-item">Dodaj przedmiot</a>
+                            <a href="/editRentalItem" class="dropdown-item">Edytuj przedmiot</a>
+                            <a href="/allRentalItems" class="dropdown-item">Zobacz wszystkie przedmioty</a>
+                            <a href="/deleteRentalItem" class="dropdown-item">Usuń przedmiot</a>
                         </div>
                     </div>
-                    <a href="http://localhost:8080/logout" class="nav-item nav-link"><i class="fa fa-sign-out-alt me-2"></i>Wyloguj</a>
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i
+                                class="fa fa-envelope me-2"></i>Sklep</a>
+                        <div class="dropdown-menu bg-transparent border-0">
+                            <a href="/addShopItem" class="dropdown-item">Dodaj przedmiot</a>
+                            <a href="/editShopItem" class="dropdown-item">Edytuj przedmiot</a>
+                            <a href="/allShopItems" class="dropdown-item">Zobacz wszystkie przedmioty</a>
+                            <a href="/deleteShopItem" class="dropdown-item">Usuń przedmiot</a>
+                        </div>
+                    </div>
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i
+                                class="fa fa-envelope me-2"></i>Karnety</a>
+                        <div class="dropdown-menu bg-transparent border-0">
+                            <a href="button.html" class="dropdown-item">Dodaj karnet</a>
+                            <a href="typography.html" class="dropdown-item">Edytuj karnet</a>
+                            <a href="element.html" class="dropdown-item">Zobacz wszystkie karnety</a>
+                            <a href="element.html" class="dropdown-item">Usuń karnet</a>
+                        </div>
+                    </div>
+                    <a href="/logout" class="nav-item nav-link"><i class="fa fa-sign-out-alt me-2"></i>Wyloguj</a>
                 </div>
             </nav>
         </div>
@@ -181,9 +206,9 @@
                     </div>
                     <div class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                            <img class="rounded-circle me-lg-2" src="/img/admin/logo.png" alt="logo"
+                            <img class="rounded-circle me-lg-2" src="/img/Klama-Climbing-Gym.svg" alt="logo"
                                 style="width: 40px; height: 40px;">
-                            <span class="d-none d-lg-inline-flex">WebAce</span>
+                            <span class="d-none d-lg-inline-flex">Moje konto</span>
                         </a>
                         <div class="dropdown-menu dropdown-menu-end bg-secondary border-0 rounded-0 rounded-bottom m-0">
                             <a href="#" class="dropdown-item">My Profile</a>
@@ -472,9 +497,6 @@
                     <div class="row">
                         <div class="col-12 col-sm-6 text-center text-sm-start">
                             &copy; <a href="#">Klama Wrocław</a>, Wszelkie prawa zastrzeżone.
-                        </div>
-                        <div class="col-12 col-sm-6 text-center text-sm-end">
-                            Made by <a href="https://webace-group.dev"> WebAce Group</a>
                         </div>
                     </div>
                 </div>

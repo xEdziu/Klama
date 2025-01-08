@@ -27,6 +27,57 @@ public class ContentController {
         return "admin/admin";
     }
 
+    // admin Rental services
+    @GetMapping("/addRentalItem")
+    public String getAddRentalItem() {
+        System.out.println("ContentController.getAddRentalItem -> addRentalItem");
+        return "admin/rental/addRentalItem";
+    }
+
+    @GetMapping("/editRentalItem")
+    public String getEditRentalItem() {
+        System.out.println("ContentController.getEditRentalItem -> editRentalItem");
+        return "admin/rental/editRentalItem";
+    }
+
+    @GetMapping("/allRentalItems")
+    public String getAllRentalItems() {
+        System.out.println("ContentController.getAllRentalItems -> allRentalItems");
+        return "admin/rental/allRentalItems";
+    }
+
+    @GetMapping("/deleteRentalItem")
+    public String getDeleteRentalItem() {
+        System.out.println("ContentController.getDeleteRentalItem -> deleteRentalItem");
+        return "admin/rental/deleteRentalItem";
+    }
+
+    // admin Shop services
+    @GetMapping("/addShopItem")
+    public String getAddShopItem() {
+        System.out.println("ContentController.getAddShopItem -> addShopItem");
+        return "admin/shop/addShopItem";
+    }
+
+    @GetMapping("/editShopItem")
+    public String getEditShopItem() {
+        System.out.println("ContentController.getEditShopItem -> editShopItem");
+        return "admin/shop/editShopItem";
+    }
+
+    @GetMapping("/allShopItems")
+    public String getAllShopItems() {
+        System.out.println("ContentController.getAllShopItems -> allShopItems");
+        return "admin/shop/allshopItems";
+    }
+
+    @GetMapping("/deleteShopItem")
+    public String getDeleteShopItem() {
+        System.out.println("ContentController.getDeleteShopItem -> deleteShopItem");
+        return "admin/shop/deleteRentalItem";
+    }
+
+
     @GetMapping("/login")
     public String getLogin() {
         Authentication authentication = getAuthentication();
