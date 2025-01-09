@@ -46,12 +46,6 @@ public class ContentController {
         return "admin/rental/allRentalItems";
     }
 
-    @GetMapping("/deleteRentalItem")
-    public String getDeleteRentalItem() {
-        System.out.println("ContentController.getDeleteRentalItem -> deleteRentalItem");
-        return "admin/rental/deleteRentalItem";
-    }
-
     // admin Shop services
     @GetMapping("/addShopItem")
     public String getAddShopItem() {
@@ -69,12 +63,6 @@ public class ContentController {
     public String getAllShopItems() {
         System.out.println("ContentController.getAllShopItems -> allShopItems");
         return "admin/shop/allshopItems";
-    }
-
-    @GetMapping("/deleteShopItem")
-    public String getDeleteShopItem() {
-        System.out.println("ContentController.getDeleteShopItem -> deleteShopItem");
-        return "admin/shop/deleteRentalItem";
     }
 
 

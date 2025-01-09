@@ -102,9 +102,7 @@
                             class="fas fa-paw me-2"></i>Wypożyczalnia</a>
                     <div class="dropdown-menu bg-transparent border-0">
                         <a href="/addRentalItem" class="dropdown-item">Dodaj przedmiot</a>
-                        <a href="/editRentalItem" class="dropdown-item">Edytuj przedmiot</a>
                         <a href="/allRentalItems" class="dropdown-item">Zobacz wszystkie przedmioty</a>
-                        <a href="/deleteRentalItem" class="dropdown-item">Usuń przedmiot</a>
                     </div>
                 </div>
                 <div class="nav-item dropdown">
@@ -112,9 +110,7 @@
                             class="fa fa-envelope me-2"></i>Sklep</a>
                     <div class="dropdown-menu bg-transparent border-0">
                         <a href="/addShopItem" class="dropdown-item">Dodaj przedmiot</a>
-                        <a href="/editShopItem" class="dropdown-item">Edytuj przedmiot</a>
                         <a href="/allShopItems" class="dropdown-item">Zobacz wszystkie przedmioty</a>
-                        <a href="/deleteShopItem" class="dropdown-item">Usuń przedmiot</a>
                     </div>
                 </div>
                 <div class="nav-item dropdown">
@@ -122,9 +118,7 @@
                             class="fa fa-envelope me-2"></i>Karnety</a>
                     <div class="dropdown-menu bg-transparent border-0">
                         <a href="button.html" class="dropdown-item">Dodaj karnet</a>
-                        <a href="typography.html" class="dropdown-item">Edytuj karnet</a>
                         <a href="element.html" class="dropdown-item">Zobacz wszystkie karnety</a>
-                        <a href="element.html" class="dropdown-item">Usuń karnet</a>
                     </div>
                 </div>
                 <a href="/logout" class="nav-item nav-link"><i class="fa fa-sign-out-alt me-2"></i>Wyloguj</a>
@@ -149,72 +143,6 @@
             <div class="navbar-nav align-items-center ms-auto">
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                        <i class="fa fa-envelope me-lg-2"></i>
-                        <span class="d-none d-lg-inline-flex">Wiadomości</span>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-end bg-secondary border-0 rounded-0 rounded-bottom m-0">
-                        <a href="#" class="dropdown-item">
-                            <div class="d-flex align-items-center">
-                                <img class="rounded-circle" src="/img/admin/logo.png" alt="logo"
-                                     style="width: 40px; height: 40px;">
-                                <div class="ms-2">
-                                    <h6 class="fw-normal mb-0">Jhon send you a message</h6>
-                                    <small>15 minutes ago</small>
-                                </div>
-                            </div>
-                        </a>
-                        <hr class="dropdown-divider">
-                        <a href="#" class="dropdown-item">
-                            <div class="d-flex align-items-center">
-                                <img class="rounded-circle" src="/img/admin/logo.png" alt="logo"
-                                     style="width: 40px; height: 40px;">
-                                <div class="ms-2">
-                                    <h6 class="fw-normal mb-0">Jhon send you a message</h6>
-                                    <small>15 minutes ago</small>
-                                </div>
-                            </div>
-                        </a>
-                        <hr class="dropdown-divider">
-                        <a href="#" class="dropdown-item">
-                            <div class="d-flex align-items-center">
-                                <img class="rounded-circle" src="/img/admin/logo.png" alt="logo"
-                                     style="width: 40px; height: 40px;">
-                                <div class="ms-2">
-                                    <h6 class="fw-normal mb-0">Jhon send you a message</h6>
-                                    <small>15 minutes ago</small>
-                                </div>
-                            </div>
-                        </a>
-                        <hr class="dropdown-divider">
-                        <a href="#" class="dropdown-item text-center">Zobacz wszystkie</a>
-                    </div>
-                </div>
-                <div class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                        <i class="fa fa-bell me-lg-2"></i>
-                        <span class="d-none d-lg-inline-flex">Powiadomienia</span>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-end bg-secondary border-0 rounded-0 rounded-bottom m-0">
-                        <a href="#" class="dropdown-item">
-                            <h6 class="fw-normal mb-0">Profile updated</h6>
-                            <small>15 minutes ago</small>
-                        </a>
-                        <hr class="dropdown-divider">
-                        <a href="#" class="dropdown-item">
-                            <h6 class="fw-normal mb-0">New user added</h6>
-                            <small>15 minutes ago</small>
-                        </a>
-                        <hr class="dropdown-divider">
-                        <a href="#" class="dropdown-item">
-                            <h6 class="fw-normal mb-0">Password changed</h6>
-                            <small>15 minutes ago</small>
-                        </a>
-                        <hr class="dropdown-divider">
-                        <a href="#" class="dropdown-item text-center">Zobacz wszystkie</a>
-                    </div>
-                </div>
-                <div class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
                         <img class="rounded-circle me-lg-2" src="/img/Klama-Climbing-Gym.svg" alt="logo"
                              style="width: 40px; height: 40px;">
                         <span class="d-none d-lg-inline-flex">Moje konto</span>
@@ -229,12 +157,17 @@
         </nav>
         <!-- Navbar End -->
 
+        <!-- Main Content Start -->
         <div class="container mt-5">
-            <h2 class="text-center text-primary">Lista przedmiotów do wypożyczenia</h2>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-primary">Lista przedmiotów w sklepie</h2>
+                <a href="/addRentalItem" class="btn btn-success">Dodaj przedmiot</a>
+            </div>
             <div class="row" id="rentalItemsContainer">
-                <!-- Tutaj wstawiane będą dynamicznie przedmioty -->
+                <!-- Tutaj będą dynamicznie ładowane przedmioty -->
             </div>
         </div>
+        <!-- Main Content End -->
 
         <!-- Modal do potwierdzenia usunięcia -->
         <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
@@ -362,7 +295,7 @@
             container.addEventListener('click', function (e) {
                 if (e.target.classList.contains('edit-item')) {
                     const itemId = e.target.dataset.id;
-                    window.location.href = `/editRentalItem.html?id=${itemId}`;
+                    window.location.href = `/editRentalItem?id=${itemId}`;
                 }
             });
 

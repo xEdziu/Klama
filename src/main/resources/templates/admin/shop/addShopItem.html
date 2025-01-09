@@ -47,11 +47,6 @@
             border-color: #66bb6a;
             box-shadow: 0 0 5px rgba(102, 187, 106, 0.5);
         }
-
-        .card {
-            background-color: #2c2f33;
-            color: #fff;
-        }
     </style>
 
 </head>
@@ -102,7 +97,14 @@
                         <a href="element.html" class="dropdown-item">Usuń post</a>
                     </div>
                 </div>
-                <a href="/allRentalItems" class="nav-item nav-link"><i class="fa fa-sign-out-alt me-2"></i>Wypożyczalnia</a>
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i
+                            class="fas fa-paw me-2"></i>Wypożyczalnia</a>
+                    <div class="dropdown-menu bg-transparent border-0">
+                        <a href="/addRentalItem" class="dropdown-item">Dodaj przedmiot</a>
+                        <a href="/allRentalItems" class="dropdown-item">Zobacz wszystkie przedmioty</a>
+                    </div>
+                </div>
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i
                             class="fa fa-envelope me-2"></i>Sklep</a>
@@ -125,6 +127,7 @@
     </div>
     <!-- Sidebar End -->
 
+    <!-- Główna część (zmienia się dynamicznie) -->
     <div class="content">
         <!-- Navbar Start -->
         <nav class="navbar navbar-expand bg-secondary navbar-dark sticky-top px-4 py-0">
@@ -156,37 +159,36 @@
 
         <!-- Main Content Start -->
         <div class="container mt-5">
-            <h2 class="text-center">Edycja przedmiotu</h2>
-            <div id="currentItem" class="mb-4"></div>
-            <form id="editRentalItemForm">
+            <h2 class="text-center text-primary">Dodaj przedmiot do sklepu</h2>
+            <form id="addRentalItemForm">
                 <div class="mb-3">
                     <label for="itemName" class="form-label">Nazwa przedmiotu</label>
-                    <input type="text" class="form-control" id="itemName">
+                    <input type="text" class="form-control" id="itemName" required>
                 </div>
                 <div class="mb-3">
                     <label for="itemDescription" class="form-label">Opis</label>
-                    <textarea class="form-control" id="itemDescription" rows="3"></textarea>
+                    <textarea class="form-control" id="itemDescription" rows="3" required></textarea>
                 </div>
                 <div class="mb-3">
                     <label for="itemPrice" class="form-label">Cena</label>
-                    <input type="number" class="form-control" id="itemPrice" step="0.01">
+                    <input type="number" class="form-control" id="itemPrice" step="0.01" required>
                 </div>
                 <div class="mb-3">
                     <label for="itemQuantity" class="form-label">Ilość</label>
-                    <input type="number" class="form-control" id="itemQuantity" min="0">
+                    <input type="number" class="form-control" id="itemQuantity" min="0" required>
                 </div>
                 <div class="mb-3">
                     <label for="itemStatus" class="form-label">Status</label>
-                    <select class="form-select" id="itemStatus">
-                        <option value="ACTIVE">Aktywny</option>
-                        <option value="INACTIVE">Nieaktywny</option>
+                    <select class="form-select" id="itemStatus" required>
+                        <option value="true">Aktywny</option>
+                        <option value="false">Nieaktywny</option>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-success">Zapisz zmiany</button>
+                <button type="submit" class="btn btn-primary">Dodaj przedmiot</button>
             </form>
             <div id="responseMessage" class="mt-3"></div>
         </div>
-        <!-- Main Content End-->
+        <!-- Main Content End -->
 
         <!-- Footer Start -->
         <div class="container-fluid pt-4 px-4">
@@ -203,87 +205,44 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', async function () {
-        const urlParams = new URLSearchParams(window.location.search);
-        const itemId = urlParams.get('id');
-        const currentItemDiv = document.getElementById('currentItem');
-        const responseMessage = document.getElementById('responseMessage');
-        const form = document.getElementById('editRentalItemForm');
+    document.getElementById('addRentalItemForm').onsubmit = async function (e) {
+        e.preventDefault();
+
+        const itemName = document.getElementById('itemName').value;
+        const itemDescription = document.getElementById('itemDescription').value;
+        const itemPrice = parseFloat(document.getElementById('itemPrice').value);
+        const itemQuantity = parseInt(document.getElementById('itemQuantity').value);
+        const itemStatus = document.getElementById('itemStatus').value;
+
+        const requestBody = {
+            name: itemName,
+            description: itemDescription,
+            price: itemPrice,
+            quantity: itemQuantity,
+            active: itemStatus
+        };
 
         try {
-            // Pobieranie wszystkich przedmiotów
-            const response = await fetch(`http://localhost:8080/api/v1/authorized/admin/rentalItem/all`);
-            const items = await response.json();
-            const currentItem = items.find(item => item.id == itemId);
+            const response = await fetch('http://localhost:8080/api/v1/authorized/admin/shopItems/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestBody)
+            });
 
-            // Sprawdzanie, czy przedmiot istnieje
-            if (!currentItem) {
-                currentItemDiv.innerHTML = `<div class="alert alert-danger">Przedmiot o ID ${itemId} nie istnieje!</div>`;
-                return;
+            const data = await response.json();
+
+            if (response.ok) {
+                document.getElementById('responseMessage').innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+                document.getElementById('addRentalItemForm').reset();
+            } else {
+                document.getElementById('responseMessage').innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
             }
-
-            // Wyświetlenie szczegółów przedmiotu u góry strony
-            currentItemDiv.innerHTML = `
-            <div class="card">
-                <div class="card-body">
-                    <h5>${currentItem.name}</h5>
-                    <p>${currentItem.description}</p>
-                    <p><strong>Cena:</strong> $${currentItem.price}</p>
-                    <p><strong>Ilość:</strong> ${currentItem.quantity}</p>
-                    <span class="badge bg-${currentItem.status === 'ACTIVE' ? 'success' : 'danger'}">${currentItem.status}</span>
-                </div>
-            </div>
-        `;
-
-            // Wypełnienie pól formularza danymi przedmiotu
-            document.getElementById('itemName').value = currentItem.name || '';
-            document.getElementById('itemDescription').value = currentItem.description || '';
-            document.getElementById('itemPrice').value = currentItem.price || '';
-            document.getElementById('itemQuantity').value = currentItem.quantity || '';
-            document.getElementById('itemStatus').value = currentItem.status || 'ACTIVE';
         } catch (error) {
-            currentItemDiv.innerHTML = `<div class="alert alert-danger">Błąd podczas pobierania danych.</div>`;
+            document.getElementById('responseMessage').innerHTML = `<div class="alert alert-danger">Błąd połączenia z serwerem</div>`;
         }
-
-        // Obsługa formularza edycji
-        form.addEventListener('submit', async function (e) {
-            e.preventDefault();
-            const updatedData = {};
-            if (document.getElementById('itemName').value.trim()) updatedData.name = document.getElementById('itemName').value.trim();
-            if (document.getElementById('itemDescription').value.trim()) updatedData.description = document.getElementById('itemDescription').value.trim();
-            if (document.getElementById('itemPrice').value) updatedData.price = parseFloat(document.getElementById('itemPrice').value);
-            if (document.getElementById('itemQuantity').value) updatedData.quantity = parseInt(document.getElementById('itemQuantity').value);
-            if (document.getElementById('itemStatus').value) updatedData.status = document.getElementById('itemStatus').value;
-
-            // Walidacja: musi być co najmniej jedna zmiana
-            if (Object.keys(updatedData).length === 0) {
-                responseMessage.innerHTML = `<div class="alert alert-danger">Musisz zmienić co najmniej jedno pole!</div>`;
-                return;
-            }
-
-            try {
-                // Wysyłanie danych do API
-                const updateResponse = await fetch(`http://localhost:8080/api/v1/authorized/admin/rentalItem/update/${itemId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(updatedData)
-                });
-
-                const result = await updateResponse.json();
-
-                if (updateResponse.ok) {
-                    responseMessage.innerHTML = `<div class="alert alert-success">${result.message}</div>`;
-                    //setTimeout(() => location.reload(), 2000); // Odświeżanie strony po sukcesie
-                } else {
-                    responseMessage.innerHTML = `<div class="alert alert-danger">${result.message}</div>`;
-                }
-            } catch (error) {
-                responseMessage.innerHTML = `<div class="alert alert-danger">Błąd podczas aktualizacji przedmiotu.</div>`;
-            }
-        });
-    });
+    };
 </script>
 
 <!-- JavaScript Libraries -->
@@ -301,4 +260,5 @@
 <script src="/scripts/admin/main.js"></script>
 
 </body>
+
 </html>

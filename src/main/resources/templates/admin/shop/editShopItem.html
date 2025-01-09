@@ -178,8 +178,8 @@
                 <div class="mb-3">
                     <label for="itemStatus" class="form-label">Status</label>
                     <select class="form-select" id="itemStatus">
-                        <option value="ACTIVE">Aktywny</option>
-                        <option value="INACTIVE">Nieaktywny</option>
+                        <option value="true">Aktywny</option>
+                        <option value="false">Nieaktywny</option>
                     </select>
                 </div>
                 <button type="submit" class="btn btn-success">Zapisz zmiany</button>
@@ -205,24 +205,32 @@
 <script>
     document.addEventListener('DOMContentLoaded', async function () {
         const urlParams = new URLSearchParams(window.location.search);
-        const itemId = urlParams.get('id');
+        const itemId = urlParams.get('id'); // Pobieramy ID z URL
         const currentItemDiv = document.getElementById('currentItem');
         const responseMessage = document.getElementById('responseMessage');
         const form = document.getElementById('editRentalItemForm');
 
+        if (!itemId) {
+            responseMessage.innerHTML = `<div class="alert alert-danger">ID przedmiotu jest nieprawidłowe!</div>`;
+            return;
+        }
+
         try {
-            // Pobieranie wszystkich przedmiotów
-            const response = await fetch(`http://localhost:8080/api/v1/authorized/admin/rentalItem/all`);
+            // Pobieranie danych przedmiotu
+            const response = await fetch(`http://localhost:8080/api/v1/authorized/admin/shopItems`);
             const items = await response.json();
             const currentItem = items.find(item => item.id == itemId);
 
-            // Sprawdzanie, czy przedmiot istnieje
             if (!currentItem) {
                 currentItemDiv.innerHTML = `<div class="alert alert-danger">Przedmiot o ID ${itemId} nie istnieje!</div>`;
                 return;
             }
 
-            // Wyświetlenie szczegółów przedmiotu u góry strony
+            const statusBadge = currentItem.active
+                ? `<span class="badge bg-success">ACTIVE</span>`
+                : `<span class="badge bg-danger">INACTIVE</span>`;
+
+            // Wyświetlanie szczegółów przedmiotu
             currentItemDiv.innerHTML = `
             <div class="card">
                 <div class="card-body">
@@ -230,40 +238,39 @@
                     <p>${currentItem.description}</p>
                     <p><strong>Cena:</strong> $${currentItem.price}</p>
                     <p><strong>Ilość:</strong> ${currentItem.quantity}</p>
-                    <span class="badge bg-${currentItem.status === 'ACTIVE' ? 'success' : 'danger'}">${currentItem.status}</span>
+                    ${statusBadge}
                 </div>
             </div>
         `;
 
-            // Wypełnienie pól formularza danymi przedmiotu
+            // Wypełnienie formularza danymi
             document.getElementById('itemName').value = currentItem.name || '';
             document.getElementById('itemDescription').value = currentItem.description || '';
             document.getElementById('itemPrice').value = currentItem.price || '';
             document.getElementById('itemQuantity').value = currentItem.quantity || '';
-            document.getElementById('itemStatus').value = currentItem.status || 'ACTIVE';
+            document.getElementById('itemStatus').value = currentItem.active.toString();
         } catch (error) {
-            currentItemDiv.innerHTML = `<div class="alert alert-danger">Błąd podczas pobierania danych.</div>`;
+            currentItemDiv.innerHTML = `<div class="alert alert-danger">Błąd podczas pobierania danych: ${error.message}</div>`;
         }
 
-        // Obsługa formularza edycji
+        // Obsługa formularza
         form.addEventListener('submit', async function (e) {
             e.preventDefault();
+
             const updatedData = {};
             if (document.getElementById('itemName').value.trim()) updatedData.name = document.getElementById('itemName').value.trim();
             if (document.getElementById('itemDescription').value.trim()) updatedData.description = document.getElementById('itemDescription').value.trim();
             if (document.getElementById('itemPrice').value) updatedData.price = parseFloat(document.getElementById('itemPrice').value);
             if (document.getElementById('itemQuantity').value) updatedData.quantity = parseInt(document.getElementById('itemQuantity').value);
-            if (document.getElementById('itemStatus').value) updatedData.status = document.getElementById('itemStatus').value;
+            if (document.getElementById('itemStatus').value) updatedData.active = document.getElementById('itemStatus').value === "true";
 
-            // Walidacja: musi być co najmniej jedna zmiana
             if (Object.keys(updatedData).length === 0) {
                 responseMessage.innerHTML = `<div class="alert alert-danger">Musisz zmienić co najmniej jedno pole!</div>`;
                 return;
             }
 
             try {
-                // Wysyłanie danych do API
-                const updateResponse = await fetch(`http://localhost:8080/api/v1/authorized/admin/rentalItem/update/${itemId}`, {
+                const updateResponse = await fetch(`http://localhost:8080/api/v1/authorized/admin/shopItems/update/${itemId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
@@ -275,12 +282,11 @@
 
                 if (updateResponse.ok) {
                     responseMessage.innerHTML = `<div class="alert alert-success">${result.message}</div>`;
-                    //setTimeout(() => location.reload(), 2000); // Odświeżanie strony po sukcesie
                 } else {
                     responseMessage.innerHTML = `<div class="alert alert-danger">${result.message}</div>`;
                 }
             } catch (error) {
-                responseMessage.innerHTML = `<div class="alert alert-danger">Błąd podczas aktualizacji przedmiotu.</div>`;
+                responseMessage.innerHTML = `<div class="alert alert-danger">Błąd podczas aktualizacji przedmiotu: ${error.message}</div>`;
             }
         });
     });

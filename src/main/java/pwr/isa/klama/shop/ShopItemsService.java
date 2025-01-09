@@ -152,31 +152,39 @@ public class ShopItemsService {
 
         ApiLogger.logInfo("/api/v1/authorized/admin/shopItems/update/" + id, "Update shop item - admin " + getCurrentUser().getId());
 
-        ShopItems shopItem = shopItemsRepository.findById(id)
+        ShopItems existingShopItem = shopItemsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Przedmiot o id " + id + " nie istnieje w sklepie"));
 
-        // check if name or description is valid and present
-        if (shopItems.getName().isEmpty() || shopItems.getDescription().isEmpty()) {
-            throw new IllegalStateException("Niepoprawna nazwa lub opis przedmiotu");
+        if (shopItems.getQuantity() != null && shopItems.getQuantity() < 0) {
+            ApiLogger.logWarning("/api/v1/authorized/admin/shopItems/update/" + id, "Quantity cannot be less than 0");
+            throw new IllegalStateException("Ilość nie może być mniejsza niż 0");
         }
 
-        // check if price is valid
-        if (shopItems.getPrice() <= 0) {
-            throw new IllegalStateException("Niepoprawna cena przedmiotu");
+        if (shopItems.getPrice() != null && shopItems.getPrice() <= 0) {
+            ApiLogger.logWarning("/api/v1/authorized/admin/shopItems/update/" + id, "Price cannot be less than or equal to 0");
+            throw new IllegalStateException("Cena nie może być mniejsza lub równa 0");
         }
 
-        // check if quantity is valid
-        if (shopItems.getQuantity() < 0) {
-            throw new IllegalStateException("Niepoprawna ilość przedmiotów");
+        // Update fields if they are provided
+        if (shopItems.getName() != null && !shopItems.getName().isEmpty()) {
+            existingShopItem.setName(shopItems.getName());
         }
+        if (shopItems.getDescription() != null && !shopItems.getDescription().isEmpty()) {
+            existingShopItem.setDescription(shopItems.getDescription());
+        }
+        if (shopItems.getPrice() != null && shopItems.getPrice() > 0) {
+            existingShopItem.setPrice(shopItems.getPrice());
+        }
+        if (shopItems.getQuantity() != null && shopItems.getQuantity() >= 0) {
+            existingShopItem.setQuantity(shopItems.getQuantity());
+        }
+        if (shopItems.getActive() != null) {
+            existingShopItem.setActive(shopItems.getActive());
+        }
+
+        shopItemsRepository.save(existingShopItem);
 
         Map<String, Object> response = new HashMap<>();
-        shopItem.setName(shopItems.getName());
-        shopItem.setDescription(shopItems.getDescription());
-        shopItem.setPrice(shopItems.getPrice());
-        shopItem.setQuantity(shopItems.getQuantity());
-        shopItemsRepository.save(shopItem);
-
         response.put("message", "Przedmiot zaktualizowany");
         response.put("error", HttpStatus.OK.value());
         response.put("timestamp", new Timestamp(new Date().getTime()));
