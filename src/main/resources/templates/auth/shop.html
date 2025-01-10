@@ -229,6 +229,11 @@
             localStorage.setItem('cart', JSON.stringify(cart));
             displayCartItems();
         }
+
+        function toFixed(value, precision) {
+            var power = Math.pow(10, precision || 0);
+            return String(Math.round(value * power) / power);
+        }
     
         function displayCartItems() {
             let cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -241,14 +246,14 @@
                 div.innerHTML = `
                     <span class="space-x-2">
                     <span>${item.name} x${item.quantity}</span>
-                    <span>${item.price * item.quantity} zł</span>
+                    <span>${toFixed(item.price * item.quantity, 2)} zł</span>
                     <span class="space-x-2">
                     <button onclick="removeFromCart(${item.id})" class="text-red-500 border border-red-500 rounded px-2 py-1 text-lg font-bold">-</button>
                     <button onclick="deleteFromCart(${item.id})" class="text-red-500 border border-red-500 rounded px-2 py-1 text-lg font-bold">x</button>
                     </span></span>
                 `;
                 cartItems.appendChild(div);
-                total += item.price * item.quantity;
+                total += toFixed(item.price * item.quantity, 2);
             });
             document.getElementById('cart-total').innerText = total + ' zł';
         }
@@ -288,7 +293,7 @@
                             text: `Łączna cena: ${data.totalPrice} zł`
                         });
                         localStorage.removeItem('cart');
-                        displayCartItems();
+                        location.reload();
                     } else {
                         Swal.fire({
                             icon: 'error',
