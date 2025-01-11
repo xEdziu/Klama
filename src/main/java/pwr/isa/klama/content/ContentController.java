@@ -84,7 +84,30 @@ public class ContentController {
         return "admin/pass/allPasses";
     }
 
+    // admin Blog services
+    @GetMapping("/addPost")
+    public String getAddPost() {
+        System.out.println("ContentController.getAddPost -> addPost");
+        return "admin/blog/addPost";
+    }
 
+    @GetMapping("/editPost")
+    public String getEditPost() {
+        System.out.println("ContentController.getEditPost -> editPost");
+        return "admin/blog/editPost";
+    }
+
+    @GetMapping("/allPosts")
+    public String getAllPosts() {
+        System.out.println("ContentController.getAllPosts -> allPosts");
+        return "admin/blog/allPosts";
+    }
+
+    @GetMapping("/onePost")
+    public String getOnePost() {
+        System.out.println("ContentController.getOnePost -> onePost");
+        return "admin/blog/onePost";
+    }
 
     @GetMapping("/login")
     public String getLogin() {
