@@ -108,6 +108,10 @@
             <div id="product-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Products will be rendered here -->
             </div>
+            <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200 mt-6">Karnety</h2>
+            <div id="pass-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Passes will be rendered here -->
+            </div>
         </section>
     </main>
 
@@ -131,6 +135,7 @@
             }
         });
         let products = [];
+        let passes = [];
         document.addEventListener("DOMContentLoaded", function() {
             fetch("http://localhost:8080/api/v1/shopItems")
                 .then(response => response.json())
@@ -140,13 +145,27 @@
                         description: item.description,
                         price: item.price,
                         stock: item.quantity,
-                        imageUrl: "https://via.placeholder.com/150", // Placeholder image URL
                         id: item.id
                     }));
                     console.log(products); // For debugging purposes
                     renderProducts(products); // Initial render with fetched products
                 })
                 .catch(error => console.error('Error fetching products:', error));
+
+            fetch("http://localhost:8080/api/v1/pass/all")
+                .then(response => response.json())
+                .then(data => {
+                    passes = data.map(pass => ({
+                        id: pass.id,
+                        name: pass.name,
+                        description: pass.description,
+                        price: pass.price,
+                        days: pass.days
+                    }));
+                    console.log(passes); // For debugging purposes
+                    renderPasses(passes); // Initial render with fetched passes
+                })
+                .catch(error => console.error('Error fetching passes:', error));
         });
     
         function renderProducts(filteredProducts) {
@@ -157,7 +176,6 @@
                 const productDiv = document.createElement('div');
                 productDiv.classList.add('product', 'bg-gray-50', 'dark:bg-gray-700', 'p-4', 'rounded-lg', 'shadow', 'hover:shadow-lg', 'transition');
                 productDiv.innerHTML = `
-                    <img src="${product.imageUrl}" alt="${product.name}" class="w-full h-48 object-cover rounded-lg mb-4">
                     <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">${product.name}</h3>
                     <p class="text-gray-700 dark:text-gray-300 mb-4">${product.description}</p>
                     <p class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-4">${product.price} zł</p>
@@ -165,6 +183,23 @@
                     <button onclick="addToCart('${product.name}', ${product.price}, ${product.id})" class="bg-primary text-white py-2 px-4 rounded-lg shadow-lg hover:bg-yellow-600 transition block text-center">Dodaj do koszyka</button>
                 `;
                 productList.appendChild(productDiv);
+            });
+        }
+
+        function renderPasses(filteredPasses) {
+            console.log("Passes to render:", filteredPasses); // For debugging purposes
+            const passList = document.getElementById('pass-list');
+            passList.innerHTML = '';
+            filteredPasses.forEach(pass => {
+                const passDiv = document.createElement('div');
+                passDiv.classList.add('pass', 'bg-gray-50', 'dark:bg-gray-700', 'p-4', 'rounded-lg', 'shadow', 'hover:shadow-lg', 'transition');
+                passDiv.innerHTML = `
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">${pass.name}</h3>
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">${pass.description}</p>
+                    <p class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-4">${pass.price} zł</p>
+                    <button onclick="buyPass(${pass.id}, '${pass.name}', ${pass.days})" class="bg-primary text-white py-2 px-4 rounded-lg shadow-lg hover:bg-yellow-600 transition block text-center">Kup Karnet</button>
+                `;
+                passList.appendChild(passDiv);
             });
         }
     
@@ -246,16 +281,17 @@
                 div.innerHTML = `
                     <span class="space-x-2">
                     <span>${item.name} x${item.quantity}</span>
-                    <span>${toFixed(item.price * item.quantity, 2)} zł</span>
+                    <span>${item.price * item.quantity} zł</span>
                     <span class="space-x-2">
                     <button onclick="removeFromCart(${item.id})" class="text-red-500 border border-red-500 rounded px-2 py-1 text-lg font-bold">-</button>
                     <button onclick="deleteFromCart(${item.id})" class="text-red-500 border border-red-500 rounded px-2 py-1 text-lg font-bold">x</button>
                     </span></span>
                 `;
                 cartItems.appendChild(div);
-                total += toFixed(item.price * item.quantity, 2);
+                total += item.price * item.quantity;
+                console.log(total);
             });
-            document.getElementById('cart-total').innerText = total + ' zł';
+            document.getElementById('cart-total').innerText = parseFloat(total).toFixed(2) + ' zł';
         }
     
         document.getElementById('cart-button').addEventListener('click', () => {
@@ -291,9 +327,11 @@
                             icon: 'success',
                             title: data.message,
                             text: `Łączna cena: ${data.totalPrice} zł`
+                        })
+                        .then(() => {
+                            localStorage.removeItem('cart');
+                            location.reload();
                         });
-                        localStorage.removeItem('cart');
-                        location.reload();
                     } else {
                         Swal.fire({
                             icon: 'error',
@@ -314,8 +352,55 @@
             });
         });
 
-        // Display cart items on page load
+
+        function buyPass(passId, passName, passDays) {
+            const today = new Date();
+            const endDate = new Date(today);
+            endDate.setDate(today.getDate() + passDays);
+    
+            Swal.fire({
+                title: `Czy na pewno chcesz kupić ${passName}?`,
+                html: `Koszt: ${passes.find(pass => pass.id === passId).price} zł<br>
+                    Karnet będzie ważny od ${today.toLocaleDateString("pl-PL")} do ${endDate.toLocaleDateString("pl-PL")}.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Tak, kupuję!',
+                cancelButtonText: 'Anuluj'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`http://localhost:8080/api/v1/authorized/pass/buyNew/${passId}`, {
+                        method: 'POST'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error === 200) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: data.message
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Błąd',
+                                text: data.message,
+                                footer: data.status
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Błąd',
+                            text: 'Wystąpił błąd podczas realizacji zakupu karnetu.'
+                        });
+                        console.error('Error:', error);
+                    });
+                }
+            });
+        }
+
         displayCartItems();
+    
     </script>
 </body>
 </html>

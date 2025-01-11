@@ -72,12 +72,12 @@
                 </div>
                 <div>
                     <label for="first_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Imię</label>
-                    <input type="text" id="first_name" name="first_name" required
+                    <input type="text" id="first_name" name="firstName" required
                         class="mt-1 block w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary focus:border-primary bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
                 </div>
                 <div>
                     <label for="last_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nazwisko</label>
-                    <input type="text" id="last_name" name="last_name" required
+                    <input type="text" id="last_name" name="surname" required
                         class="mt-1 block w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary focus:border-primary bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200">
                 </div>
                 <div>
@@ -163,6 +163,9 @@
                             title: 'Sukces',
                             text: data.message,
                             confirmButtonText: 'Zaloguj się',
+                        })
+                        .then(() => {
+                            window.location.href = '/login';
                         });
                     }
                 })

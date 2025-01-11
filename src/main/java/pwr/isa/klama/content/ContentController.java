@@ -85,6 +85,12 @@ public class ContentController {
         return "blog";
     }
 
+    @GetMapping("/confirm")
+    public String getConfirm() {
+        System.out.println("ContentController.getConfirm -> confirm");
+        return "auth/confirm";
+    }
+
     private Authentication getAuthentication() {
         return SecurityContextHolder.getContext().getAuthentication();
     }

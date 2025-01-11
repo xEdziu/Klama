@@ -130,6 +130,12 @@
                 title: 'Zaloguj się po zmianie hasła'
             });
         }
+        else if (logout === 'verify') {
+            toastMixin.fire({
+                icon: 'success',
+                title: 'Konto zostało aktywowane'
+            });
+        }
     </script>
 </body>
 </html>
