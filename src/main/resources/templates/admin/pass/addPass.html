@@ -129,32 +129,32 @@
 
         <!-- Main Content Start -->
         <div class="container mt-5">
-            <h2 class="text-center text-primary">Dodaj przedmiot do wypożyczalni</h2>
-            <form id="addRentalItemForm">
+            <h2 class="text-center text-primary">Dodaj karnet</h2>
+            <form id="addPassForm">
                 <div class="mb-3">
-                    <label for="itemName" class="form-label">Nazwa przedmiotu</label>
-                    <input type="text" class="form-control" id="itemName" required>
+                    <label for="passName" class="form-label">Nazwa karnetu</label>
+                    <input type="text" class="form-control" id="passName" required>
                 </div>
                 <div class="mb-3">
-                    <label for="itemDescription" class="form-label">Opis</label>
-                    <textarea class="form-control" id="itemDescription" rows="3" required></textarea>
+                    <label for="passDescription" class="form-label">Opis</label>
+                    <textarea class="form-control" id="passDescription" rows="3" required></textarea>
                 </div>
                 <div class="mb-3">
-                    <label for="itemPrice" class="form-label">Cena</label>
-                    <input type="number" class="form-control" id="itemPrice" step="0.01" required>
+                    <label for="passPrice" class="form-label">Cena</label>
+                    <input type="number" class="form-control" id="passPrice" step="0.01" required>
                 </div>
                 <div class="mb-3">
-                    <label for="itemQuantity" class="form-label">Ilość</label>
-                    <input type="number" class="form-control" id="itemQuantity" min="0" required>
+                    <label for="passDays" class="form-label">Ważność</label>
+                    <input type="number" class="form-control" id="passDays" min="0" required>
                 </div>
                 <div class="mb-3">
-                    <label for="itemStatus" class="form-label">Status</label>
-                    <select class="form-select" id="itemStatus" required>
-                        <option value="ACTIVE">Aktywny</option>
-                        <option value="INACTIVE">Nieaktywny</option>
+                    <label for="passStatus" class="form-label">Status</label>
+                    <select class="form-select" id="passStatus" required>
+                        <option value="VISIBLE">Widoczny</option>
+                        <option value="HIDDEN">Ukryty</option>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-primary">Dodaj przedmiot</button>
+                <button type="submit" class="btn btn-primary">Dodaj karnet</button>
             </form>
             <div id="responseMessage" class="mt-3"></div>
         </div>
@@ -175,25 +175,25 @@
 </div>
 
 <script>
-    document.getElementById('addRentalItemForm').onsubmit = async function (e) {
+    document.getElementById('addPassForm').onsubmit = async function (e) {
         e.preventDefault();
 
-        const itemName = document.getElementById('itemName').value;
-        const itemDescription = document.getElementById('itemDescription').value;
-        const itemPrice = parseFloat(document.getElementById('itemPrice').value);
-        const itemQuantity = parseInt(document.getElementById('itemQuantity').value);
-        const itemStatus = document.getElementById('itemStatus').value;
+        const passName = document.getElementById('passName').value;
+        const passDescription = document.getElementById('passDescription').value;
+        const passPrice = parseFloat(document.getElementById('passPrice').value);
+        const passDays = parseInt(document.getElementById('passDays').value);
+        const passStatus = document.getElementById('passStatus').value;
 
         const requestBody = {
-            name: itemName,
-            description: itemDescription,
-            price: itemPrice,
-            quantity: itemQuantity,
-            status: itemStatus
+            name: passName,
+            description: passDescription,
+            price: passPrice,
+            days: passDays,
+            status: passStatus
         };
 
         try {
-            const response = await fetch('http://localhost:8080/api/v1/authorized/admin/rentalItem/add', {
+            const response = await fetch('http://localhost:8080/api/v1/authorized/admin/pass/add', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -205,7 +205,7 @@
 
             if (response.ok) {
                 document.getElementById('responseMessage').innerHTML = `<div class="alert alert-success">${data.message}</div>`;
-                document.getElementById('addRentalItemForm').reset();
+                document.getElementById('addPassForm').reset();
             } else {
                 document.getElementById('responseMessage').innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
             }

@@ -65,6 +65,26 @@ public class ContentController {
         return "admin/shop/allshopItems";
     }
 
+    // admin Pass services
+    @GetMapping("/addPass")
+    public String getAddPass() {
+        System.out.println("ContentController.getAddPass -> addPass");
+        return "admin/pass/addPass";
+    }
+
+    @GetMapping("/editPass")
+    public String getEditPass() {
+        System.out.println("ContentController.getEditPass -> editPass");
+        return "admin/pass/editPass";
+    }
+
+    @GetMapping("/allPasses")
+    public String getAllPasses() {
+        System.out.println("ContentController.getAllPasses -> allPasses");
+        return "admin/pass/allPasses";
+    }
+
+
 
     @GetMapping("/login")
     public String getLogin() {

@@ -47,6 +47,11 @@
             border-color: #66bb6a;
             box-shadow: 0 0 5px rgba(102, 187, 106, 0.5);
         }
+
+        .card {
+            background-color: #2c2f33;
+            color: #fff;
+        }
     </style>
 
 </head>
@@ -97,14 +102,7 @@
                         <a href="element.html" class="dropdown-item">Usuń post</a>
                     </div>
                 </div>
-                <div class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i
-                            class="fas fa-paw me-2"></i>Wypożyczalnia</a>
-                    <div class="dropdown-menu bg-transparent border-0">
-                        <a href="/addRentalItem" class="dropdown-item">Dodaj przedmiot</a>
-                        <a href="/allRentalItems" class="dropdown-item">Zobacz wszystkie przedmioty</a>
-                    </div>
-                </div>
+                <a href="/allRentalItems" class="nav-item nav-link"><i class="fa fa-sign-out-alt me-2"></i>Wypożyczalnia</a>
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i
                             class="fa fa-envelope me-2"></i>Sklep</a>
@@ -127,7 +125,6 @@
     </div>
     <!-- Sidebar End -->
 
-    <!-- Główna część (zmienia się dynamicznie) -->
     <div class="content">
         <!-- Navbar Start -->
         <nav class="navbar navbar-expand bg-secondary navbar-dark sticky-top px-4 py-0">
@@ -159,34 +156,37 @@
 
         <!-- Main Content Start -->
         <div class="container mt-5">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="text-primary">Lista przedmiotów w sklepie</h2>
-                <a href="/addShopItem" class="btn btn-success">Dodaj przedmiot</a>
-            </div>
-            <div class="row" id="rentalItemsContainer">
-                <!-- Tutaj będą dynamicznie ładowane przedmioty -->
-            </div>
-        </div>
-        <!-- Main Content End -->
-
-        <!-- Modal do potwierdzenia usunięcia -->
-        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content bg-dark text-white">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="deleteModalLabel">Potwierdzenie usunięcia</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        Czy na pewno chcesz usunąć ten przedmiot?
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Nie</button>
-                        <button type="button" class="btn btn-danger" id="confirmDelete">Tak, usuń</button>
-                    </div>
+            <h2 class="text-center">Edycja karnetu</h2>
+            <div id="currentPass" class="mb-4"></div>
+            <form id="editPassForm">
+                <div class="mb-3">
+                    <label for="passName" class="form-label">Nazwa karnetu</label>
+                    <input type="text" class="form-control" id="passName">
                 </div>
-            </div>
+                <div class="mb-3">
+                    <label for="passDescription" class="form-label">Opis</label>
+                    <textarea class="form-control" id="passDescription" rows="3"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="passPrice" class="form-label">Cena</label>
+                    <input type="number" class="form-control" id="passPrice" step="0.01">
+                </div>
+                <div class="mb-3">
+                    <label for="passDays" class="form-label">Ważność</label>
+                    <input type="number" class="form-control" id="passDays" min="0">
+                </div>
+                <div class="mb-3">
+                    <label for="passStatus" class="form-label">Status</label>
+                    <select class="form-select" id="passStatus">
+                        <option value="VISIBLE">Widoczny</option>
+                        <option value="HIDDEN">Ukryty</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-success">Zapisz zmiany</button>
+            </form>
+            <div id="responseMessage" class="mt-3"></div>
         </div>
+        <!-- Main Content End-->
 
         <!-- Footer Start -->
         <div class="container-fluid pt-4 px-4">
@@ -204,109 +204,85 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', async function () {
-        const container = document.getElementById('rentalItemsContainer');
-        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
-        const confirmDeleteButton = document.getElementById('confirmDelete');
+        const urlParams = new URLSearchParams(window.location.search);
+        const itemId = urlParams.get('id');
+        const currentPassDiv = document.getElementById('currentPass');
+        const responseMessage = document.getElementById('responseMessage');
+        const form = document.getElementById('editPassForm');
 
         try {
-            const response = await fetch('http://localhost:8080/api/v1/authorized/admin/shopItems');
+            // Pobieranie wszystkich karnetów
+            const response = await fetch(`http://localhost:8080/api/v1/authorized/admin/pass/all`);
             const items = await response.json();
+            const currentPass = items.find(item => item.id == itemId);
 
-            if (items.length === 0) {
-                container.innerHTML = `<div class="text-center text-white">Brak przedmiotów do wyświetlenia</div>`;
+            // Sprawdzanie, czy przedmiot istnieje
+            if (!currentPass) {
+                currentPassDiv.innerHTML = `<div class="alert alert-danger">Karnet o ID ${itemId} nie istnieje!</div>`;
                 return;
             }
 
-            items.forEach(item => {
-                const card = document.createElement('div');
-                card.classList.add('col-lg-3', 'col-md-4', 'col-sm-6', 'mb-4');
-
-                const truncatedDescription = item.description.length > 100 ?
-                    item.description.substring(0, 100) + '...' :
-                    item.description;
-
-                const statusBadge = item.active ?
-                    `<span class="badge bg-success">ACTIVE</span>` :
-                    `<span class="badge bg-danger">INACTIVE</span>`;
-
-                card.innerHTML = `
-                <div class="card bg-dark text-white border-secondary h-100">
-                    <img src="/img/placeholder.jpg" class="card-img-top" alt="${item.name}" style="height: 200px; object-fit: cover;">
-                    <div class="card-body">
-                        <h5 class="card-title">${item.name}</h5>
-                        <p class="card-text description" data-full="${item.description}">${truncatedDescription}</p>
-                        <p><strong>Cena:</strong> ${item.price} zł</p>
-                        <p><strong>Ilość:</strong> ${item.quantity}</p>
-                        ${statusBadge}
-                    </div>
-                    <div class="card-footer bg-secondary d-flex justify-content-between">
-                        <button class="btn btn-primary btn-sm show-more" data-id="${item.id}">Pokaż więcej</button>
-                        <div>
-                            <button class="btn btn-warning btn-sm edit-item me-2" data-id="${item.id}">Edytuj</button>
-                            <button class="btn btn-danger btn-sm delete-item" data-id="${item.id}">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
-                        </div>
-                    </div>
+            // Wyświetlenie szczegółów przedmiotu u góry strony
+            currentPassDiv.innerHTML = `
+            <div class="card">
+                <div class="card-body">
+                    <h5>${currentPass.name}</h5>
+                    <p>${currentPass.description}</p>
+                    <p><strong>Cena:</strong> ${currentPass.price} zł</p>
+                    <p><strong>Ważność:</strong> ${currentPass.days}</p>
+                    <span class="badge bg-${currentPass.status === 'VISIBLE' ? 'success' : 'danger'}">${currentPass.status}</span>
                 </div>
-            `;
+            </div>
+        `;
 
-                container.appendChild(card);
-            });
-
-            // Obsługa kliknięcia na przycisk usuwania
-            container.addEventListener('click', function (e) {
-                const deleteButton = e.target.closest('.delete-item');
-                if (deleteButton) {
-                    itemIdToDelete = deleteButton.dataset.id;
-                    deleteModal.show();
-                }
-            });
-
-            // Potwierdzenie usunięcia
-            confirmDeleteButton.addEventListener('click', async function () {
-                if (!itemIdToDelete) return;
-
-                try {
-                    const response = await fetch(`http://localhost:8080/api/v1/authorized/admin/shopItems/delete/${itemIdToDelete}`, {
-                        method: 'DELETE'
-                    });
-
-                    const data = await response.json();
-                    alert(data.message);
-                    deleteModal.hide();
-                    location.reload();  // Odświeżenie strony po usunięciu
-                } catch (error) {
-                    alert('Błąd podczas usuwania przedmiotu.');
-                }
-            });
-
-            // Obsługa przycisku "Pokaż więcej"
-            container.addEventListener('click', function (e) {
-                if (e.target.classList.contains('show-more')) {
-                    const cardText = e.target.closest('.card').querySelector('.description');
-                    if (e.target.innerText === 'Pokaż więcej') {
-                        cardText.innerText = cardText.dataset.full;
-                        e.target.innerText = 'Pokaż mniej';
-                    } else {
-                        cardText.innerText = cardText.dataset.full.substring(0, 100) + '...';
-                        e.target.innerText = 'Pokaż więcej';
-                    }
-                }
-            });
-
-            // Przeniesienie na stronę edycji
-            container.addEventListener('click', function (e) {
-                if (e.target.classList.contains('edit-item')) {
-                    const itemId = e.target.dataset.id;
-                    window.location.href = `/editShopItem?id=${itemId}`;
-                }
-            });
-
+            // Wypełnienie pól formularza danymi przedmiotu
+            document.getElementById('passName').value = currentPass.name || '';
+            document.getElementById('passDescription').value = currentPass.description || '';
+            document.getElementById('passPrice').value = currentPass.price || '';
+            document.getElementById('passDays').value = currentPass.days || '';
+            document.getElementById('passStatus').value = currentPass.status || 'VISIBLE';
         } catch (error) {
-            console.error('Błąd podczas pobierania danych:', error);
-            container.innerHTML = `<div class="text-center text-danger">Błąd ładowania przedmiotów</div>`;
+            currentPassDiv.innerHTML = `<div class="alert alert-danger">Błąd podczas pobierania danych.</div>`;
         }
+
+        // Obsługa formularza edycji
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const updatedData = {};
+            if (document.getElementById('passName').value.trim()) updatedData.name = document.getElementById('passName').value.trim();
+            if (document.getElementById('passDescription').value.trim()) updatedData.description = document.getElementById('passDescription').value.trim();
+            if (document.getElementById('passPrice').value) updatedData.price = parseFloat(document.getElementById('passPrice').value);
+            if (document.getElementById('passDays').value) updatedData.quantity = parseInt(document.getElementById('passDays').value);
+            if (document.getElementById('passStatus').value) updatedData.status = document.getElementById('passStatus').value;
+
+            // Walidacja: musi być co najmniej jedna zmiana
+            if (Object.keys(updatedData).length === 0) {
+                responseMessage.innerHTML = `<div class="alert alert-danger">Musisz zmienić co najmniej jedno pole!</div>`;
+                return;
+            }
+
+            try {
+                // Wysyłanie danych do API
+                const updateResponse = await fetch(`http://localhost:8080/api/v1/authorized/admin/pass/update/${itemId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updatedData)
+                });
+
+                const result = await updateResponse.json();
+
+                if (updateResponse.ok) {
+                    responseMessage.innerHTML = `<div class="alert alert-success">${result.message}</div>`;
+                    //setTimeout(() => location.reload(), 2000); // Odświeżanie strony po sukcesie
+                } else {
+                    responseMessage.innerHTML = `<div class="alert alert-danger">${result.message}</div>`;
+                }
+            } catch (error) {
+                responseMessage.innerHTML = `<div class="alert alert-danger">Błąd podczas aktualizacji przedmiotu.</div>`;
+            }
+        });
     });
 </script>
 
@@ -325,5 +301,4 @@
 <script src="/scripts/admin/main.js"></script>
 
 </body>
-
 </html>
