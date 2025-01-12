@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Klama - Admin Panel</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="panel admina" name="keywords">
+    <meta content="panel admina" name="description">
+
+    <!-- Favicon -->
+    <link href="/img/admin/logo.ico" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Roboto:wght@500;700&display=swap"
+          rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.2/font/bootstrap-icons.css">
+
+    <!-- Libraries Stylesheet -->
+    <link href="/lib/admin/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="/lib/admin/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="/styles/admin/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="/styles/admin/css/style.css" rel="stylesheet">
+
+    <!-- Własne style -->
+    <style>
+        h2.text-center {
+            color: #4caf50;
+        }
+
+        .form-control, .form-select {
+            border: 1px solid #6c757d;
+            background-color: #2c2f33;
+            color: #fff;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #66bb6a;
+            box-shadow: 0 0 5px rgba(102, 187, 106, 0.5);
+        }
+
+        .card {
+            background-color: #2c2f33;
+            color: #fff;
+        }
+    </style>
+
+</head>
+
+<body>
+<div class="container-fluid position-relative d-flex p-0">
+
+    <!-- Sidebar Start -->
+    <div class="sidebar pe-4 pb-3">
+        <nav class="navbar bg-secondary navbar-dark">
+            <a href="/admin" class="navbar-brand mx-4 mb-3">
+                <h3 class="text-primary"><i class="fa fa-user-edit me-2"></i>Panel admina</h3>
+            </a>
+            <div class="d-flex align-items-center ms-4 mb-4">
+                <div class="position-relative">
+                    <img class="rounded-circle" src="/img/Klama-Climbing-Gym.svg" alt="logo" style="width: 40px; height: 40px;">
+                    <div
+                            class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1">
+                    </div>
+                </div>
+                <div class="ms-3">
+                    <h6 class="mb-0">admin1</h6>
+                    <span>Admin</span>
+                </div>
+            </div>
+            <div class="navbar-nav w-100">
+                <a href="admin.html" class="nav-item nav-link active"><i class="fa fa-tachometer-alt me-2"></i>Panel
+                    główny</a>
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i
+                            class="far fa-file-alt me-2"></i>Użytkownicy</a>
+                    <div class="dropdown-menu bg-transparent border-0">
+                        <a href="element.html" class="dropdown-item">Zobacz wszystkich użytkowników</a>
+                        <a href="element.html" class="dropdown-item">Zobacz użytkownika</a>
+                        <a href="element.html" class="dropdown-item">Zobacz posty użytkownika</a>
+                        <a href="element.html" class="dropdown-item">Zobacz wypożyczenia użytkownika</a>
+                        <a href="element.html" class="dropdown-item">Zobacz zakupy użytkownika</a>
+                        <a href="element.html" class="dropdown-item">Zobacz karnety użytkownika</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i
+                            class="far fa-file-alt me-2"></i>Blog</a>
+                    <div class="dropdown-menu bg-transparent border-0">
+                        <a href="button.html" class="dropdown-item">Dodaj post</a>
+                        <a href="typography.html" class="dropdown-item">Edytuj post</a>
+                        <a href="element.html" class="dropdown-item">Zobacz wszystkie posty</a>
+                        <a href="element.html" class="dropdown-item">Usuń post</a>
+                    </div>
+                </div>
+                <a href="/allRentalItems" class="nav-item nav-link"><i class="fa fa-sign-out-alt me-2"></i>Wypożyczalnia</a>
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i
+                            class="fa fa-envelope me-2"></i>Sklep</a>
+                    <div class="dropdown-menu bg-transparent border-0">
+                        <a href="/addShopItem" class="dropdown-item">Dodaj przedmiot</a>
+                        <a href="/allShopItems" class="dropdown-item">Zobacz wszystkie przedmioty</a>
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i
+                            class="fa fa-envelope me-2"></i>Karnety</a>
+                    <div class="dropdown-menu bg-transparent border-0">
+                        <a href="button.html" class="dropdown-item">Dodaj karnet</a>
+                        <a href="element.html" class="dropdown-item">Zobacz wszystkie karnety</a>
+                    </div>
+                </div>
+                <a href="/logout" class="nav-item nav-link"><i class="fa fa-sign-out-alt me-2"></i>Wyloguj</a>
+            </div>
+        </nav>
+    </div>
+    <!-- Sidebar End -->
+
+    <div class="content">
+        <!-- Navbar Start -->
+        <nav class="navbar navbar-expand bg-secondary navbar-dark sticky-top px-4 py-0">
+            <a href="admin.html" class="navbar-brand d-flex d-lg-none me-4">
+                <h2 class="text-primary mb-0"><i class="fa fa-user-edit"></i></h2>
+            </a>
+            <a href="#" class="sidebar-toggler flex-shrink-0">
+                <i class="fa fa-bars"></i>
+            </a>
+            <form class="d-none d-md-flex ms-4">
+                <input class="form-control bg-dark border-0" type="search" placeholder="Szukaj">
+            </form>
+            <div class="navbar-nav align-items-center ms-auto">
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                        <img class="rounded-circle me-lg-2" src="/img/Klama-Climbing-Gym.svg" alt="logo"
+                             style="width: 40px; height: 40px;">
+                        <span class="d-none d-lg-inline-flex">Moje konto</span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end bg-secondary border-0 rounded-0 rounded-bottom m-0">
+                        <a href="#" class="dropdown-item">My Profile</a>
+                        <a href="#" class="dropdown-item">Settings</a>
+                        <a href="#" class="dropdown-item">Log Out</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <!-- Navbar End -->
+
+        <!-- Main Content Start -->
+        <div class="container mt-5">
+            <h2 class="text-center">Edycja karnetu</h2>
+            <div id="currentPass" class="mb-4"></div>
+            <form id="editPassForm">
+                <div class="mb-3">
+                    <label for="passName" class="form-label">Nazwa karnetu</label>
+                    <input type="text" class="form-control" id="passName">
+                </div>
+                <div class="mb-3">
+                    <label for="passDescription" class="form-label">Opis</label>
+                    <textarea class="form-control" id="passDescription" rows="3"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="passPrice" class="form-label">Cena</label>
+                    <input type="number" class="form-control" id="passPrice" step="0.01">
+                </div>
+                <div class="mb-3">
+                    <label for="passDays" class="form-label">Ważność</label>
+                    <input type="number" class="form-control" id="passDays" min="0">
+                </div>
+                <div class="mb-3">
+                    <label for="passStatus" class="form-label">Status</label>
+                    <select class="form-select" id="passStatus">
+                        <option value="VISIBLE">Widoczny</option>
+                        <option value="HIDDEN">Ukryty</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-success">Zapisz zmiany</button>
+            </form>
+            <div id="responseMessage" class="mt-3"></div>
+        </div>
+        <!-- Main Content End-->
+
+        <!-- Footer Start -->
+        <div class="container-fluid pt-4 px-4">
+            <div class="bg-secondary rounded-top p-4">
+                <div class="row">
+                    <div class="col-12 col-sm-6 text-center text-sm-start">
+                        &copy; <a href="#">Klama Wrocław</a>, Wszelkie prawa zastrzeżone.
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Footer End -->
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const itemId = urlParams.get('id');
+        const currentPassDiv = document.getElementById('currentPass');
+        const responseMessage = document.getElementById('responseMessage');
+        const form = document.getElementById('editPassForm');
+
+        try {
+            // Pobieranie wszystkich karnetów
+            const response = await fetch(`http://localhost:8080/api/v1/authorized/admin/pass/all`);
+            const items = await response.json();
+            const currentPass = items.find(item => item.id == itemId);
+
+            // Sprawdzanie, czy przedmiot istnieje
+            if (!currentPass) {
+                currentPassDiv.innerHTML = `<div class="alert alert-danger">Karnet o ID ${itemId} nie istnieje!</div>`;
+                return;
+            }
+
+            // Wyświetlenie szczegółów przedmiotu u góry strony
+            currentPassDiv.innerHTML = `
+            <div class="card">
+                <div class="card-body">
+                    <h5>${currentPass.name}</h5>
+                    <p>${currentPass.description}</p>
+                    <p><strong>Cena:</strong> ${currentPass.price} zł</p>
+                    <p><strong>Ważność:</strong> ${currentPass.days}</p>
+                    <span class="badge bg-${currentPass.status === 'VISIBLE' ? 'success' : 'danger'}">${currentPass.status}</span>
+                </div>
+            </div>
+        `;
+
+            // Wypełnienie pól formularza danymi przedmiotu
+            document.getElementById('passName').value = currentPass.name || '';
+            document.getElementById('passDescription').value = currentPass.description || '';
+            document.getElementById('passPrice').value = currentPass.price || '';
+            document.getElementById('passDays').value = currentPass.days || '';
+            document.getElementById('passStatus').value = currentPass.status || 'VISIBLE';
+        } catch (error) {
+            currentPassDiv.innerHTML = `<div class="alert alert-danger">Błąd podczas pobierania danych.</div>`;
+        }
+
+        // Obsługa formularza edycji
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const updatedData = {};
+            if (document.getElementById('passName').value.trim()) updatedData.name = document.getElementById('passName').value.trim();
+            if (document.getElementById('passDescription').value.trim()) updatedData.description = document.getElementById('passDescription').value.trim();
+            if (document.getElementById('passPrice').value) updatedData.price = parseFloat(document.getElementById('passPrice').value);
+            if (document.getElementById('passDays').value) updatedData.quantity = parseInt(document.getElementById('passDays').value);
+            if (document.getElementById('passStatus').value) updatedData.status = document.getElementById('passStatus').value;
+
+            // Walidacja: musi być co najmniej jedna zmiana
+            if (Object.keys(updatedData).length === 0) {
+                responseMessage.innerHTML = `<div class="alert alert-danger">Musisz zmienić co najmniej jedno pole!</div>`;
+                return;
+            }
+
+            try {
+                // Wysyłanie danych do API
+                const updateResponse = await fetch(`http://localhost:8080/api/v1/authorized/admin/pass/update/${itemId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updatedData)
+                });
+
+                const result = await updateResponse.json();
+
+                if (updateResponse.ok) {
+                    responseMessage.innerHTML = `<div class="alert alert-success">${result.message}</div>`;
+                    //setTimeout(() => location.reload(), 2000); // Odświeżanie strony po sukcesie
+                } else {
+                    responseMessage.innerHTML = `<div class="alert alert-danger">${result.message}</div>`;
+                }
+            } catch (error) {
+                responseMessage.innerHTML = `<div class="alert alert-danger">Błąd podczas aktualizacji przedmiotu.</div>`;
+            }
+        });
+    });
+</script>
+
+<!-- JavaScript Libraries -->
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/lib/admin/chart/chart.min.js"></script>
+<script src="/lib/admin/easing/easing.min.js"></script>
+<script src="/lib/admin/waypoints/waypoints.min.js"></script>
+<script src="/lib/admin/owlcarousel/owl.carousel.min.js"></script>
+<script src="/lib/admin/tempusdominus/js/moment.min.js"></script>
+<script src="/lib/admin/tempusdominus/js/moment-timezone.min.js"></script>
+<script src="/lib/admin/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+
+<!-- Template Javascript -->
+<script src="/scripts/admin/main.js"></script>
+
+</body>
+</html>

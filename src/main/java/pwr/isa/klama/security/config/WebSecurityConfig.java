@@ -43,7 +43,7 @@ public class WebSecurityConfig {
                 .formLogin(httpConfig -> httpConfig
                         .loginPage("/login")
                         .permitAll()
-                        .successHandler(customAuthenticationSuccessHandler)
+                        .successHandler(customAuthenticationSuccessHandler) // Dodano obsługę przekierowania po zalogowaniu
                         .failureUrl("/login?error=true")
                 )
                 .logout(logout -> logout
@@ -57,7 +57,6 @@ public class WebSecurityConfig {
                         .maximumSessions(1)
                 )
                 .authenticationProvider(daoAuthenticationProvider());
-
 
         return http.build();
     }

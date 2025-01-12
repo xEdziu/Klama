@@ -73,4 +73,9 @@ public class PassController {
         return passService.updatePass(pass, passId);
     }
 
+    @GetMapping(path = "/authorized/admin/pass/history/{userId}")
+    public List<UserPassHistoryDTO> getPassHistoryByUserId(@PathVariable("userId") Long userId) {
+        return passService.getPassHistoryByUserId(userId);
+    }
+
 }

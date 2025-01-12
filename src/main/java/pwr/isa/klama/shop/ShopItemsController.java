@@ -69,4 +69,9 @@ public class ShopItemsController {
     public Map<String, Object> deleteShopItem(@PathVariable("id") Long id) {
         return ShopItemsService.deleteShopItem(id);
     }
+
+    @GetMapping(path = "/authorized/admin/shopItems/history/{userId}")
+    public List<PurchaseRecordDTO> getPurchaseHistoryByUserId(@PathVariable("userId") Long userId) {
+        return ShopItemsService.getPurchaseHistoryByUserId(userId);
+    }
 }

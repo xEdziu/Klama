@@ -74,6 +74,11 @@ public class RentalItemController {
             @RequestBody RentalItem rentalItem) {
          return rentalItemService.updateRentalItem(rentalItemId, rentalItem);
     }
+
+    @GetMapping(path = "/authorized/admin/rentalItem/history/{userId}")
+    public List<RentRecordDTO> getRentHistoryByUserId(@PathVariable("userId") Long userId) {
+        return rentalItemService.getRentHistoryByUserId(userId);
+    }
     
     //TODO: Dla admina sprawdzanie wypożyczeń konkretnego urzytkownika
 }

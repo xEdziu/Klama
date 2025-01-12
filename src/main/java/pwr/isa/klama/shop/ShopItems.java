@@ -26,7 +26,7 @@ public class ShopItems {
     private Long id;
     private String name;
     private String description;
-    private float price;
+    private Float price;
     private Integer quantity;
     private Boolean active = true;
     public ShopItems(String name, String description, float price, Integer quantity) {

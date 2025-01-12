@@ -395,6 +395,41 @@ public class RentalItemService {
         return rentRecords;
     }
 
+    public List<RentRecordDTO> getRentHistoryByUserId(Long userId) {
+        ApiLogger.logInfo("/api/v1/authorized/admin/rentalItem/history/" + userId, "Getting rent history for user: " + userId);
+        if (!userRepository.existsById(userId)) {
+            throw new ResourceNotFoundException("Użytkownik o id " + userId + " nie istnieje");
+        }
+
+        List<Rent> rents = rentRepository.findByUserId(userId);
+        List<RentRecordDTO> rentRecords = new ArrayList<>();
+
+        for (Rent rent : rents) {
+            updateRentStatus(rent);
+            List<RentDTO> items = new ArrayList<>();
+            for (RentItem item : rent.getItems()) {
+                RentDTO dto = new RentDTO(
+                        item.getRentalItem().getName(),
+                        item.getQuantity(),
+                        item.getPrice(),
+                        item.getTotalPrice()
+                );
+                items.add(dto);
+            }
+            rentRecords.add(new RentRecordDTO(
+                    rent.getId(),
+                    userId,
+                    rent.getRentDate(),
+                    rent.getReturnDate(),
+                    items,
+                    rent.getTotalPrice(),
+                    rent.getStatus()
+            ));
+        }
+
+        return rentRecords;
+    }
+
     private User getCurrentUser() {
         return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
