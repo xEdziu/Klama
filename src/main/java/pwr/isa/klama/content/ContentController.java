@@ -27,6 +27,24 @@ public class ContentController {
         return "admin/admin";
     }
 
+    @GetMapping("/account")
+    public String getAccount() {
+        System.out.println("ContentController.getAccount -> account");
+        return "home/account";
+    }
+
+    @GetMapping("/purchaseHistory")
+    public String getPurchaseHistory() {
+        System.out.println("ContentController.getPurchaseHistory -> purchaseHistory");
+        return "home/purchaseHistory";
+    }
+
+    @GetMapping("/rentalHistory")
+    public String getRentalHistory() {
+        System.out.println("ContentController.getRentalHistory -> rentalHistory");
+        return "home/rentalHistory";
+    }
+
     @GetMapping("/login")
     public String getLogin() {
         Authentication authentication = getAuthentication();
@@ -43,22 +61,34 @@ public class ContentController {
         return "auth/login";
     }
 
+    @GetMapping("/register")
+    public String getRegister() {
+        System.out.println("ContentController.getRegister -> register");
+        return "auth/register";
+    }
+
     @GetMapping("/shop")
     public String getShop() {
-        System.out.println("ContentController.getLogin -> shop");
+        System.out.println("ContentController.getShop -> shop");
         return "auth/shop";
     }
 
     @GetMapping("/rent")
     public String getRent() {
-        System.out.println("ContentController.getLogin -> rent");
+        System.out.println("ContentController.getRent -> rent");
         return "auth/rent";
     }
 
     @GetMapping("/blog")
     public String getBlog() {
-        System.out.println("ContentController.getLogin -> blog");
+        System.out.println("ContentController.getBlog -> blog");
         return "blog";
+    }
+
+    @GetMapping("/confirm")
+    public String getConfirm() {
+        System.out.println("ContentController.getConfirm -> confirm");
+        return "auth/confirm";
     }
 
     private Authentication getAuthentication() {

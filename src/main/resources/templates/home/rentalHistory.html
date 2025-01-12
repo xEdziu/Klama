@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pl">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Moje Konto - Klama Wrocław</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                darkMode: 'class',
+                theme: {
+                    extend: {
+                        colors: {
+                            primary: '#e5b700',
+                        }
+                    }
+                }
+            }
+        </script>
+        <link rel="stylesheet" href="/styles/style.css">
+    </head>
+    <body class="font-roboto text-gray-800 dark:text-gray-200 dark:bg-gray-900">
+    <header class="bg-white dark:bg-gray-800 shadow-md sticky top-0 w-full z-10">
+        <nav class="container mx-auto flex items-center justify-between p-4">
+            <div class="logo">
+                <img src="/img/Klama-Climbing-Gym.svg" alt="Logo Klama" class="h-24">
+            </div>
+            <!-- Desktop menu -->
+            <ul class="menu hidden md:flex space-x-6">
+                <li><a href="/" class="hover:text-primary">STRONA GŁÓWNA</a></li>
+                <li><a href="/shop" class="hover:text-primary">SKLEP</a></li>
+                <li><a href="/rent" class="hover:text-primary">WYPOŻYCZALNIA</a></li>
+                <li><a href="/blog" class="hover:text-primary">BLOG</a></li>
+                <li><a href="login" class="hover:text-primary">MOJE KONTO</a></li>
+            </ul>
+            <div class="flex items-center space-x-4">
+                <button id="theme-toggle" class="focus:outline-none">
+                    <svg id="theme-icon" class="w-6 h-6 text-gray-800 dark:text-gray-200" fill="currentColor"
+                        viewBox="0 0 20 20">
+                    </svg>
+                </button>
+                <button class="hamburger md:hidden focus:outline-none flex flex-col justify-around w-8 h-6">
+                    <span class="block w-6 h-0.5 bg-gray-800 dark:bg-gray-200"></span>
+                    <span class="block w-6 h-0.5 bg-gray-800 dark:bg-gray-200"></span>
+                    <span class="block w-6 h-0.5 bg-gray-800 dark:bg-gray-200"></span>
+                </button>
+            </div>
+        </nav>
+        <!-- Mobile menu -->
+        <div class="mobile-menu hidden">
+            <ul class="flex flex-col items-center space-y-2 p-4">
+                <li><a href="/" class="hover:text-primary">STRONA GŁÓWNA</a></li>
+                <li><a href="/shop" class="hover:text-primary">SKLEP</a></li>
+                <li><a href="/rent" class="hover:text-primary">WYPOŻYCZALNIA</a></li>
+                <li><a href="/blog" class="hover:text-primary">BLOG</a></li>
+                <li><a href="login" class="hover:text-primary">MOJE KONTO</a></li>
+            </ul>
+        </div>
+    </header>
+    <main class="container mx-auto p-6">
+        <a href="/home" class="text-primary hover:text-yellow-600 transition">Powrót</a>
+        <section class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Historia Wypożyczeń</h2>
+            <table class="min-w-full bg-white dark:bg-gray-800">
+                <thead class="text-left">
+                    <tr>
+                        <th class="py-2 px-4 border-b border-gray-200 dark:border-gray-700">ID Wypożyczenia</th>
+                        <th class="py-2 px-4 border-b border-gray-200 dark:border-gray-700">Data Wypożyczenia</th>
+                        <th class="py-2 px-4 border-b border-gray-200 dark:border-gray-700">Data Zwrotu</th>
+                        <th class="py-2 px-4 border-b border-gray-200 dark:border-gray-700">Przedmioty</th>
+                        <th class="py-2 px-4 border-b border-gray-200 dark:border-gray-700">Łączna Cena</th>
+                        <th class="py-2 px-4 border-b border-gray-200 dark:border-gray-700">Status</th>
+                        <th class="py-2 px-4 border-b border-gray-200 dark:border-gray-700">Akcje</th>
+                    </tr>
+                </thead>
+                <tbody class="rental-history">
+                    <!-- Wypożyczenia będą tutaj wstawiane przez JavaScript -->
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white text-center py-4">
+        <p>© 2024 Klama Wrocław</p>
+    </footer>
+    <script src="/scripts/script.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Fetch rental history
+            fetch("http://localhost:8080/api/v1/authorized/rentalItem/rentHistory")
+                .then(response => response.json())
+                .then(data => {
+                    const rentalList = document.querySelector(".rental-history");
+                    rentalList.innerHTML = ""; // Clear existing list items
+                    if (data.length === 0) {
+                        const row = document.createElement("tr");
+                        const cell = document.createElement("td");
+                        cell.colSpan = 7;
+                        cell.textContent = "Brak wypożyczeń.";
+                        cell.className = "py-2 px-4 border-b border-gray-200 dark:border-gray-700 text-center";
+                        row.appendChild(cell);
+                        rentalList.appendChild(row);
+                    } else {
+                        data.forEach(rental => {
+                            const row = document.createElement("tr");
+
+                            const idCell = document.createElement("td");
+                            idCell.textContent = rental.rentId;
+                            idCell.className = "py-2 px-4 border-b border-gray-200 dark:border-gray-700";
+                            row.appendChild(idCell);
+
+                            const rentDateCell = document.createElement("td");
+                            rentDateCell.textContent = new Date(rental.rentDate).toLocaleDateString("pl-PL");
+                            rentDateCell.className = "py-2 px-4 border-b border-gray-200 dark:border-gray-700";
+                            row.appendChild(rentDateCell);
+
+                            const returnDateCell = document.createElement("td");
+                            returnDateCell.textContent = new Date(rental.returnDate).toLocaleDateString("pl-PL");
+                            returnDateCell.className = "py-2 px-4 border-b border-gray-200 dark:border-gray-700";
+                            row.appendChild(returnDateCell);
+
+                            const itemsCell = document.createElement("td");
+                            itemsCell.className = "py-2 px-4 border-b border-gray-200 dark:border-gray-700";
+                            const itemsList = document.createElement("ul");
+                            rental.items.forEach(item => {
+                                const listItem = document.createElement("li");
+                                listItem.textContent = `${item.itemName} - Ilość: ${item.quantity} - Cena: ${item.totalPrice.toFixed(2)} PLN`;
+                                itemsList.appendChild(listItem);
+                            });
+                            itemsCell.appendChild(itemsList);
+                            row.appendChild(itemsCell);
+
+                            const totalPriceCell = document.createElement("td");
+                            totalPriceCell.textContent = `${rental.totalPrice.toFixed(2)} PLN`;
+                            totalPriceCell.className = "py-2 px-4 border-b border-gray-200 dark:border-gray-700";
+                            row.appendChild(totalPriceCell);
+
+                            const statusCell = document.createElement("td");
+                            statusCell.className = "py-2 px-4 border-b border-gray-200 dark:border-gray-700";
+                            if (rental.status === "RENTED") {
+                                statusCell.textContent = "Wypożyczony";
+                                statusCell.className += " text-orange-500";
+                            } else if (rental.status === "RETURNED") {
+                                statusCell.textContent = "Zwrócony";
+                                statusCell.className += " text-green-500";
+                            } else if (rental.status === "RESERVED") {
+                                statusCell.textContent = "Zarezerwowany";
+                                statusCell.className += " text-blue-500";
+                            }
+                            row.appendChild(statusCell);
+
+                            const actionsCell = document.createElement("td");
+                            actionsCell.className = "py-2 px-4 border-b border-gray-200 dark:border-gray-700";
+                            if (rental.status === "RENTED" || rental.status === "RESERVED") {
+                                const returnButton = document.createElement("button");
+                                returnButton.textContent = "Zwróć";
+                                returnButton.className = "bg-primary text-white py-1 px-3 rounded-lg shadow-lg hover:bg-yellow-600 transition";
+                                returnButton.addEventListener("click", function() {
+                                    fetch(`http://localhost:8080/api/v1/authorized/rentalItem/return/${rental.rentId}`, {
+                                        method: 'POST'
+                                    })
+                                    .then(
+                                        Swal.fire({
+                                            title: 'Proszę czekać...',
+                                            didOpen: () => {
+                                                Swal.showLoading()
+                                            }
+                                        })
+                                    )
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'Sukces',
+                                            text: data.message
+                                        });
+                                        location.reload(); // Reload the page to update the rental history
+                                    })
+                                    .catch(error => console.error('Error:', error));
+                                });
+                                actionsCell.appendChild(returnButton);
+                            }
+                            row.appendChild(actionsCell);
+
+                            rentalList.appendChild(row);
+                        });
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>
