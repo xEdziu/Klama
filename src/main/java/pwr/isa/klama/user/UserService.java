@@ -274,6 +274,30 @@ public class UserService implements UserDetailsService {
         return response;
     }
 
+    public Map<String, Object> createUserAdmin(User user) {
+        ApiLogger.logInfo("/api/v1/authorized/admin/user/create", "Creating user: " + user.getUsername());
+
+        boolean isValidEmail = emailValidator.test(user.getEmail());
+        boolean isValidPassword = passwordValidator.test(user.getPassword());
+
+        if (!isValidEmail) {
+            throw new IllegalStateException("Email nie jest poprawny");
+        }
+
+        if (!isValidPassword) {
+            throw new IllegalStateException("Hasło nie spełnia wymagań bezpieczeństwa");
+        }
+
+        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        userRepository.save(user);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Użytkownik o id " + user.getId() + " został utworzony");
+        response.put("error", HttpStatus.OK.value());
+        response.put("timestamp", new Timestamp(new Date().getTime()));
+        return response;
+    }
+
     private void transferUserAssetsToDefaultAdmin(Long userId, User defaultAdmin) {
         List<Post> posts = postService.getAllPostsByUser(userId);
         for (Post post : posts) {

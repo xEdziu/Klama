@@ -62,4 +62,9 @@ public class UserController {
         }
         return userService.deleteUserAdmin(userId);
     }
+
+    @PostMapping(path = "/admin/user/create")
+    public Map<String, Object> createUserAdmin(@RequestBody User user) {
+        return userService.createUserAdmin(user);
+    }
 }
