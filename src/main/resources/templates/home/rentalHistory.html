@@ -177,8 +177,10 @@
                                             icon: 'success',
                                             title: 'Sukces',
                                             text: data.message
+                                        })
+                                        .then(() => {
+                                            location.reload(); // Reload the page to update the rental history
                                         });
-                                        location.reload(); // Reload the page to update the rental history
                                     })
                                     .catch(error => console.error('Error:', error));
                                 });
