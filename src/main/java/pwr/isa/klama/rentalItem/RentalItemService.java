@@ -1,8 +1,6 @@
 package pwr.isa.klama.rentalItem;
 
 import jakarta.transaction.Transactional;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,6 +12,7 @@ import pwr.isa.klama.user.User;
 import pwr.isa.klama.user.UserRepository;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -254,7 +253,7 @@ public class RentalItemService {
             // Update the quantity
             rentalItem.setQuantity(rentalItem.getQuantity() - request.getQuantity());
             rentalItemRepository.save(rentalItem);
-            
+
             float itemTotalPrice = rentalItem.getPrice() * request.getQuantity() * rentalDays;
             totalRentPrice += itemTotalPrice;
 
@@ -278,7 +277,10 @@ public class RentalItemService {
         rent.setTotalPrice(totalRentPrice);
         rent.setItems(rentItems);
 
-        if (rent.getRentDate().equals(currentTimestamp)) {
+        LocalDate rentalDate = rent.getRentDate().toLocalDateTime().toLocalDate();
+        LocalDate currentDate = currentTimestamp.toLocalDateTime().toLocalDate();
+
+        if (rentalDate.equals(currentDate)) {
             rent.setStatus(RentStatus.RENTED);
         } else {
             rent.setStatus(RentStatus.RESERVED);
