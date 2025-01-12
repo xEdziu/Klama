@@ -29,6 +29,7 @@ import pwr.isa.klama.shop.purchase.Purchase;
 import pwr.isa.klama.shop.purchase.PurchaseRepository;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -322,5 +323,67 @@ public class UserService implements UserDetailsService {
             userPass.setUser(defaultAdmin);
             userPassRepository.save(userPass);
         }
+    }
+
+    public Map<String, Object> getStatistics() {
+        LocalDate today = LocalDate.now();
+        LocalDate sevenDaysAgo = today.minusDays(7);
+
+        List<Purchase> purchases = purchaseRepository.findAllByPurchaseDateBetween(
+                Timestamp.valueOf(sevenDaysAgo.atStartOfDay()),
+                Timestamp.valueOf(today.plusDays(1).atStartOfDay())
+        );
+
+        List<Rent> rents = rentRepository.findAllByRentDateBetween(
+                Timestamp.valueOf(sevenDaysAgo.atStartOfDay()),
+                Timestamp.valueOf(today.plusDays(1).atStartOfDay())
+        );
+
+        List<UserPass> userPasses = userPassRepository.findAllByBuyDateBetween(
+                Timestamp.valueOf(sevenDaysAgo.atStartOfDay()),
+                Timestamp.valueOf(today.plusDays(1).atStartOfDay())
+        );
+
+        Map<LocalDate, Double> dailyRevenue = new HashMap<>();
+        Map<LocalDate, Long> dailySalesCount = new HashMap<>();
+        Map<LocalDate, Double> dailyRentRevenue = new HashMap<>();
+        Map<LocalDate, Double> dailyPurchaseRevenue = new HashMap<>();
+        Map<LocalDate, Long> dailyRentCount = new HashMap<>();
+
+        for (LocalDate date = sevenDaysAgo; !date.isAfter(today); date = date.plusDays(1)) {
+            dailyRevenue.put(date, 0.0);
+            dailySalesCount.put(date, 0L);
+            dailyRentRevenue.put(date, 0.0);
+            dailyPurchaseRevenue.put(date, 0.0);
+            dailyRentCount.put(date, 0L);
+        }
+
+        purchases.forEach(purchase -> {
+            LocalDate date = purchase.getDate().toLocalDateTime().toLocalDate();
+            dailyRevenue.put(date, dailyRevenue.get(date) + purchase.getTotalPrice());
+            dailyPurchaseRevenue.put(date, dailyPurchaseRevenue.get(date) + purchase.getTotalPrice());
+            dailySalesCount.put(date, dailySalesCount.get(date) + 1);
+        });
+
+        rents.forEach(rent -> {
+            LocalDate date = rent.getDate().toLocalDateTime().toLocalDate();
+            dailyRevenue.put(date, dailyRevenue.get(date) + rent.getTotalPrice());
+            dailyRentRevenue.put(date, dailyRentRevenue.get(date) + rent.getTotalPrice());
+            dailyRentCount.put(date, dailyRentCount.get(date) + 1);
+        });
+
+        userPasses.forEach(userPass -> {
+            LocalDate date = userPass.getDate().toLocalDateTime().toLocalDate();
+            dailyRevenue.put(date, dailyRevenue.get(date) + userPass.getPrice());
+        });
+
+        Map<String, Object> statistics = new HashMap<>();
+        statistics.put("dailyRevenue", dailyRevenue);
+        statistics.put("dailySalesCount", dailySalesCount);
+        statistics.put("dailyRentRevenue", dailyRentRevenue);
+        statistics.put("dailyPurchaseRevenue", dailyPurchaseRevenue);
+        statistics.put("dailyRentCount", dailyRentCount);
+
+        return statistics;
     }
 }

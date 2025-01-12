@@ -67,4 +67,9 @@ public class UserController {
     public Map<String, Object> createUserAdmin(@RequestBody User user) {
         return userService.createUserAdmin(user);
     }
+
+    @GetMapping(path = "/admin/statistics")
+    public Map<String, Object> getStatistics() {
+        return userService.getStatistics();
+    }
 }

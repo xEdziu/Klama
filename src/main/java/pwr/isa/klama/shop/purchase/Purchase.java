@@ -37,4 +37,8 @@ public class Purchase {
 
     @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL)
     private List<PurchaseItem> items;
+
+    public Timestamp getDate() {
+        return purchaseDate;
+    }
 }
