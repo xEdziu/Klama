@@ -109,6 +109,32 @@ public class ContentController {
         return "admin/blog/onePost";
     }
 
+    // admin User services
+    @GetMapping("/allUsers")
+    public String getAllUsers() {
+        System.out.println("ContentController.getAllUsers -> allUsers");
+        return "admin/user/allUsers";
+    }
+
+    @GetMapping("/addUser")
+    public String getAddUser() {
+        System.out.println("ContentController.getAddUser -> addUser");
+        return "admin/user/addUser";
+    }
+
+    @GetMapping("/editUser")
+    public String getEditUser() {
+        System.out.println("ContentController.getEditUser -> editUser");
+        return "admin/user/editUser";
+    }
+
+    @GetMapping("/oneUser")
+    public String getOneUser() {
+        System.out.println("ContentController.getOneUser -> oneUser");
+        return "admin/user/oneUser";
+    }
+
+
     @GetMapping("/login")
     public String getLogin() {
         Authentication authentication = getAuthentication();

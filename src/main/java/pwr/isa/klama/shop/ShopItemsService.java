@@ -277,4 +277,36 @@ public class ShopItemsService {
 
         return purchaseRecords;
     }
+
+    public List<PurchaseRecordDTO> getPurchaseHistoryByUserId(Long userId) {
+        ApiLogger.logInfo("/api/v1/authorized/admin/shopItems/history/" + userId, "Getting purchase history for user: " + userId);
+        if (!userRepository.existsById(userId)) {
+            throw new ResourceNotFoundException("Użytkownik o id " + userId + " nie istnieje");
+        }
+
+        List<Purchase> purchases = purchaseRepository.findByUserId(userId);
+        List<PurchaseRecordDTO> purchaseRecords = new ArrayList<>();
+
+        for (Purchase purchase : purchases) {
+            List<PurchaseDTO> items = new ArrayList<>();
+            for (PurchaseItem item : purchase.getItems()) {
+                PurchaseDTO dto = new PurchaseDTO(
+                        item.getShopItem().getName(),
+                        item.getQuantity(),
+                        item.getPrice(),
+                        item.getTotalPrice()
+                );
+                items.add(dto);
+            }
+            purchaseRecords.add(new PurchaseRecordDTO(
+                    purchase.getId(),
+                    userId,
+                    purchase.getPurchaseDate(),
+                    items,
+                    purchase.getTotalPrice()
+            ));
+        }
+
+        return purchaseRecords;
+    }
 }

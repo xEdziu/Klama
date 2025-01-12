@@ -11,6 +11,7 @@ import pwr.isa.klama.rentalItem.ItemStatus;
 import pwr.isa.klama.rentalItem.RentalItem;
 import pwr.isa.klama.security.logging.ApiLogger;
 import pwr.isa.klama.user.User;
+import pwr.isa.klama.user.UserRepository;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -20,11 +21,13 @@ import java.util.stream.Collectors;
 public class PassService {
 
     private final PassRepository passRepository;
+    private final UserRepository userRepository;
     private final UserPassRepository userPassRepository;
 
     @Autowired
-    public PassService(PassRepository passRepository, UserPassRepository userPassRepository) {
+    public PassService(PassRepository passRepository, UserRepository userRepository, UserPassRepository userPassRepository) {
         this.passRepository = passRepository;
+        this.userRepository = userRepository;
         this.userPassRepository = userPassRepository;
     }
 
@@ -278,6 +281,30 @@ public class PassService {
 
         ApiLogger.logInfo("/api/v1/authorized/admin/pass/update/" + passId, "Pass " + passId + " updated successfully");
         return response;
+    }
+
+    public List<UserPassHistoryDTO> getPassHistoryByUserId(Long userId) {
+        ApiLogger.logInfo("/api/v1/authorized/admin/pass/history/" + userId, "Getting pass history for user: " + userId);
+        if (!userRepository.existsById(userId)) {
+            throw new ResourceNotFoundException("User with id " + userId + " not found");
+        }
+
+        List<UserPass> userPasses = userPassRepository.findByUserId(userId);
+        List<UserPassHistoryDTO> passHistory = new ArrayList<>();
+
+        for (UserPass userPass : userPasses) {
+            updatePassStatus(userPass);
+            UserPassHistoryDTO dto = new UserPassHistoryDTO(
+                    userPass.getPass().getId(),
+                    userPass.getPass().getName(),
+                    userPass.getBuyDate(),
+                    userPass.getExpirationDate(),
+                    userPass.getPass().getPrice()
+            );
+            passHistory.add(dto);
+        }
+
+        return passHistory;
     }
 
     private User getCurrentUser() {

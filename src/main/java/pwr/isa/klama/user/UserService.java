@@ -17,10 +17,16 @@ import pwr.isa.klama.email.EmailSender;
 import pwr.isa.klama.exceptions.AccountNotActivatedException;
 import pwr.isa.klama.exceptions.ForbiddenActionException;
 import pwr.isa.klama.exceptions.ResourceNotFoundException;
+import pwr.isa.klama.pass.userPass.UserPass;
+import pwr.isa.klama.pass.userPass.UserPassRepository;
 import pwr.isa.klama.posts.Post;
 import pwr.isa.klama.posts.PostRepository;
 import pwr.isa.klama.posts.PostService;
+import pwr.isa.klama.rentalItem.rent.Rent;
+import pwr.isa.klama.rentalItem.rent.RentRepository;
 import pwr.isa.klama.security.logging.ApiLogger;
+import pwr.isa.klama.shop.purchase.Purchase;
+import pwr.isa.klama.shop.purchase.PurchaseRepository;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -38,6 +44,9 @@ public class UserService implements UserDetailsService {
     private final PasswordValidator passwordValidator;
     private final EmailValidator emailValidator;
     private final PostRepository postRepository;
+    private final RentRepository rentRepository;
+    private final PurchaseRepository purchaseRepository;
+    private final UserPassRepository userPassRepository;
 
     public void enableUser(String email) {
         userRepository.enableUser(email);
@@ -171,6 +180,11 @@ public class UserService implements UserDetailsService {
             throw new IllegalStateException("Nie można usunąć użytkownika - ADM_ERR");
         }
 
+        User defaultAdmin = userRepository.findById(1L)
+                .orElseThrow(() -> new ResourceNotFoundException("Nie znaleziono domyślnego administratora"));
+
+        transferUserAssetsToDefaultAdmin(userId, defaultAdmin);
+
         userRepository.deleteById(userId);
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Użytkownik o id " + userId + " został usunięty");
@@ -230,11 +244,7 @@ public class UserService implements UserDetailsService {
         User defaultAdmin = userRepository.findById(1L)
                 .orElseThrow(() -> new ResourceNotFoundException("Nie znaleziono domyślnego administratora"));
 
-        List<Post> posts = postService.getAllPostsByUser(userId);
-        for (Post post : posts) {
-            post.setAuthorId(defaultAdmin);
-            postRepository.save(post);
-        }
+        transferUserAssetsToDefaultAdmin(userId, defaultAdmin);
 
         userRepository.deleteById(userId);
         Map<String, Object> response = new HashMap<>();
@@ -262,5 +272,31 @@ public class UserService implements UserDetailsService {
         response.put("error", HttpStatus.OK.value());
         response.put("timestamp", new Timestamp(new Date().getTime()));
         return response;
+    }
+
+    private void transferUserAssetsToDefaultAdmin(Long userId, User defaultAdmin) {
+        List<Post> posts = postService.getAllPostsByUser(userId);
+        for (Post post : posts) {
+            post.setAuthorId(defaultAdmin);
+            postRepository.save(post);
+        }
+
+        List<Rent> rents = rentRepository.findByUserId(userId);
+        for (Rent rent : rents) {
+            rent.setUser(defaultAdmin);
+            rentRepository.save(rent);
+        }
+
+        List<Purchase> purchases = purchaseRepository.findByUserId(userId);
+        for (Purchase purchase : purchases) {
+            purchase.setUser(defaultAdmin);
+            purchaseRepository.save(purchase);
+        }
+
+        List<UserPass> userPasses = userPassRepository.findByUserId(userId);
+        for (UserPass userPass : userPasses) {
+            userPass.setUser(defaultAdmin);
+            userPassRepository.save(userPass);
+        }
     }
 }
