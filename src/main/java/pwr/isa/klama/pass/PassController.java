@@ -78,4 +78,9 @@ public class PassController {
         return passService.getPassHistoryByUserId(userId);
     }
 
+    // Endpoint to generate user passes
+    @PostMapping(path = "/authorized/admin/userPass/generate")
+    public Map<String, Object> generateUserPasses() {
+        return passService.generateUserPasses();
+    }
 }

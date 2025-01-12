@@ -38,6 +38,13 @@ public class Purchase {
     @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL)
     private List<PurchaseItem> items;
 
+    public Purchase(User user, Timestamp purchaseDate, float totalPrice, List<PurchaseItem> purchaseItems) {
+        this.user = user;
+        this.purchaseDate = purchaseDate;
+        this.totalPrice = totalPrice;
+        this.items = purchaseItems;
+    }
+
     public Timestamp getDate() {
         return purchaseDate;
     }
