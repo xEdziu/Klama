@@ -95,6 +95,15 @@
 <body>
 <div class="container-fluid position-relative d-flex p-0">
 
+    <!-- Spinner Start -->
+    <div id="spinner"
+         class="show bg-dark position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="sr-only">Ładowanie...</span>
+        </div>
+    </div>
+    <!-- Spinner End -->
+
     <!-- Sidebar Start -->
     <div class="sidebar pe-4 pb-3">
         <nav class="navbar bg-secondary navbar-dark">
@@ -109,8 +118,8 @@
                     </div>
                 </div>
                 <div class="ms-3">
-                    <h6 class="mb-0">admin1</h6>
-                    <span>Admin</span>
+                    <h6 class="mb-0" id="currentUserName">Ładowanie...</h6>
+                    <span id="currentUserRole">Admin</span>
                 </div>
             </div>
             <div class="navbar-nav w-100">
@@ -148,9 +157,8 @@
                         <span class="d-none d-lg-inline-flex">Moje konto</span>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end bg-secondary border-0 rounded-0 rounded-bottom m-0">
-                        <a href="#" class="dropdown-item">My Profile</a>
-                        <a href="#" class="dropdown-item">Settings</a>
-                        <a href="#" class="dropdown-item">Log Out</a>
+                        <a href="#" id="myProfileLink" class="dropdown-item">My Profile</a>
+                        <a href="/logout" class="dropdown-item">Log Out</a>
                     </div>
                 </div>
             </div>
@@ -209,6 +217,41 @@
     </div>
     <!-- Content End -->
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            // Pobierz informacje o aktualnie zalogowanym użytkowniku
+            const response = await fetch('http://localhost:8080/api/v1/authorized/user');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const userData = await response.json();
+            const { username, id } = userData;
+
+            // Ustaw nazwę użytkownika w pasku bocznym
+            const sidebarUserName = document.getElementById('currentUserName');
+            if (sidebarUserName) {
+                sidebarUserName.textContent = username;
+            }
+
+            // Ustaw link do strony profilu użytkownika w pasku górnym
+            const profileLink = document.getElementById('myProfileLink');
+            if (profileLink) {
+                profileLink.href = `/oneUser?id=${id}`;
+            }
+        } catch (error) {
+            console.error('Błąd podczas pobierania danych użytkownika:', error);
+
+            // Domyślne wartości w przypadku błędu
+            const sidebarUserName = document.getElementById('currentUserName');
+            if (sidebarUserName) {
+                sidebarUserName.textContent = 'Nieznany użytkownik';
+            }
+        }
+    });
+</script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
