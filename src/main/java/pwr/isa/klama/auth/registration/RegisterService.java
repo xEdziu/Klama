@@ -52,7 +52,7 @@ public class RegisterService {
                 )
         );
 
-        String link = "http://localhost:8080/api/v1/register/confirm?token=" + token;
+        String link = "http://localhost:8080/confirm?token=" + token;
         emailSender.send(
                 request.getEmail(),
                 buildConfirmationEmail(request.getFirstName(), link),

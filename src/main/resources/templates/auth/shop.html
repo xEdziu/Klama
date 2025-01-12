@@ -108,6 +108,10 @@
             <div id="product-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Products will be rendered here -->
             </div>
+            <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200 mt-6">Karnety</h2>
+            <div id="pass-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Passes will be rendered here -->
+            </div>
         </section>
     </main>
 
@@ -115,42 +119,63 @@
         <p>© 2024 Klama Wrocław</p>
     </footer>
     <script src="/scripts/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        const products = [
-            {
-                name: "Produkt 1",
-                description: "Opis produktu 1.",
-                price: 100,
-                stock: 10,
-                imageUrl: "https://via.placeholder.com/150",
-                id: 1
-            },
-            {
-                name: "Produkt 2",
-                description: "Opis produktu 2.",
-                price: 200,
-                stock: 5,
-                imageUrl: "https://via.placeholder.com/150",
-                id: 2
-            },
-            {
-                name: "Produkt 3",
-                description: "Opis produktu 3.",
-                price: 300,
-                stock: 2,
-                imageUrl: "https://via.placeholder.com/150",
-                id: 3
+        const toastMixin = Swal.mixin({
+            toast: true,
+            icon: 'success',
+            title: 'General Title',
+            position: 'top-right',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
             }
-        ];
+        });
+        let products = [];
+        let passes = [];
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch("http://localhost:8080/api/v1/shopItems")
+                .then(response => response.json())
+                .then(data => {
+                    products = data.map(item => ({
+                        name: item.name,
+                        description: item.description,
+                        price: item.price,
+                        stock: item.quantity,
+                        id: item.id
+                    }));
+                    console.log(products); // For debugging purposes
+                    renderProducts(products); // Initial render with fetched products
+                })
+                .catch(error => console.error('Error fetching products:', error));
 
+            fetch("http://localhost:8080/api/v1/pass/all")
+                .then(response => response.json())
+                .then(data => {
+                    passes = data.map(pass => ({
+                        id: pass.id,
+                        name: pass.name,
+                        description: pass.description,
+                        price: pass.price,
+                        days: pass.days
+                    }));
+                    console.log(passes); // For debugging purposes
+                    renderPasses(passes); // Initial render with fetched passes
+                })
+                .catch(error => console.error('Error fetching passes:', error));
+        });
+    
         function renderProducts(filteredProducts) {
+            console.log("Products to render:", filteredProducts); // For debugging purposes
             const productList = document.getElementById('product-list');
             productList.innerHTML = '';
             filteredProducts.forEach(product => {
                 const productDiv = document.createElement('div');
                 productDiv.classList.add('product', 'bg-gray-50', 'dark:bg-gray-700', 'p-4', 'rounded-lg', 'shadow', 'hover:shadow-lg', 'transition');
                 productDiv.innerHTML = `
-                    <img src="${product.imageUrl}" alt="${product.name}" class="w-full h-48 object-cover rounded-lg mb-4">
                     <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">${product.name}</h3>
                     <p class="text-gray-700 dark:text-gray-300 mb-4">${product.description}</p>
                     <p class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-4">${product.price} zł</p>
@@ -161,6 +186,23 @@
             });
         }
 
+        function renderPasses(filteredPasses) {
+            console.log("Passes to render:", filteredPasses); // For debugging purposes
+            const passList = document.getElementById('pass-list');
+            passList.innerHTML = '';
+            filteredPasses.forEach(pass => {
+                const passDiv = document.createElement('div');
+                passDiv.classList.add('pass', 'bg-gray-50', 'dark:bg-gray-700', 'p-4', 'rounded-lg', 'shadow', 'hover:shadow-lg', 'transition');
+                passDiv.innerHTML = `
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">${pass.name}</h3>
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">${pass.description}</p>
+                    <p class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-4">${pass.price} zł</p>
+                    <button onclick="buyPass(${pass.id}, '${pass.name}', ${pass.days})" class="bg-primary text-white py-2 px-4 rounded-lg shadow-lg hover:bg-yellow-600 transition block text-center">Kup Karnet</button>
+                `;
+                passList.appendChild(passDiv);
+            });
+        }
+    
         function filterProducts() {
             const searchValue = document.getElementById('search').value.toLowerCase();
             const priceValue = document.getElementById('price').value;
@@ -169,17 +211,22 @@
             });
             renderProducts(filteredProducts);
         }
-
+    
         document.getElementById('search').addEventListener('input', filterProducts);
         document.getElementById('price').addEventListener('input', filterProducts);
 
+
+        // Initial render
+        renderProducts(products);
+
+    
         // Initial render
         renderProducts(products);
 
         function updatePriceValue(value) {
             document.getElementById('max-price').innerText = value + ' zł';
         }
-
+    
         function addToCart(productName, productPrice, productId) {
             let cart = JSON.parse(localStorage.getItem('cart')) || [];
             let existingProduct = cart.find(item => item.id === productId);
@@ -189,9 +236,40 @@
                 cart.push({ id: productId, name: productName, price: productPrice, quantity: 1 });
             }
             localStorage.setItem('cart', JSON.stringify(cart));
+            toastMixin.fire({
+                icon: 'success',
+                title: 'Dodano do koszyka',
+                timer: 1000
+            });
             displayCartItems();
         }
 
+        function removeFromCart(productId) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            let existingProduct = cart.find(item => item.id === productId);
+            if (existingProduct) {
+                if (existingProduct.quantity > 1) {
+                    existingProduct.quantity -= 1;
+                } else {
+                    cart = cart.filter(item => item.id !== productId);
+                }
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            displayCartItems();
+        }
+
+        function deleteFromCart(productId) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart = cart.filter(item => item.id !== productId);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            displayCartItems();
+        }
+
+        function toFixed(value, precision) {
+            var power = Math.pow(10, precision || 0);
+            return String(Math.round(value * power) / power);
+        }
+    
         function displayCartItems() {
             let cart = JSON.parse(localStorage.getItem('cart')) || [];
             let cartItems = document.getElementById('cart-items');
@@ -200,26 +278,129 @@
             cart.forEach(item => {
                 let div = document.createElement('div');
                 div.classList.add('flex', 'justify-between', 'mb-2');
-                div.innerHTML = `<span>${item.name} x${item.quantity}</span><span>${item.price * item.quantity} zł</span>`;
+                div.innerHTML = `
+                    <span class="space-x-2">
+                    <span>${item.name} x${item.quantity}</span>
+                    <span>${item.price * item.quantity} zł</span>
+                    <span class="space-x-2">
+                    <button onclick="removeFromCart(${item.id})" class="text-red-500 border border-red-500 rounded px-2 py-1 text-lg font-bold">-</button>
+                    <button onclick="deleteFromCart(${item.id})" class="text-red-500 border border-red-500 rounded px-2 py-1 text-lg font-bold">x</button>
+                    </span></span>
+                `;
                 cartItems.appendChild(div);
                 total += item.price * item.quantity;
+                console.log(total);
             });
-            document.getElementById('cart-total').innerText = total + ' zł';
+            document.getElementById('cart-total').innerText = parseFloat(total).toFixed(2) + ' zł';
         }
-
+    
         document.getElementById('cart-button').addEventListener('click', () => {
             let cartDropdown = document.getElementById('cart-dropdown');
             cartDropdown.classList.toggle('hidden');
         });
-
+    
         document.getElementById('buy-button').addEventListener('click', () => {
-            alert('Zakupiono produkty!');
-            localStorage.removeItem('cart');
-            displayCartItems();
+            Swal.fire({
+                title: 'Symulacja płatności...',
+                timer: 1500,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            }).then(() => {
+                let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                let purchaseData = cart.map(item => ({
+                    itemId: item.id,
+                    quantity: item.quantity
+                }));
+    
+                fetch('http://localhost:8080/api/v1/authorized/shopItems/buy', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(purchaseData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error === 200) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: data.message,
+                            text: `Łączna cena: ${data.totalPrice} zł`
+                        })
+                        .then(() => {
+                            localStorage.removeItem('cart');
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Błąd',
+                            text: data.message,
+                            footer: data.status
+                        });
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Błąd',
+                        text: 'Wystąpił błąd podczas realizacji zakupu.'
+                    });
+                    console.error('Error:', error);
+                });
+            });
         });
 
-        // Display cart items on page load
+
+        function buyPass(passId, passName, passDays) {
+            const today = new Date();
+            const endDate = new Date(today);
+            endDate.setDate(today.getDate() + passDays);
+    
+            Swal.fire({
+                title: `Czy na pewno chcesz kupić ${passName}?`,
+                html: `Koszt: ${passes.find(pass => pass.id === passId).price} zł<br>
+                    Karnet będzie ważny od ${today.toLocaleDateString("pl-PL")} do ${endDate.toLocaleDateString("pl-PL")}.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Tak, kupuję!',
+                cancelButtonText: 'Anuluj'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`http://localhost:8080/api/v1/authorized/pass/buyNew/${passId}`, {
+                        method: 'POST'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error === 200) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: data.message
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Błąd',
+                                text: data.message,
+                                footer: data.status
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Błąd',
+                            text: 'Wystąpił błąd podczas realizacji zakupu karnetu.'
+                        });
+                        console.error('Error:', error);
+                    });
+                }
+            });
+        }
+
         displayCartItems();
+    
     </script>
 </body>
 </html>
