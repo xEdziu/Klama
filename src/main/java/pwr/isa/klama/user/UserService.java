@@ -201,29 +201,43 @@ public class UserService implements UserDetailsService {
 
     public Map<String, Object> updateUserAdmin(Long userId, User user) {
         Optional<User> userOpt = userRepository.findById(userId);
-        ApiLogger.logInfo("/api/v1/authorized/admin/user/update","Updating user: " + userId);
+        ApiLogger.logInfo("/api/v1/authorized/admin/user/update", "Updating user: " + userId);
         if (userOpt.isEmpty()) {
             throw new IllegalStateException("Użytkownik o id " + userId + " nie istnieje");
         }
 
-        boolean isValidEmail = emailValidator.test(user.getEmail());
-        boolean isValidPassword = passwordValidator.test(user.getPassword());
-
-        if (!isValidEmail)
-            throw new IllegalStateException("Email nie jest poprawny");
-
-        if (!isValidPassword)
-            throw new IllegalStateException("Hasło nie spełnia wymagań bezpieczeństwa");
-
         User existingUser = userOpt.get();
-        existingUser.setFirstName(user.getFirstName());
-        existingUser.setSurname(user.getSurname());
-        existingUser.setUsername(user.getUsername());
-        existingUser.setEmail(user.getEmail());
-        // Allowed to change password here, because of specific conditions, when user forgot his password
-        // and asked admin to change it
-        existingUser.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+
+        if (user.getEmail() != null) {
+            boolean isValidEmail = emailValidator.test(user.getEmail());
+            if (!isValidEmail) {
+                throw new IllegalStateException("Email nie jest poprawny");
+            }
+            existingUser.setEmail(user.getEmail());
+        }
+
+        if (user.getPassword() != null) {
+            boolean isValidPassword = passwordValidator.test(user.getPassword());
+            if (!isValidPassword) {
+                throw new IllegalStateException("Hasło nie spełnia wymagań bezpieczeństwa");
+            }
+            existingUser.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        }
+
+        if (user.getFirstName() != null) {
+            existingUser.setFirstName(user.getFirstName());
+        }
+
+        if (user.getSurname() != null) {
+            existingUser.setSurname(user.getSurname());
+        }
+
+        if (user.getUsername() != null) {
+            existingUser.setUsername(user.getUsername());
+        }
+
         userRepository.save(existingUser);
+
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Użytkownik o id " + userId + " został zaktualizowany");
         response.put("error", HttpStatus.OK.value());

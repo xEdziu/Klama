@@ -173,8 +173,8 @@
                             <input type="email" class="form-control" id="email" required>
                         </div>
                         <div class="mb-3">
-                            <label for="password" class="form-label">Hasło</label>
-                            <input type="password" class="form-control" id="password" required>
+                            <label for="password" class="form-label"> Hasło (pozostaw puste, aby nie zmieniać)</label>
+                            <input type="password" class="form-control" id="password" placeholder="">
                         </div>
                         <div class="save-button">
                             <button type="submit" class="btn btn-success">Zapisz zmiany</button>
@@ -259,6 +259,7 @@
                 document.getElementById('firstName').value = user.firstName;
                 document.getElementById('surname').value = user.surname;
                 document.getElementById('email').value = user.email;
+                document.getElementById('password').value = ""; // Domyślnie puste hasło
             } else {
                 alert(user.message);
             }
@@ -269,13 +270,19 @@
         form.addEventListener('submit', async function (e) {
             e.preventDefault();
 
-            const updatedData = {
-                username: document.getElementById('username').value,
-                firstName: document.getElementById('firstName').value,
-                surname: document.getElementById('surname').value,
-                email: document.getElementById('email').value,
-                password: document.getElementById('password').value
-            };
+            const updatedData = {};
+            const username = document.getElementById('username').value;
+            const firstName = document.getElementById('firstName').value;
+            const surname = document.getElementById('surname').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Dodaj tylko zmienione wartości
+            if (username) updatedData.username = username;
+            if (firstName) updatedData.firstName = firstName;
+            if (surname) updatedData.surname = surname;
+            if (email) updatedData.email = email;
+            if (password) updatedData.password = password;
 
             try {
                 const response = await fetch(`/api/v1/authorized/admin/user/update/${userId}`, {
