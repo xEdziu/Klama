@@ -44,4 +44,7 @@ public class Rent {
     @Enumerated(EnumType.STRING)
     private RentStatus status;
 
+    public Timestamp getDate() {
+        return rentDate;
+    }
 }

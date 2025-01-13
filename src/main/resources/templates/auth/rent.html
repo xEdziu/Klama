@@ -34,7 +34,7 @@
                 <li><a href="/" class="hover:text-primary">STRONA GŁÓWNA</a></li>
                 <li><a href="/shop" class="hover:text-primary">SKLEP</a></li>
                 <li><a href="/rent" class="hover:text-primary">WYPOŻYCZALNIA</a></li>
-                <li><a href="#" class="hover:text-primary">BLOG</a></li>
+                <li><a href="/blog" class="hover:text-primary">BLOG</a></li>
                 <li><a href="login" class="hover:text-primary">MOJE KONTO</a></li>
             </ul>
             <div class="flex items-center space-x-4">
@@ -81,7 +81,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            fetch("http://localhost:8080/api/v1/rentalItem/all")
+            fetch("/api/v1/rentalItem/all")
                 .then(response => response.json())
                 .then(data => {
                     const rentalItems = data.map(item => ({
@@ -154,7 +154,7 @@
                 returnDate: new Date(endDate).toISOString()
             };
 
-            fetch("http://localhost:8080/api/v1/authorized/rentalItem/rent", {
+            fetch("/api/v1/authorized/rentalItem/rent", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -179,7 +179,7 @@
             })
             .then(() => {
                 // Refresh rental items after successful rental
-                fetch("http://localhost:8080/api/v1/rentalItem/all")
+                fetch("/api/v1/rentalItem/all")
                     .then(response => response.json())
                     .then(data => {
                         const rentalItems = data.map(item => ({

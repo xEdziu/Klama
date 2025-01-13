@@ -44,4 +44,12 @@ public class PurchaseItem {
     public void setTotalPrice() {
         totalPrice = quantity * price;
     }
+
+    public PurchaseItem(Purchase purchase, ShopItems shopItem, int quantity, float price) {
+        this.purchase = purchase;
+        this.shopItem = shopItem;
+        this.quantity = quantity;
+        this.price = price;
+        this.totalPrice = getTotalPrice();
+    }
 }

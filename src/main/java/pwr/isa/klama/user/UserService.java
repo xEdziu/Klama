@@ -29,6 +29,7 @@ import pwr.isa.klama.shop.purchase.Purchase;
 import pwr.isa.klama.shop.purchase.PurchaseRepository;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -200,29 +201,43 @@ public class UserService implements UserDetailsService {
 
     public Map<String, Object> updateUserAdmin(Long userId, User user) {
         Optional<User> userOpt = userRepository.findById(userId);
-        ApiLogger.logInfo("/api/v1/authorized/admin/user/update","Updating user: " + userId);
+        ApiLogger.logInfo("/api/v1/authorized/admin/user/update", "Updating user: " + userId);
         if (userOpt.isEmpty()) {
             throw new IllegalStateException("Użytkownik o id " + userId + " nie istnieje");
         }
 
-        boolean isValidEmail = emailValidator.test(user.getEmail());
-        boolean isValidPassword = passwordValidator.test(user.getPassword());
-
-        if (!isValidEmail)
-            throw new IllegalStateException("Email nie jest poprawny");
-
-        if (!isValidPassword)
-            throw new IllegalStateException("Hasło nie spełnia wymagań bezpieczeństwa");
-
         User existingUser = userOpt.get();
-        existingUser.setFirstName(user.getFirstName());
-        existingUser.setSurname(user.getSurname());
-        existingUser.setUsername(user.getUsername());
-        existingUser.setEmail(user.getEmail());
-        // Allowed to change password here, because of specific conditions, when user forgot his password
-        // and asked admin to change it
-        existingUser.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+
+        if (user.getEmail() != null) {
+            boolean isValidEmail = emailValidator.test(user.getEmail());
+            if (!isValidEmail) {
+                throw new IllegalStateException("Email nie jest poprawny");
+            }
+            existingUser.setEmail(user.getEmail());
+        }
+
+        if (user.getPassword() != null) {
+            boolean isValidPassword = passwordValidator.test(user.getPassword());
+            if (!isValidPassword) {
+                throw new IllegalStateException("Hasło nie spełnia wymagań bezpieczeństwa");
+            }
+            existingUser.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        }
+
+        if (user.getFirstName() != null) {
+            existingUser.setFirstName(user.getFirstName());
+        }
+
+        if (user.getSurname() != null) {
+            existingUser.setSurname(user.getSurname());
+        }
+
+        if (user.getUsername() != null) {
+            existingUser.setUsername(user.getUsername());
+        }
+
         userRepository.save(existingUser);
+
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Użytkownik o id " + userId + " został zaktualizowany");
         response.put("error", HttpStatus.OK.value());
@@ -274,6 +289,30 @@ public class UserService implements UserDetailsService {
         return response;
     }
 
+    public Map<String, Object> createUserAdmin(User user) {
+        ApiLogger.logInfo("/api/v1/authorized/admin/user/create", "Creating user: " + user.getUsername());
+
+        boolean isValidEmail = emailValidator.test(user.getEmail());
+        boolean isValidPassword = passwordValidator.test(user.getPassword());
+
+        if (!isValidEmail) {
+            throw new IllegalStateException("Email nie jest poprawny");
+        }
+
+        if (!isValidPassword) {
+            throw new IllegalStateException("Hasło nie spełnia wymagań bezpieczeństwa");
+        }
+
+        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        userRepository.save(user);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Użytkownik o id " + user.getId() + " został utworzony");
+        response.put("error", HttpStatus.OK.value());
+        response.put("timestamp", new Timestamp(new Date().getTime()));
+        return response;
+    }
+
     private void transferUserAssetsToDefaultAdmin(Long userId, User defaultAdmin) {
         List<Post> posts = postService.getAllPostsByUser(userId);
         for (Post post : posts) {
@@ -298,5 +337,62 @@ public class UserService implements UserDetailsService {
             userPass.setUser(defaultAdmin);
             userPassRepository.save(userPass);
         }
+    }
+
+    public Map<String, Object> getStatistics() {
+        LocalDate today = LocalDate.now();
+        LocalDate sevenDaysAgo = today.minusDays(7);
+
+        List<Purchase> purchases = purchaseRepository.findAllByPurchaseDateBetween(
+                Timestamp.valueOf(sevenDaysAgo.atStartOfDay()),
+                Timestamp.valueOf(today.plusDays(1).atStartOfDay())
+        );
+
+        List<UserPass> userPasses = userPassRepository.findAllByBuyDateBetween(
+                Timestamp.valueOf(sevenDaysAgo.atStartOfDay()),
+                Timestamp.valueOf(today.plusDays(1).atStartOfDay())
+        );
+
+        Map<LocalDate, Double> dailyRevenue = new HashMap<>();
+        Map<LocalDate, Long> dailySalesCount = new HashMap<>();
+        Map<LocalDate, Double> dailyPurchaseRevenue = new HashMap<>();
+        Map<LocalDate, Double> dailyUserPassRevenue = new HashMap<>();
+        Map<LocalDate, Long> dailyUserPassCount = new HashMap<>();
+
+        for (LocalDate date = sevenDaysAgo; !date.isAfter(today); date = date.plusDays(1)) {
+            dailyRevenue.put(date, 0.0);
+            dailySalesCount.put(date, 0L);
+            dailyUserPassRevenue.put(date, 0.0);
+            dailyPurchaseRevenue.put(date, 0.0);
+            dailyUserPassCount.put(date, 0L);
+        }
+
+        purchases.forEach(purchase -> {
+            LocalDate date = purchase.getPurchaseDate().toLocalDateTime().toLocalDate();
+            dailyRevenue.put(date, dailyRevenue.get(date) + purchase.getTotalPrice());
+            dailyPurchaseRevenue.put(date, dailyPurchaseRevenue.get(date) + purchase.getTotalPrice());
+            dailySalesCount.put(date, dailySalesCount.get(date) + 1);
+        });
+
+        userPasses.forEach(userPass -> {
+            LocalDate date = userPass.getBuyDate().toLocalDateTime().toLocalDate();
+            dailyRevenue.put(date, dailyRevenue.get(date) + userPass.getPrice());
+            dailyUserPassRevenue.put(date, dailyUserPassRevenue.get(date) + userPass.getPrice());
+            dailyUserPassCount.put(date, dailyUserPassCount.get(date) + 1);
+        });
+
+        userPasses.forEach(userPass -> {
+            LocalDate date = userPass.getBuyDate().toLocalDateTime().toLocalDate();
+            dailyRevenue.put(date, dailyRevenue.get(date) + userPass.getPrice());
+        });
+
+        Map<String, Object> statistics = new HashMap<>();
+        statistics.put("dailyRevenue", dailyRevenue);
+        statistics.put("dailySalesCount", dailySalesCount);
+        statistics.put("dailyUserPassRevenue", dailyUserPassRevenue);
+        statistics.put("dailyPurchaseRevenue", dailyPurchaseRevenue);
+        statistics.put("dailyUserPassCount", dailyUserPassCount);
+
+        return statistics;
     }
 }

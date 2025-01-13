@@ -74,4 +74,10 @@ public class ShopItemsController {
     public List<PurchaseRecordDTO> getPurchaseHistoryByUserId(@PathVariable("userId") Long userId) {
         return ShopItemsService.getPurchaseHistoryByUserId(userId);
     }
+
+    // Endpoint to generate user purchases
+    @PostMapping(path = "/authorized/admin/shopItems/generate")
+    public Map<String, Object> generateUserPurchase() {
+        return ShopItemsService.generateUserPurchase();
+    }
 }

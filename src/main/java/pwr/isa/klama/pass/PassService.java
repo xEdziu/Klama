@@ -14,6 +14,7 @@ import pwr.isa.klama.user.User;
 import pwr.isa.klama.user.UserRepository;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -305,6 +306,38 @@ public class PassService {
         }
 
         return passHistory;
+    }
+
+    public Map<String, Object> generateUserPasses() {
+        User user = userRepository.findById(1L).get();
+        Pass pass = passRepository.findById(2L).get();
+        LocalDateTime now = LocalDateTime.now();
+        for (int i = 0; i < 7; i++) {
+            LocalDateTime buyDate = now.minusDays(i);
+
+            Random rand = new Random();
+            int min = 3;
+            int max = 20;
+            int x = rand.nextInt((max - min) + 1) + min;
+
+            for (int j = 0; j < x; j++){
+                UserPass userPass = new UserPass(
+                        user,
+                        pass,
+                        UserPassStatus.ACTIVE,
+                        Timestamp.valueOf(buyDate),
+                        Timestamp.valueOf(buyDate.plusDays(30))
+                );
+                userPassRepository.save(userPass);
+            }
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Wygenerowano karnety dla usera o id 1");
+        response.put("error", HttpStatus.OK.value());
+        response.put("timestamp", new Timestamp(new Date().getTime()));
+
+        return response;
     }
 
     private User getCurrentUser() {

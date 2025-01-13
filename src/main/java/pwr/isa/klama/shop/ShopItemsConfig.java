@@ -3,8 +3,14 @@ package pwr.isa.klama.shop;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import pwr.isa.klama.pass.userPass.UserPass;
+import pwr.isa.klama.pass.userPass.UserPassStatus;
+import pwr.isa.klama.user.User;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Random;
 
 @Configuration
 public class ShopItemsConfig {

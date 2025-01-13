@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -11,7 +12,12 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 import pwr.isa.klama.user.UserService;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @AllArgsConstructor
@@ -21,6 +27,19 @@ public class WebSecurityConfig {
     private final UserService userService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final AuthenticationSuccessHandler customAuthenticationSuccessHandler;
+
+
+    @Bean
+    public CorsFilter corsFilter() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(true);
+        config.addAllowedOriginPattern("*");
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+        source.registerCorsConfiguration("/**", config);
+        return new CorsFilter(source);
+    }
 
     @Bean
     protected SecurityFilterChain configure(HttpSecurity http) throws Exception {
@@ -38,8 +57,9 @@ public class WebSecurityConfig {
                                 .requestMatchers("/blog").permitAll()
                                 .anyRequest()
                                 .authenticated()
-                )
+                ) 
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(withDefaults())
                 .formLogin(httpConfig -> httpConfig
                         .loginPage("/login")
                         .permitAll()
@@ -68,4 +88,5 @@ public class WebSecurityConfig {
         provider.setUserDetailsService(userService);
         return provider;
     }
+
 }

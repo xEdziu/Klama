@@ -6,12 +6,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import pwr.isa.klama.exceptions.ResourceNotFoundException;
+import pwr.isa.klama.pass.Pass;
+import pwr.isa.klama.pass.userPass.UserPass;
+import pwr.isa.klama.pass.userPass.UserPassStatus;
 import pwr.isa.klama.security.logging.ApiLogger;
 import pwr.isa.klama.shop.purchase.*;
 import pwr.isa.klama.user.User;
 import pwr.isa.klama.user.UserRepository;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -308,5 +312,34 @@ public class ShopItemsService {
         }
 
         return purchaseRecords;
+    }
+
+    public Map<String, Object> generateUserPurchase() {
+        User user = userRepository.findById(1L).orElseThrow(() -> new NoSuchElementException("User not found"));
+        ShopItems shopItem = shopItemsRepository.findById(1L).orElseThrow(() -> new NoSuchElementException("Shop item not found"));
+
+        LocalDateTime now = LocalDateTime.now();
+        for (int i = 0; i < 7; i++) {
+            LocalDateTime purchaseDate = now.minusDays(i);
+
+            Random rand = new Random();
+            int min = 3;
+            int max = 20;
+            int x = rand.nextInt((max - min) + 1) + min;
+
+            for (int j = 0; j < x; j++) {
+                Purchase purchase = new Purchase(user, Timestamp.valueOf(purchaseDate), shopItem.getPrice() * x, new ArrayList<>());
+                PurchaseItem purchaseItem = new PurchaseItem(purchase, shopItem, x, shopItem.getPrice());
+                purchaseItem.setPurchase(purchase);
+                purchaseRepository.save(purchase);
+            }
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Wygenerowano zakupy dla usera o id 1");
+        response.put("error", HttpStatus.OK.value());
+        response.put("timestamp", new Timestamp(new Date().getTime()));
+
+        return response;
     }
 }

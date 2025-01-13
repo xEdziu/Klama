@@ -59,6 +59,15 @@
 <body>
 <div class="container-fluid position-relative d-flex p-0">
 
+    <!-- Spinner Start -->
+    <div id="spinner"
+         class="show bg-dark position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="sr-only">Ładowanie...</span>
+        </div>
+    </div>
+    <!-- Spinner End -->
+
     <!-- Sidebar Start -->
     <div class="sidebar pe-4 pb-3">
         <nav class="navbar bg-secondary navbar-dark">
@@ -73,52 +82,18 @@
                     </div>
                 </div>
                 <div class="ms-3">
-                    <h6 class="mb-0">admin1</h6>
-                    <span>Admin</span>
+                    <h6 class="mb-0" id="currentUserName">Ładowanie...</h6>
+                    <span id="currentUserRole">Admin</span>
                 </div>
             </div>
             <div class="navbar-nav w-100">
-                <a href="admin.html" class="nav-item nav-link active"><i class="fa fa-tachometer-alt me-2"></i>Panel
+                <a href="/admin" class="nav-item nav-link active"><i class="fa fa-tachometer-alt me-2"></i>Panel
                     główny</a>
-                <div class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i
-                            class="far fa-file-alt me-2"></i>Użytkownicy</a>
-                    <div class="dropdown-menu bg-transparent border-0">
-                        <a href="element.html" class="dropdown-item">Zobacz wszystkich użytkowników</a>
-                        <a href="element.html" class="dropdown-item">Zobacz użytkownika</a>
-                        <a href="element.html" class="dropdown-item">Zobacz posty użytkownika</a>
-                        <a href="element.html" class="dropdown-item">Zobacz wypożyczenia użytkownika</a>
-                        <a href="element.html" class="dropdown-item">Zobacz zakupy użytkownika</a>
-                        <a href="element.html" class="dropdown-item">Zobacz karnety użytkownika</a>
-                    </div>
-                </div>
-                <div class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i
-                            class="far fa-file-alt me-2"></i>Blog</a>
-                    <div class="dropdown-menu bg-transparent border-0">
-                        <a href="button.html" class="dropdown-item">Dodaj post</a>
-                        <a href="typography.html" class="dropdown-item">Edytuj post</a>
-                        <a href="element.html" class="dropdown-item">Zobacz wszystkie posty</a>
-                        <a href="element.html" class="dropdown-item">Usuń post</a>
-                    </div>
-                </div>
-                <a href="/allRentalItems" class="nav-item nav-link"><i class="fa fa-sign-out-alt me-2"></i>Wypożyczalnia</a>
-                <div class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i
-                            class="fa fa-envelope me-2"></i>Sklep</a>
-                    <div class="dropdown-menu bg-transparent border-0">
-                        <a href="/addShopItem" class="dropdown-item">Dodaj przedmiot</a>
-                        <a href="/allShopItems" class="dropdown-item">Zobacz wszystkie przedmioty</a>
-                    </div>
-                </div>
-                <div class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i
-                            class="fa fa-envelope me-2"></i>Karnety</a>
-                    <div class="dropdown-menu bg-transparent border-0">
-                        <a href="button.html" class="dropdown-item">Dodaj karnet</a>
-                        <a href="element.html" class="dropdown-item">Zobacz wszystkie karnety</a>
-                    </div>
-                </div>
+                <a href="/allUsers" class="nav-item nav-link"><i class="fa fa-users me-2"></i>Użytkownicy</a>
+                <a href="/allPosts" class="nav-item nav-link"><i class="fa fa-comment me-2"></i>Blog</a>
+                <a href="/allRentalItems" class="nav-item nav-link"><i class="fa fa-bookmark me-2"></i>Wypożyczalnia</a>
+                <a href="/allShopItems" class="nav-item nav-link"><i class="fa fa-dollar-sign me-2"></i>Sklep</a>
+                <a href="/allPasses" class="nav-item nav-link"><i class="fa fa-tag me-2"></i>Karnety</a>
                 <a href="/logout" class="nav-item nav-link"><i class="fa fa-sign-out-alt me-2"></i>Wyloguj</a>
             </div>
         </nav>
@@ -145,9 +120,8 @@
                         <span class="d-none d-lg-inline-flex">Moje konto</span>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end bg-secondary border-0 rounded-0 rounded-bottom m-0">
-                        <a href="#" class="dropdown-item">My Profile</a>
-                        <a href="#" class="dropdown-item">Settings</a>
-                        <a href="#" class="dropdown-item">Log Out</a>
+                        <a href="#" id="myProfileLink" class="dropdown-item">My Profile</a>
+                        <a href="/logout" class="dropdown-item">Log Out</a>
                     </div>
                 </div>
             </div>
@@ -203,6 +177,41 @@
 </div>
 
 <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            // Pobierz informacje o aktualnie zalogowanym użytkowniku
+            const response = await fetch('/api/v1/authorized/user');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const userData = await response.json();
+            const { username, id } = userData;
+
+            // Ustaw nazwę użytkownika w pasku bocznym
+            const sidebarUserName = document.getElementById('currentUserName');
+            if (sidebarUserName) {
+                sidebarUserName.textContent = username;
+            }
+
+            // Ustaw link do strony profilu użytkownika w pasku górnym
+            const profileLink = document.getElementById('myProfileLink');
+            if (profileLink) {
+                profileLink.href = `/oneUser?id=${id}`;
+            }
+        } catch (error) {
+            console.error('Błąd podczas pobierania danych użytkownika:', error);
+
+            // Domyślne wartości w przypadku błędu
+            const sidebarUserName = document.getElementById('currentUserName');
+            if (sidebarUserName) {
+                sidebarUserName.textContent = 'Nieznany użytkownik';
+            }
+        }
+    });
+</script>
+
+<script>
     document.addEventListener('DOMContentLoaded', async function () {
         const urlParams = new URLSearchParams(window.location.search);
         const itemId = urlParams.get('id');
@@ -212,7 +221,7 @@
 
         try {
             // Pobieranie wszystkich przedmiotów
-            const response = await fetch(`http://localhost:8080/api/v1/authorized/admin/rentalItem/all`);
+            const response = await fetch(`/api/v1/authorized/admin/rentalItem/all`);
             const items = await response.json();
             const currentItem = items.find(item => item.id == itemId);
 
@@ -263,7 +272,7 @@
 
             try {
                 // Wysyłanie danych do API
-                const updateResponse = await fetch(`http://localhost:8080/api/v1/authorized/admin/rentalItem/update/${itemId}`, {
+                const updateResponse = await fetch(`/api/v1/authorized/admin/rentalItem/update/${itemId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'

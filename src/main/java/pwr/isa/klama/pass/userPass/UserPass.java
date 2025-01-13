@@ -80,4 +80,12 @@ public class UserPass {
                 ", expirationDate=" + expirationDate +
                 '}';
     }
+
+    public Timestamp getDate() {
+        return buyDate;
+    }
+
+    public Float getPrice() {
+        return pass.getPrice();
+    }
 }
