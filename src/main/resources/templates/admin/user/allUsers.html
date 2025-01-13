@@ -167,7 +167,7 @@
     document.addEventListener('DOMContentLoaded', async () => {
         try {
             // Pobierz informacje o aktualnie zalogowanym użytkowniku
-            const response = await fetch('http://localhost:8080/api/v1/authorized/user');
+            const response = await fetch('/api/v1/authorized/user');
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -205,7 +205,7 @@
 
         const fetchUsers = async () => {
             try {
-                const response = await fetch('http://localhost:8080/api/v1/authorized/admin/user/all');
+                const response = await fetch('/api/v1/authorized/admin/user/all');
                 const users = await response.json();
 
                 return users;

@@ -181,7 +181,7 @@
     document.addEventListener('DOMContentLoaded', async () => {
         try {
             // Pobierz informacje o aktualnie zalogowanym użytkowniku
-            const response = await fetch('http://localhost:8080/api/v1/authorized/user');
+            const response = await fetch('/api/v1/authorized/user');
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -227,7 +227,7 @@
 
         try {
             // Pobieranie danych przedmiotu
-            const response = await fetch(`http://localhost:8080/api/v1/authorized/admin/shopItems`);
+            const response = await fetch(`/api/v1/authorized/admin/shopItems`);
             const items = await response.json();
             const currentItem = items.find(item => item.id == itemId);
 
@@ -280,7 +280,7 @@
             }
 
             try {
-                const updateResponse = await fetch(`http://localhost:8080/api/v1/authorized/admin/shopItems/update/${itemId}`, {
+                const updateResponse = await fetch(`/api/v1/authorized/admin/shopItems/update/${itemId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'

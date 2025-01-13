@@ -137,7 +137,7 @@
         let products = [];
         let passes = [];
         document.addEventListener("DOMContentLoaded", function() {
-            fetch("http://localhost:8080/api/v1/shopItems")
+            fetch("/api/v1/shopItems")
                 .then(response => response.json())
                 .then(data => {
                     products = data.map(item => ({
@@ -152,7 +152,7 @@
                 })
                 .catch(error => console.error('Error fetching products:', error));
 
-            fetch("http://localhost:8080/api/v1/pass/all")
+            fetch("/api/v1/pass/all")
                 .then(response => response.json())
                 .then(data => {
                     passes = data.map(pass => ({
@@ -313,7 +313,7 @@
                     quantity: item.quantity
                 }));
     
-                fetch('http://localhost:8080/api/v1/authorized/shopItems/buy', {
+                fetch('/api/v1/authorized/shopItems/buy', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -368,7 +368,7 @@
                 cancelButtonText: 'Anuluj'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch(`http://localhost:8080/api/v1/authorized/pass/buyNew/${passId}`, {
+                    fetch(`/api/v1/authorized/pass/buyNew/${passId}`, {
                         method: 'POST'
                     })
                     .then(response => response.json())

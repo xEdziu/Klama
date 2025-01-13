@@ -173,7 +173,7 @@
     document.addEventListener('DOMContentLoaded', async () => {
         try {
             // Pobierz informacje o aktualnie zalogowanym użytkowniku
-            const response = await fetch('http://localhost:8080/api/v1/authorized/user');
+            const response = await fetch('/api/v1/authorized/user');
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -211,7 +211,7 @@
         const confirmDeleteButton = document.getElementById('confirmDelete');
 
         try {
-            const response = await fetch('http://localhost:8080/api/v1/authorized/admin/shopItems');
+            const response = await fetch('/api/v1/authorized/admin/shopItems');
             const items = await response.json();
 
             if (items.length === 0) {
@@ -270,7 +270,7 @@
                 if (!itemIdToDelete) return;
 
                 try {
-                    const response = await fetch(`http://localhost:8080/api/v1/authorized/admin/shopItems/delete/${itemIdToDelete}`, {
+                    const response = await fetch(`/api/v1/authorized/admin/shopItems/delete/${itemIdToDelete}`, {
                         method: 'DELETE'
                     });
 

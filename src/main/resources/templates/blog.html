@@ -93,7 +93,7 @@
         
             if (postId) {
                 // Fetch and display a single post
-                fetch(`http://localhost:8080/api/v1/posts/${postId}`)
+                fetch(`/api/v1/posts/${postId}`)
                     .then(response => {
                         if (!response.ok) {
                             throw new Error(`Post o id ${postId} nie istnieje`);
@@ -121,7 +121,7 @@
                     });
             } else {
                 // Fetch and display all posts as tiles
-                fetch('http://localhost:8080/api/v1/posts')
+                fetch('/api/v1/posts')
                     .then(response => response.json())
                     .then(posts => {
                         posts.forEach(post => {

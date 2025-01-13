@@ -180,7 +180,7 @@
     document.addEventListener('DOMContentLoaded', async () => {
         try {
             // Pobierz informacje o aktualnie zalogowanym użytkowniku
-            const response = await fetch('http://localhost:8080/api/v1/authorized/user');
+            const response = await fetch('/api/v1/authorized/user');
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -221,7 +221,7 @@
 
         try {
             // Pobieranie wszystkich karnetów
-            const response = await fetch(`http://localhost:8080/api/v1/authorized/admin/pass/all`);
+            const response = await fetch(`/api/v1/authorized/admin/pass/all`);
             const items = await response.json();
             const currentPass = items.find(item => item.id == itemId);
 
@@ -272,7 +272,7 @@
 
             try {
                 // Wysyłanie danych do API
-                const updateResponse = await fetch(`http://localhost:8080/api/v1/authorized/admin/pass/update/${itemId}`, {
+                const updateResponse = await fetch(`/api/v1/authorized/admin/pass/update/${itemId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'

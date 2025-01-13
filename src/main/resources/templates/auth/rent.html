@@ -81,7 +81,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            fetch("http://localhost:8080/api/v1/rentalItem/all")
+            fetch("/api/v1/rentalItem/all")
                 .then(response => response.json())
                 .then(data => {
                     const rentalItems = data.map(item => ({
@@ -154,7 +154,7 @@
                 returnDate: new Date(endDate).toISOString()
             };
 
-            fetch("http://localhost:8080/api/v1/authorized/rentalItem/rent", {
+            fetch("/api/v1/authorized/rentalItem/rent", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -179,7 +179,7 @@
             })
             .then(() => {
                 // Refresh rental items after successful rental
-                fetch("http://localhost:8080/api/v1/rentalItem/all")
+                fetch("/api/v1/rentalItem/all")
                     .then(response => response.json())
                     .then(data => {
                         const rentalItems = data.map(item => ({
