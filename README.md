@@ -1,3 +1,7 @@
+<p align="center">
+<img src="baner.png" />
+</p>
+
 # Klama - Climbing Gym - Database Project
 
 KLAMA climbing gym is a group project for the Databases Course at the Wrocław University of Science and Technology.
