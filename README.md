@@ -6,7 +6,7 @@
 
 KLAMA climbing gym is a group project for the Databases Course at the Wrocław University of Science and Technology.
 
-Why KLAMA? 
+## Why KLAMA? 
 
 KLAMA is a climbing institution made-up for the sake of the project. Each of the people working on it has an interest in bouldering therefore it was something familiar for us to have worked on. The word 'klama' itself is a slang used by the climbing community for a big, comfortable and often round climbing hold - also known as a jug.
 
